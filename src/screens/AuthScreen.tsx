@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import { useState } from 'react'
 import { Colors, Spacing, Radius } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
@@ -16,10 +16,16 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
+
+  function showError(msg: string) { setErrorMsg(msg); setSuccessMsg('') }
+  function showSuccess(msg: string) { setSuccessMsg(msg); setErrorMsg('') }
 
   async function handleRegister() {
-    if (!email || !password) return Alert.alert('Completa todos los campos')
-    if (password.length < 6) return Alert.alert('La contraseña debe tener al menos 6 caracteres')
+    setErrorMsg(''); setSuccessMsg('')
+    if (!email || !password) return showError('Completa todos los campos.')
+    if (password.length < 6) return showError('La contraseña debe tener al menos 6 caracteres.')
 
     setLoading(true)
     const { data, error } = await supabase.auth.signUp({
@@ -29,17 +35,18 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
     })
     setLoading(false)
 
-    if (error) return Alert.alert('Error', error.message)
+    if (error) return showError(error.message)
     if (data.session) {
       onAuthSuccess()
     } else {
-      Alert.alert('Revisa tu email', 'Te enviamos un enlace de confirmación. Confirma tu email y vuelve a iniciar sesión.')
+      showSuccess('Te enviamos un enlace de confirmación. Revisa tu email y vuelve a iniciar sesión.')
       setMode('login')
     }
   }
 
   async function handleLogin() {
-    if (!email || !password) return Alert.alert('Completa todos los campos')
+    setErrorMsg(''); setSuccessMsg('')
+    if (!email || !password) return showError('Completa todos los campos.')
 
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
@@ -47,29 +54,26 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
 
     if (error) {
       const msg = error.message.toLowerCase()
-      if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
-        return Alert.alert('Datos incorrectos', 'El email o la contraseña no son correctos. Verifica e intenta de nuevo.')
+      if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('user not found')) {
+        return showError('El email no tiene una cuenta creada o la contraseña no es correcta.')
       }
       if (msg.includes('email not confirmed')) {
-        return Alert.alert('Email no confirmado', 'Revisa tu bandeja de entrada y confirma tu email antes de iniciar sesión.')
+        return showError('Confirma tu email antes de iniciar sesión. Revisa tu bandeja de entrada.')
       }
-      return Alert.alert('Error', error.message)
+      return showError('No se pudo iniciar sesión. Verifica tus datos e intenta de nuevo.')
     }
     onAuthSuccess()
   }
 
   async function handleForgotPassword() {
-    if (!email.trim()) {
-      return Alert.alert('Ingresa tu email', 'Escribe tu email arriba y toca "¿Olvidaste tu contraseña?" de nuevo.')
-    }
+    setErrorMsg(''); setSuccessMsg('')
+    if (!email.trim()) return showError('Escribe tu email arriba y toca "¿Olvidaste tu contraseña?" de nuevo.')
+
     setLoading(true)
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim())
     setLoading(false)
-    if (error) return Alert.alert('Error', error.message)
-    Alert.alert(
-      'Revisa tu email ✦',
-      `Si existe una cuenta con ${email.trim()}, recibirás un enlace para restablecer tu contraseña.`
-    )
+    if (error) return showError(error.message)
+    showSuccess(`Si existe una cuenta con ${email.trim()}, recibirás un enlace para restablecer tu contraseña.`)
   }
 
   return (
@@ -113,6 +117,17 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
               placeholder="Mínimo 6 caracteres"
             />
           </View>
+
+          {errorMsg ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>⚠ {errorMsg}</Text>
+            </View>
+          ) : null}
+          {successMsg ? (
+            <View style={styles.successBox}>
+              <Text style={styles.successText}>✓ {successMsg}</Text>
+            </View>
+          ) : null}
 
           <GradientButton
             title={mode === 'register' ? 'Crear cuenta' : 'Iniciar sesión'}
@@ -160,4 +175,20 @@ const styles = StyleSheet.create({
   toggle: { color: Colors.gold, textAlign: 'center', fontSize: 14 },
   forgotWrapper: { marginTop: Spacing.md, alignItems: 'center' },
   forgot: { color: Colors.textSecondary, fontSize: 13 },
+  errorBox: {
+    backgroundColor: 'rgba(220,53,69,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(220,53,69,0.4)',
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+  },
+  errorText: { color: '#FF6B6B', fontSize: 14, lineHeight: 20 },
+  successBox: {
+    backgroundColor: 'rgba(76,175,130,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(76,175,130,0.4)',
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+  },
+  successText: { color: '#4CAF82', fontSize: 14, lineHeight: 20 },
 })
