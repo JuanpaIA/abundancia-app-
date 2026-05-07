@@ -1441,7 +1441,8 @@ export function DashboardScreen() {
           return !!(l as any)[field] || hc.includes(field)
         }).length,
       }))
-      .filter(h => h.completions === 0)
+      .filter(h => h.completions < 4)
+      .sort((a, b) => a.completions - b.completions)
   })()
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -2477,8 +2478,8 @@ export function DashboardScreen() {
               <Text style={styles.patternTitle}>🔍 Patrón detectado esta semana</Text>
               <Text style={styles.patternSubtitle}>
                 {weakHabits.length === 1
-                  ? 'Este hábito no lo completaste ningún día de los últimos 7'
-                  : `Estos ${weakHabits.length} hábitos no los completaste ningún día de los últimos 7`}
+                  ? 'Este hábito necesita más consistencia esta semana'
+                  : `Estos ${weakHabits.length} hábitos necesitan más consistencia esta semana`}
               </Text>
             </View>
             {weakHabits.map((h, i) => (
@@ -2486,8 +2487,8 @@ export function DashboardScreen() {
                 <View style={styles.patternItemHeader}>
                   <Text style={styles.patternEmoji}>{h.emoji}</Text>
                   <Text style={styles.patternHabitName}>{h.name}</Text>
-                  <View style={styles.patternZeroBadge}>
-                    <Text style={styles.patternZeroText}>0/7</Text>
+                  <View style={[styles.patternZeroBadge, h.completions > 0 && { backgroundColor: 'rgba(255,165,0,0.15)', borderColor: 'rgba(255,165,0,0.4)' }]}>
+                    <Text style={[styles.patternZeroText, h.completions > 0 && { color: '#FFA500' }]}>{h.completions}/7</Text>
                   </View>
                 </View>
                 <View style={styles.patternTipBox}>
