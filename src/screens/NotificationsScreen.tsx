@@ -237,6 +237,10 @@ export function NotificationsScreen({ onBack }: Props) {
     if (bi !== -1) return 1
     return 0
   })
+  // Dentro de cada grupo: 8pm arriba → 2pm → 8am abajo
+  dayGroups.forEach(g => {
+    g.items.sort((a, b) => (b.dailyHour ?? 0) - (a.dailyHour ?? 0))
+  })
 
   return (
     <View style={styles.container}>
