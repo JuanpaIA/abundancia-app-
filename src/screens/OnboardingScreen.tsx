@@ -135,7 +135,7 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
                 value={name}
                 onChangeText={setName}
                 placeholder="Ej: María Fernanda López"
-                placeholderTextColor={Colors.textDisabled}
+                placeholderTextColor="#7A7890"
                 autoCapitalize="words"
               />
             </View>
@@ -155,7 +155,7 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
                 value={birthDate}
                 onChangeText={text => setBirthDate(formatBirthDate(text))}
                 placeholder="Ej: 19901115"
-                placeholderTextColor={Colors.textDisabled}
+                placeholderTextColor="#7A7890"
                 keyboardType="numeric"
                 maxLength={10}
               />

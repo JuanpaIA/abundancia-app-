@@ -249,7 +249,7 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
             value={String(answers[question.key] || '')}
             onChangeText={val => setAnswers(prev => ({ ...prev, [question.key]: val }))}
             placeholder={question.placeholder}
-            placeholderTextColor={Colors.textDisabled}
+            placeholderTextColor="#7A7890"
             multiline
             numberOfLines={3}
             autoCapitalize="sentences"
