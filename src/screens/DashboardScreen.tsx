@@ -2028,13 +2028,13 @@ export function DashboardScreen() {
             }
           </View>
           <Text style={styles.sectionSubtitle}>¿Qué vibración uso hoy?</Text>
-          <View style={styles.colorRow}>
-            <View style={[styles.colorCircle, { backgroundColor: protocol.color.hex }]} />
-            <View style={styles.colorInfo}>
-              <Text style={styles.sectionTitle}>{protocol.color.name}</Text>
-              <Text style={styles.sectionBody}>{protocol.color.reason}</Text>
+          <View style={[styles.colorBanner, { backgroundColor: protocol.color.hex }]}>
+            <View style={styles.colorBannerOverlay}>
+              <Text style={styles.colorBannerName}>{protocol.color.name}</Text>
+              <View style={styles.colorBannerDot} />
             </View>
           </View>
+          <Text style={styles.sectionBody}>{protocol.color.reason}</Text>
         </Card>
 
         {/* 🍽️ Alimentos del día */}
@@ -2992,9 +2992,18 @@ const styles = StyleSheet.create({
   numKeywordText: { fontSize: 11, color: Colors.gold },
   numEnergy: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   numShadow: { fontSize: 12, color: 'rgba(255,255,255,0.30)', fontStyle: 'italic', lineHeight: 18 },
-  colorRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'flex-start' },
-  colorCircle: { width: 48, height: 48, borderRadius: 24, marginTop: 4 },
-  colorInfo: { flex: 1, gap: 4 },
+  colorBanner: {
+    width: '100%', height: 90, borderRadius: Radius.md,
+    marginVertical: Spacing.sm, overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  colorBannerOverlay: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
+    backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  colorBannerName: { fontSize: 18, fontWeight: '700', color: '#fff', letterSpacing: 0.5 },
+  colorBannerDot:  { width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.6)' },
   frequencyBox: {
     backgroundColor: Colors.input,
     borderRadius: 12,
