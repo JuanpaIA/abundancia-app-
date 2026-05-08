@@ -347,6 +347,10 @@ export function generateDailyProtocol(
       hex: lunarColor.hex,
       reason: `${lunarColor.reason} ${areaColor.reason}`,
     },
+    colors: [
+      { name: lunarColor.name, hex: lunarColor.hex, reason: lunarColor.reason },
+      { name: areaColor.name,  hex: areaColor.hex,  reason: areaColor.reason  },
+    ],
     foods: [
       ...areaLunarFoods[manifestationArea][lunarPhase].items,
       lunarFoods[lunarPhase].item,

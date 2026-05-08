@@ -115,6 +115,7 @@ export interface DailyProtocol {
   ritual: { title: string; description: string }
   affirmation: string
   color: { name: string; hex: string; reason: string }
+  colors: Array<{ name: string; hex: string; reason: string }>
   foods: string[]
   foodReason: string
   biohack: { activity: string; activityReason: string }

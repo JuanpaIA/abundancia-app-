@@ -2028,11 +2028,14 @@ export function DashboardScreen() {
             }
           </View>
           <Text style={styles.sectionSubtitle}>¿Qué vibración uso hoy?</Text>
-          <View style={[styles.colorBanner, { backgroundColor: protocol.color.hex }]}>
-            <View style={styles.colorBannerOverlay}>
-              <Text style={styles.colorBannerName}>{protocol.color.name}</Text>
-              <View style={styles.colorBannerDot} />
-            </View>
+          <View style={styles.colorsRow}>
+            {protocol.colors.map((c, i) => (
+              <View key={i} style={[styles.colorSwatch, { backgroundColor: c.hex }]}>
+                <View style={styles.colorSwatchOverlay}>
+                  <Text style={styles.colorSwatchName}>{c.name}</Text>
+                </View>
+              </View>
+            ))}
           </View>
           <Text style={styles.sectionBody}>{protocol.color.reason}</Text>
         </Card>
@@ -3001,18 +3004,16 @@ const styles = StyleSheet.create({
   numKeywordText: { fontSize: 11, color: Colors.gold },
   numEnergy: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   numShadow: { fontSize: 12, color: 'rgba(255,255,255,0.30)', fontStyle: 'italic', lineHeight: 18 },
-  colorBanner: {
-    width: '100%', height: 90, borderRadius: Radius.md,
-    marginVertical: Spacing.sm, overflow: 'hidden',
-    justifyContent: 'flex-end',
+  colorsRow: { flexDirection: 'row', gap: 10, marginVertical: Spacing.sm },
+  colorSwatch: {
+    flex: 1, height: 100, borderRadius: Radius.md,
+    overflow: 'hidden', justifyContent: 'flex-end',
   },
-  colorBannerOverlay: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+  colorSwatchOverlay: {
+    backgroundColor: 'rgba(0,0,0,0.30)',
+    paddingHorizontal: 10, paddingVertical: 8,
   },
-  colorBannerName: { fontSize: 18, fontWeight: '700', color: '#fff', letterSpacing: 0.5 },
-  colorBannerDot:  { width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.6)' },
+  colorSwatchName: { fontSize: 14, fontWeight: '700', color: '#fff', textAlign: 'center' },
   foodChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: Spacing.sm },
   foodChip: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
