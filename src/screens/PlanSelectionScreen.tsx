@@ -21,6 +21,8 @@ const benefits = [
   'Actualizaciones constantes',
 ]
 
+const annualExclusive = '🔍 Análisis de patrones: descubre qué te sabotea sin darte cuenta'
+
 export function PlanSelectionScreen({ onSelectPlan }: Props) {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
 
@@ -92,6 +94,10 @@ export function PlanSelectionScreen({ onSelectPlan }: Props) {
             <Text style={styles.pricePeriod}>$8.25/mes · Ahorras $69</Text>
 
             <View style={[styles.divider, { borderColor: 'rgba(201,168,76,0.3)' }]} />
+
+            <View style={styles.exclusiveBox}>
+              <Text style={styles.exclusiveText}>{annualExclusive}</Text>
+            </View>
 
             {benefits.map((b, i) => (
               <View key={i} style={styles.benefitRow}>
@@ -182,6 +188,16 @@ const styles = StyleSheet.create({
   btnPrimaryText:  { color: Colors.background, fontWeight: '700', fontSize: 14 },
   btnSecondary:    { borderWidth: 1, borderColor: Colors.border },
   btnSecondaryText:{ color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
+
+  exclusiveBox: {
+    backgroundColor: 'rgba(201,168,76,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(201,168,76,0.35)',
+    borderRadius: Radius.md,
+    padding: 10,
+    marginBottom: 8,
+  },
+  exclusiveText: { fontSize: 12, color: Colors.gold, fontWeight: '600', lineHeight: 18 },
 
   legal: { fontSize: 11, color: Colors.textDisabled, textAlign: 'center', marginTop: Spacing.lg, marginBottom: Spacing.xl },
 })
