@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native'
-import { useState } from 'react'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Platform } from 'react-native'
+import { useState, useEffect } from 'react'
 import * as WebBrowser from 'expo-web-browser'
 import { supabase } from '../services/supabase'
 import { Colors, Spacing, Radius } from '../constants/theme'
@@ -23,6 +23,18 @@ interface Props {
 export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onChangePlan, onSignOut }: Props) {
   const [loadingCheckout, setLoadingCheckout] = useState(false)
   const [loadingVerify, setLoadingVerify] = useState(false)
+
+  // En web: si Stripe redirigió con ?payment=success, verificar automáticamente
+  useEffect(() => {
+    if (Platform.OS !== 'web') return
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('payment') === 'success') {
+      window.history.replaceState({}, '', window.location.pathname)
+      // Esperar 2s para que el webhook actualice la suscripción
+      setTimeout(() => handleVerify(), 2000)
+    }
+  }, [])
 
   async function handleCheckout() {
     setLoadingCheckout(true)
