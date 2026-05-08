@@ -112,6 +112,61 @@ function MockFrequency() {
   )
 }
 
+function MockJournal() {
+  return (
+    <View style={mock.phone}>
+      <View style={mock.phoneBrow} />
+      <Text style={mock.screenTitle}>Diario · Viernes 8</Text>
+      {[
+        { time: '🌅 Mañana', note: 'Hoy declaro que el dinero fluye hacia mí con facilidad...', done: true },
+        { time: '🌤 Tarde', note: 'Gratitud: inesperadamente conseguí un nuevo cliente hoy.', done: true },
+        { time: '🌙 Noche', note: 'Escribe tu reflexión del día...', done: false },
+      ].map((entry, i) => (
+        <View key={i} style={[mock.journalEntry, entry.done && mock.journalEntryDone]}>
+          <Text style={mock.journalTime}>{entry.time}</Text>
+          <Text style={[mock.journalNote, !entry.done && mock.journalNotePlaceholder]} numberOfLines={2}>
+            {entry.note}
+          </Text>
+        </View>
+      ))}
+      <View style={mock.signalBox}>
+        <Text style={mock.signalLabel}>✦ Señal del día</Text>
+        <Text style={mock.signalText}>Luna en Escorpio — ideal para soltar lo que ya no sirve</Text>
+      </View>
+    </View>
+  )
+}
+
+function MockHabits() {
+  return (
+    <View style={mock.phone}>
+      <View style={mock.phoneBrow} />
+      <Text style={mock.screenTitle}>Mis hábitos · Semana 2</Text>
+      {[
+        { label: 'Ritual de mañana',   done: 6 },
+        { label: 'Frecuencia diaria',  done: 5 },
+        { label: 'Afirmación',         done: 7 },
+        { label: 'Color del día',      done: 4 },
+        { label: 'Alimento clave',     done: 3 },
+      ].map((h, i) => (
+        <View key={i} style={mock.habitRow}>
+          <View style={mock.habitLeft}>
+            <Text style={mock.habitLabel}>{h.label}</Text>
+            <View style={mock.habitDots}>
+              {Array.from({ length: 7 }).map((_, d) => (
+                <View key={d} style={[mock.dot, d < h.done && mock.dotDone]} />
+              ))}
+            </View>
+          </View>
+          <Text style={[mock.habitCount, h.done >= 5 ? mock.habitCountGold : mock.habitCountWeak]}>
+            {h.done}/7
+          </Text>
+        </View>
+      ))}
+    </View>
+  )
+}
+
 export function LandingScreen({ onGetStarted, onLogin }: Props) {
   return (
     <View style={s.container}>
@@ -229,7 +284,10 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
 
         {/* ── CAPTURAS ── */}
         <SectionTag text="LA APP POR DENTRO" />
-        <Text style={s.h2}>Todo lo que necesitas{'\n'}en una sola pantalla</Text>
+        <Text style={s.h2}>5 herramientas que trabajan{'\n'}juntas por ti cada día</Text>
+        <Text style={s.bodyText}>
+          No es una app de afirmaciones. Es un sistema completo donde cada pieza alimenta a la siguiente — desliza para ver.
+        </Text>
 
         <ScrollView
           horizontal
@@ -240,17 +298,27 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
           <View style={s.screenCard}>
             <MockDashboard />
             <Text style={s.screenLabel}>Protocolo diario</Text>
-            <Text style={s.screenDesc}>9 acciones personalizadas cada día alineadas con tu ciclo lunar</Text>
+            <Text style={s.screenDesc}>9 acciones personalizadas alineadas con tu luna y tu energía</Text>
+          </View>
+          <View style={s.screenCard}>
+            <MockJournal />
+            <Text style={s.screenLabel}>Diario de manifestación</Text>
+            <Text style={s.screenDesc}>Intención en la mañana, gratitud al mediodía, reflexión en la noche</Text>
+          </View>
+          <View style={s.screenCard}>
+            <MockHabits />
+            <Text style={s.screenLabel}>Seguimiento de hábitos</Text>
+            <Text style={s.screenDesc}>Visualiza tu constancia semana a semana y detecta dónde flaqueas</Text>
           </View>
           <View style={s.screenCard}>
             <MockProfile />
             <Text style={s.screenLabel}>Perfil energético</Text>
-            <Text style={s.screenDesc}>Tu número, arquetipo, signo y frecuencia base en un solo perfil</Text>
+            <Text style={s.screenDesc}>Tu número, arquetipo, signo y frecuencia base en un solo lugar</Text>
           </View>
           <View style={s.screenCard}>
             <MockFrequency />
-            <Text style={s.screenLabel}>Frecuencias</Text>
-            <Text style={s.screenDesc}>Frecuencias de manifestación para escuchar mientras trabajas o meditas</Text>
+            <Text style={s.screenLabel}>Frecuencias de manifestación</Text>
+            <Text style={s.screenDesc}>Escucha mientras trabajas, meditas o descansas</Text>
           </View>
         </ScrollView>
 
@@ -485,6 +553,27 @@ const mock = StyleSheet.create({
   playBtnActive: { backgroundColor: G, borderColor: G },
   playIcon: { fontSize: 10, color: Colors.textSecondary },
   playIconActive: { color: BG, fontWeight: '900' },
+
+  // Journal mock
+  journalEntry: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 8, gap: 3, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  journalEntryDone: { borderColor: 'rgba(201,168,76,0.2)' },
+  journalTime: { fontSize: 9, color: G, fontWeight: '700' },
+  journalNote: { fontSize: 10, color: Colors.textSecondary, lineHeight: 14 },
+  journalNotePlaceholder: { color: Colors.textDisabled, fontStyle: 'italic' },
+  signalBox: { backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: 6, padding: 7, borderWidth: 1, borderColor: 'rgba(201,168,76,0.2)', gap: 2 },
+  signalLabel: { fontSize: 9, color: G, fontWeight: '700' },
+  signalText: { fontSize: 9, color: Colors.textSecondary, lineHeight: 13 },
+
+  // Habits mock
+  habitRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  habitLeft: { flex: 1, gap: 4 },
+  habitLabel: { fontSize: 10, color: Colors.textPrimary },
+  habitDots: { flexDirection: 'row', gap: 3 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 0.5, borderColor: 'rgba(255,255,255,0.15)' },
+  dotDone: { backgroundColor: G },
+  habitCount: { fontSize: 11, fontWeight: '700', marginLeft: 8 },
+  habitCountGold: { color: G },
+  habitCountWeak: { color: '#E07A5F' },
 })
 
 const s = StyleSheet.create({
