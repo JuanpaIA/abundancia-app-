@@ -1463,6 +1463,24 @@ export function DashboardScreen() {
     weekday: 'long', day: 'numeric', month: 'long'
   })
 
+  // ── Etiqueta del objetivo principal del usuario ───────────────────────────
+  const goalLabel = (() => {
+    const g = profile.goal_details as any || {}
+    const area = profile.manifestation_area
+    if (area === 'dinero'   && g.monthly_goal)      return `para ganar ${g.monthly_goal}`
+    if (area === 'amor') {
+      const map: Record<string, string> = { nueva: 'para encontrar pareja', mejorar: 'para mejorar tu relación', propio: 'para fortalecer tu amor propio', reconectar: 'para reconectar con alguien' }
+      return map[g.relationship_type] ?? null
+    }
+    if (area === 'salud') {
+      const map: Record<string, string> = { energia: 'para ganar más energía', peso: 'para transformar tu cuerpo', mental: 'para sanar tu salud mental', especifica: 'para sanar tu condición' }
+      return map[g.health_focus] ?? null
+    }
+    if (area === 'proposito' && g.desired_impact)   return `para ${g.desired_impact}`
+    if (area === 'felicidad' && g.happiness_change) return `para ${g.happiness_change}`
+    return null
+  })()
+
   // ── Plan de manifestación ─────────────────────────────────────────────────
   const planDuration   = profile.plan_duration ?? 30
   const planStartDate  = profile.plan_start_date ?? profile.created_at.split('T')[0]
@@ -1688,6 +1706,9 @@ export function DashboardScreen() {
           <Text style={styles.planCounter}>
             Día {Math.min(planDay, planDuration)} de {planDuration} · {Math.max(planDaysLeft, 0)} días restantes
           </Text>
+          {goalLabel && (
+            <Text style={styles.goalLabel}>✦ {goalLabel}</Text>
+          )}
 
           {/* Botón grande de Diario */}
           <TouchableOpacity
@@ -2688,6 +2709,7 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 22, color: Colors.textPrimary, fontWeight: '700' },
   date: { fontSize: 23, color: Colors.textSecondary, marginTop: 2, textTransform: 'capitalize' },
   planCounter: { fontSize: 12, color: Colors.gold, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
+  goalLabel:   { fontSize: 13, color: Colors.textSecondary, marginTop: 4, fontStyle: 'italic' },
   headerActions: { flexDirection: 'column', gap: Spacing.sm, marginBottom: 35 },
   headerRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
   editProfile: { fontSize: 18, color: Colors.gold },
