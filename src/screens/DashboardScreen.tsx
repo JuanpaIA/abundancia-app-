@@ -2049,7 +2049,16 @@ export function DashboardScreen() {
             }
           </View>
           <Text style={styles.sectionSubtitle}>¿Qué nutre mi cuerpo hoy?</Text>
-          <Text style={styles.sectionTitle}>{protocol.foods.join(' · ')}</Text>
+          <View style={styles.foodChipsRow}>
+            {protocol.foods.map((food, i) => (
+              <View key={i} style={styles.foodChip}>
+                <Text style={styles.foodChipEmoji}>
+                  {['🌿','🌱','✨','🍃'][i % 4]}
+                </Text>
+                <Text style={styles.foodChipText}>{food}</Text>
+              </View>
+            ))}
+          </View>
           <Text style={styles.sectionBody}>{protocol.foodReason}</Text>
         </Card>
 
@@ -3004,6 +3013,15 @@ const styles = StyleSheet.create({
   },
   colorBannerName: { fontSize: 18, fontWeight: '700', color: '#fff', letterSpacing: 0.5 },
   colorBannerDot:  { width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.6)' },
+  foodChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: Spacing.sm },
+  foodChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(201,168,76,0.12)',
+    borderWidth: 1, borderColor: 'rgba(201,168,76,0.3)',
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7,
+  },
+  foodChipEmoji: { fontSize: 13 },
+  foodChipText:  { fontSize: 13, color: Colors.textPrimary, fontWeight: '500' },
   frequencyBox: {
     backgroundColor: Colors.input,
     borderRadius: 12,
