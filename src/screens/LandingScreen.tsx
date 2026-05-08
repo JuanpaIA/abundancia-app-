@@ -435,11 +435,6 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
             <Text key={i} style={s.offerFeature}>{f}</Text>
           ))}
 
-          <View style={s.guaranteeBox}>
-            <Text style={s.guaranteeIcon}>🛡️</Text>
-            <Text style={s.guaranteeText}>Garantía de 7 días. Si no es para ti, te devolvemos el dinero. Sin preguntas.</Text>
-          </View>
-
           <View style={s.offerBtn}>
             <Text style={s.offerBtnText}>Activar mi sistema ahora ✦</Text>
           </View>
@@ -475,10 +470,6 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
           {
             q: '¿Qué pasa si quiero cambiar mi intención?',
             a: 'Puedes editarlo desde tu perfil en cualquier momento. El sistema recalculará tu protocolo para la nueva área que elijas.',
-          },
-          {
-            q: '¿Cómo funciona la garantía de 7 días?',
-            a: 'Si en los primeros 7 días sientes que Lúmina no es para ti, escríbenos y te devolvemos el 100% del pago. Sin formularios complicados.',
           },
           {
             q: '¿Funciona en iPhone, Android y computador?',
