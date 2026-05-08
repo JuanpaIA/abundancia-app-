@@ -6,6 +6,20 @@ import { useState } from 'react'
 import { Colors, Spacing, Radius } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 
+const planBenefits = [
+  'Protocolo diario 100% personalizado',
+  'Rituales por fase lunar y área de manifestación',
+  'Afirmaciones según tu número numerológico',
+  'Color y alimentos vibracionales del día',
+  'Frecuencias de manifestación con reproductor',
+  'Protocolo mañana, tarde y noche',
+  'Diario de manifestación',
+  'Seguimiento de 9 hábitos diarios',
+  'Portales energéticos y fases lunares',
+  'Acceso web y móvil',
+  'Actualizaciones constantes',
+]
+
 interface Props {
   onGetStarted: () => void
   onLogin: () => void
@@ -405,46 +419,81 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
         <Divider />
 
         {/* ── OFERTA ── */}
-        <SectionTag text="LA OFERTA" />
-        <Text style={s.h2}>Una inversión absurda{'\n'}de ignorar</Text>
+        <SectionTag text="ELIGE TU PLAN" />
+        <Text style={s.h2}>Acceso completo a todo{'\n'}el sistema de manifestación</Text>
 
-        {/* Card oferta anual destacada */}
-        <TouchableOpacity style={s.offerCard} onPress={onGetStarted} activeOpacity={0.85}>
-          <View style={s.offerBadge}>
-            <Text style={s.offerBadgeText}>⚡ Precio de lanzamiento · 41% descuento</Text>
-          </View>
-          <Text style={s.offerTitle}>Plan Anual</Text>
+        {/* Toggle mensual / anual */}
+        <View style={s.planToggle}>
+          <TouchableOpacity
+            style={[s.planToggleBtn, s.planToggleBtnActive]}
+          >
+            <Text style={[s.planToggleText, s.planToggleTextActive]}>Anual</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={s.planToggleBtn}>
+            <Text style={s.planToggleText}>Mensual</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={s.offerPriceRow}>
-            <Text style={s.offerOriginal}>$168</Text>
-            <Text style={s.offerPrice}>$99</Text>
-            <Text style={s.offerPeriod}>/año</Text>
-          </View>
-          <Text style={s.offerPerDay}>Menos de $0.28 al día — menos que un café</Text>
+        {/* Cards lado a lado */}
+        <View style={s.planCardsRow}>
 
-          <View style={s.offerDivider} />
+          {/* Card Mensual */}
+          <TouchableOpacity style={s.planCard} onPress={onGetStarted} activeOpacity={0.85}>
+            <Text style={s.planCardName}>Mensual</Text>
+            <Text style={s.planCardTagline}>Flexibilidad total</Text>
+            <View style={s.planPriceRow}>
+              <Text style={s.planCurrency}>$</Text>
+              <Text style={s.planAmount}>14</Text>
+            </View>
+            <Text style={s.planPeriodLabel}>/mes</Text>
 
-          {[
-            '✦ Protocolo diario 100% personalizado',
-            '✦ Sistema Trifuerza: Numerología × Luna × Zodiacal',
-            '✦ Análisis de patrones que te sabotean',
-            '✦ Todas las funciones incluidas',
-            '✦ Acceso web y móvil',
-            '✦ Actualizaciones constantes',
-          ].map((f, i) => (
-            <Text key={i} style={s.offerFeature}>{f}</Text>
-          ))}
+            <View style={s.planDivider} />
 
-          <View style={s.offerBtn}>
-            <Text style={s.offerBtnText}>Activar mi sistema ahora ✦</Text>
-          </View>
-        </TouchableOpacity>
+            {planBenefits.map((b, i) => (
+              <View key={i} style={s.planBenefitRow}>
+                <Text style={s.planCheck}>✦</Text>
+                <Text style={s.planBenefitText}>{b}</Text>
+              </View>
+            ))}
 
-        {/* Plan mensual secundario */}
-        <TouchableOpacity style={s.planCardMonthly} onPress={onGetStarted} activeOpacity={0.85}>
-          <Text style={s.planPriceMonthly}>$14<Text style={s.planPeriodInline}>/mes</Text></Text>
-          <Text style={s.planMonthlyDesc}>Sin compromiso · Cancela cuando quieras</Text>
-        </TouchableOpacity>
+            <View style={[s.planBtn, s.planBtnSecondary]}>
+              <Text style={s.planBtnSecondaryText}>Comenzar ahora</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Card Anual */}
+          <TouchableOpacity style={[s.planCard, s.planCardAnnual]} onPress={onGetStarted} activeOpacity={0.85}>
+            <View style={s.planBadge}>
+              <Text style={s.planBadgeText}>Más popular</Text>
+            </View>
+            <Text style={[s.planCardName, { color: Colors.gold }]}>Anual</Text>
+            <Text style={s.planCardTagline}>41% de descuento</Text>
+            <View style={s.planPriceRow}>
+              <Text style={[s.planCurrency, { color: Colors.gold }]}>$</Text>
+              <Text style={[s.planAmount, { color: Colors.gold }]}>99</Text>
+            </View>
+            <Text style={s.planPeriodLabel}>$8.25/mes · Ahorras $69</Text>
+
+            <View style={[s.planDivider, { borderColor: 'rgba(201,168,76,0.3)' }]} />
+
+            {/* Función exclusiva destacada */}
+            <View style={s.planExclusiveBox}>
+              <Text style={s.planExclusiveText}>🔍 Análisis de patrones: descubre qué te sabotea sin darte cuenta</Text>
+            </View>
+
+            {planBenefits.map((b, i) => (
+              <View key={i} style={s.planBenefitRow}>
+                <Text style={[s.planCheck, { color: Colors.gold }]}>✦</Text>
+                <Text style={s.planBenefitText}>{b}</Text>
+              </View>
+            ))}
+
+            <View style={[s.planBtn, s.planBtnPrimary]}>
+              <Text style={s.planBtnPrimaryText}>Comenzar ahora</Text>
+            </View>
+          </TouchableOpacity>
+
+        </View>
 
         <Text style={s.planLegal}>Pago seguro vía Stripe · Cancela cuando quieras</Text>
 
@@ -640,28 +689,44 @@ const s = StyleSheet.create({
   forIcon: { fontSize: 16, marginTop: 1 },
   forText: { flex: 1, fontSize: 15, color: Colors.textSecondary, lineHeight: 22 },
 
-  // Offer
-  offerCard: { marginHorizontal: Spacing.lg, backgroundColor: 'rgba(201,168,76,0.06)', borderRadius: Radius.lg, padding: Spacing.lg, borderWidth: 2, borderColor: Colors.gold, marginBottom: Spacing.md, gap: 8 },
-  offerBadge: { alignSelf: 'flex-start', backgroundColor: Colors.gold, borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4 },
-  offerBadgeText: { fontSize: 11, color: Colors.background, fontWeight: '700' },
-  offerTitle: { fontSize: 22, color: Colors.textPrimary, fontWeight: '800' },
-  offerPriceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  offerOriginal: { fontSize: 20, color: Colors.textDisabled, textDecorationLine: 'line-through', marginBottom: 4 },
-  offerPrice: { fontSize: 52, color: Colors.gold, fontWeight: '900', lineHeight: 56 },
-  offerPeriod: { fontSize: 16, color: Colors.textSecondary, marginBottom: 8 },
-  offerPerDay: { fontSize: 13, color: '#4CAF82', fontWeight: '600' },
-  offerDivider: { height: 1, backgroundColor: 'rgba(201,168,76,0.2)', marginVertical: 4 },
-  offerFeature: { fontSize: 14, color: Colors.textPrimary, lineHeight: 24 },
-  guaranteeBox: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: 'rgba(76,175,130,0.08)', borderRadius: Radius.md, padding: Spacing.md, borderWidth: 1, borderColor: 'rgba(76,175,130,0.2)', marginTop: 4 },
-  guaranteeIcon: { fontSize: 20 },
-  guaranteeText: { flex: 1, fontSize: 13, color: '#4CAF82', lineHeight: 20 },
-  offerBtn: { backgroundColor: Colors.gold, borderRadius: Radius.md, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
-  offerBtnText: { fontSize: 16, color: Colors.background, fontWeight: '800' },
+  // Plan section
+  planToggle: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: Radius.full, padding: 4, marginBottom: Spacing.lg, alignSelf: 'center' },
+  planToggleBtn: { paddingHorizontal: 24, paddingVertical: 8, borderRadius: Radius.full },
+  planToggleBtnActive: { backgroundColor: Colors.gold },
+  planToggleText: { fontSize: 14, color: Colors.textSecondary, fontWeight: '600' },
+  planToggleTextActive: { color: Colors.background },
 
-  planCardMonthly: { marginHorizontal: Spacing.lg, backgroundColor: Colors.card, borderRadius: Radius.lg, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border, marginBottom: Spacing.sm },
-  planPriceMonthly: { fontSize: 36, color: Colors.textPrimary, fontWeight: '800' },
-  planPeriodInline: { fontSize: 16, color: Colors.textSecondary, fontWeight: '400' },
-  planMonthlyDesc: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
+  planCardsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: Spacing.lg, alignItems: 'flex-start', marginBottom: Spacing.sm },
+
+  planCard: { flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border, padding: 16, gap: 4 },
+  planCardAnnual: { borderColor: 'rgba(201,168,76,0.4)', backgroundColor: 'rgba(201,168,76,0.05)', borderWidth: 2 },
+
+  planBadge: { backgroundColor: Colors.gold, borderRadius: Radius.full, paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 4 },
+  planBadgeText: { fontSize: 10, color: Colors.background, fontWeight: '700' },
+
+  planCardName: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700' },
+  planCardTagline: { fontSize: 12, color: Colors.textSecondary, marginBottom: 6 },
+
+  planPriceRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 4 },
+  planCurrency: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700', marginTop: 6 },
+  planAmount: { fontSize: 42, color: Colors.textPrimary, fontWeight: '700', lineHeight: 48 },
+  planPeriodLabel: { fontSize: 11, color: Colors.textSecondary, marginBottom: 8 },
+
+  planDivider: { borderTopWidth: 1, borderColor: Colors.border, marginVertical: 10 },
+
+  planExclusiveBox: { backgroundColor: 'rgba(201,168,76,0.12)', borderWidth: 1, borderColor: 'rgba(201,168,76,0.35)', borderRadius: Radius.md, padding: 10, marginBottom: 8 },
+  planExclusiveText: { fontSize: 12, color: Colors.gold, fontWeight: '600', lineHeight: 18 },
+
+  planBenefitRow: { flexDirection: 'row', gap: 6, alignItems: 'flex-start', marginBottom: 5 },
+  planCheck: { color: '#4CAF82', fontSize: 10, marginTop: 3 },
+  planBenefitText: { fontSize: 12, color: Colors.textPrimary, flex: 1, lineHeight: 18 },
+
+  planBtn: { borderRadius: Radius.md, paddingVertical: 12, alignItems: 'center', marginTop: 12 },
+  planBtnPrimary: { backgroundColor: Colors.gold },
+  planBtnPrimaryText: { color: Colors.background, fontWeight: '700', fontSize: 14 },
+  planBtnSecondary: { borderWidth: 1, borderColor: Colors.border },
+  planBtnSecondaryText: { color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
+
   planLegal: { fontSize: 11, color: Colors.textDisabled, textAlign: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.lg },
 
   // FAQ
