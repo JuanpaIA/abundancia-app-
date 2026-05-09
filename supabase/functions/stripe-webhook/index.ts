@@ -32,10 +32,12 @@ Deno.serve(async (req) => {
       const userId = session.metadata?.supabase_user_id
       const planType = session.metadata?.plan_type
       if (userId) {
+        const today = new Date().toISOString().split('T')[0]
         await supabase.from('profiles').update({
           subscription_status: 'active',
           plan_type: planType ?? 'monthly',
           stripe_customer_id: session.customer as string,
+          plan_start_date: today,
         }).eq('id', userId)
       }
       break

@@ -68,11 +68,16 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
       .select('subscription_status')
       .eq('id', userId)
       .single()
-    setLoadingVerify(false)
 
     if (data?.subscription_status === 'active') {
+      const today = new Date().toISOString().split('T')[0]
+      await supabase.from('profiles')
+        .update({ plan_start_date: today })
+        .eq('id', userId)
+      setLoadingVerify(false)
       onPaymentSuccess()
     } else {
+      setLoadingVerify(false)
       Alert.alert(
         'Pago no confirmado',
         'Aún no detectamos tu pago. Si ya pagaste, espera unos segundos y vuelve a verificar.'
