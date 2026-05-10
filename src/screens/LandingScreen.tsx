@@ -462,8 +462,11 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
         <Divider />
 
         {/* ── TESTIMONIOS ── */}
-        <SectionTag text="LO QUE DICEN" />
-        <Text style={s.h2}>Personas que ya{'\n'}viven su protocolo</Text>
+        <View style={s.testimonialsSection}>
+          <View style={s.sectionTagLight}>
+            <Text style={s.sectionTagLightText}>LO QUE DICEN</Text>
+          </View>
+          <Text style={s.h2White}>Personas que ya{'\n'}viven su protocolo</Text>
 
         <ScrollView
           horizontal
@@ -529,6 +532,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
             </View>
           ))}
         </ScrollView>
+        </View>
 
         <Divider />
 
@@ -946,20 +950,35 @@ const s = StyleSheet.create({
   screenDesc: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', lineHeight: 18 },
 
   // Testimonials
+  testimonialsSection: { backgroundColor: '#F7F6FF', paddingVertical: Spacing.xl, marginHorizontal: -0 },
+  h2White: { fontSize: 26, color: '#1A1830', fontWeight: '700', lineHeight: 34, marginBottom: Spacing.md, paddingHorizontal: Spacing.lg },
+  sectionTagLight: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,168,76,0.15)', borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 12, marginHorizontal: Spacing.lg, borderWidth: 1, borderColor: 'rgba(201,168,76,0.4)' },
+  sectionTagLightText: { fontSize: 10, color: '#8A6A10', fontWeight: '700', letterSpacing: 1 },
   testimonialsScroll: { marginTop: 8 },
-  testimonialsRow: { paddingHorizontal: Spacing.lg, gap: 12, paddingRight: Spacing.lg },
-  testimonialCard: { width: 240, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.lg, padding: Spacing.md, borderWidth: 1, borderColor: Colors.border, gap: Spacing.sm },
+  testimonialsRow: { paddingHorizontal: Spacing.lg, gap: 14, paddingRight: Spacing.lg, paddingBottom: 8 },
+  testimonialCard: {
+    width: 240,
+    backgroundColor: '#FFFFFF',
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    gap: Spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
   testimonialTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   testimonialStars: { fontSize: 13, color: Colors.gold, letterSpacing: 1 },
-  testimonialQuoteIcon: { fontSize: 22, color: 'rgba(201,168,76,0.3)', fontWeight: '900' },
-  testimonialText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, fontStyle: 'italic', flex: 1 },
-  testimonialDivider: { borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  testimonialQuoteIcon: { fontSize: 24, color: 'rgba(201,168,76,0.35)', fontWeight: '900' },
+  testimonialText: { fontSize: 13, color: '#4A4760', lineHeight: 20, fontStyle: 'italic' },
+  testimonialDivider: { borderTopWidth: 1, borderColor: '#EBEBF0' },
   testimonialAuthor: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  testimonialAvatar: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  testimonialAvatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   testimonialInitials: { fontSize: 13, fontWeight: '700' },
   testimonialInfo: { flex: 1 },
-  testimonialName: { fontSize: 13, color: Colors.textPrimary, fontWeight: '700' },
-  testimonialArea: { fontSize: 10, color: Colors.textDisabled },
+  testimonialName: { fontSize: 13, color: '#1A1830', fontWeight: '700' },
+  testimonialArea: { fontSize: 10, color: '#8A87A0' },
 
   // Features
   featGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Spacing.lg, gap: 10, marginBottom: Spacing.md },
