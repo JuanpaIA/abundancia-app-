@@ -181,6 +181,114 @@ function MockHabits() {
   )
 }
 
+function MockProgress() {
+  return (
+    <View style={mock.phone}>
+      <View style={mock.phoneBrow} />
+      <Text style={mock.screenTitle}>Mi progreso · Día 14</Text>
+
+      {/* Círculo de progreso simulado */}
+      <View style={mock.progressCircleBox}>
+        <View style={mock.progressCircle}>
+          <Text style={mock.progressPct}>78%</Text>
+          <Text style={mock.progressPctLabel}>hoy</Text>
+        </View>
+        <View style={mock.progressMeta}>
+          <Text style={mock.progressMetaVal}>🔥 14</Text>
+          <Text style={mock.progressMetaLabel}>días seguidos</Text>
+          <Text style={[mock.progressMetaVal, { marginTop: 8 }]}>⚡ 4.2</Text>
+          <Text style={mock.progressMetaLabel}>energía semanal</Text>
+        </View>
+      </View>
+
+      {/* Mini anillo semanal */}
+      <View style={mock.weekRow}>
+        {['L','M','M','J','V','S','D'].map((d, i) => (
+          <View key={i} style={mock.weekDay}>
+            <View style={[mock.weekDot, i < 5 && mock.weekDotDone, i === 4 && mock.weekDotToday]} />
+            <Text style={mock.weekDayLabel}>{d}</Text>
+          </View>
+        ))}
+      </View>
+
+      <View style={mock.streakBox}>
+        <Text style={mock.streakText}>✦ Vas por tu mejor racha — no lo rompas hoy</Text>
+      </View>
+    </View>
+  )
+}
+
+function MockPortals() {
+  return (
+    <View style={mock.phone}>
+      <View style={mock.phoneBrow} />
+      <Text style={mock.screenTitle}>Portales y Luna</Text>
+
+      <View style={[mock.portalCard, mock.portalCardActive]}>
+        <View style={mock.portalCardLeft}>
+          <Text style={mock.portalEmoji}>🌕</Text>
+          <View>
+            <Text style={mock.portalName}>Luna Llena</Text>
+            <Text style={mock.portalDate}>Hoy · Alta vibración</Text>
+          </View>
+        </View>
+        <View style={mock.portalBadge}><Text style={mock.portalBadgeText}>ACTIVO</Text></View>
+      </View>
+
+      <View style={mock.portalCard}>
+        <View style={mock.portalCardLeft}>
+          <Text style={mock.portalEmoji}>🌀</Text>
+          <View>
+            <Text style={mock.portalName}>Portal 5/5</Text>
+            <Text style={mock.portalDate}>En 3 días</Text>
+          </View>
+        </View>
+        <View style={mock.portalBadgeInactive}><Text style={mock.portalBadgeInactiveText}>PRÓXIMO</Text></View>
+      </View>
+
+      <View style={mock.portalCard}>
+        <View style={mock.portalCardLeft}>
+          <Text style={mock.portalEmoji}>✨</Text>
+          <View>
+            <Text style={mock.portalName}>Portal 6/6</Text>
+            <Text style={mock.portalDate}>En 34 días</Text>
+          </View>
+        </View>
+        <View style={mock.portalBadgeInactive}><Text style={mock.portalBadgeInactiveText}>PRÓXIMO</Text></View>
+      </View>
+
+      <Text style={mock.portalHint}>Recibes una alerta el día antes de cada portal</Text>
+    </View>
+  )
+}
+
+function MockBadges() {
+  return (
+    <View style={mock.phone}>
+      <View style={mock.phoneBrow} />
+      <Text style={mock.screenTitle}>Mis insignias</Text>
+      <View style={mock.badgesGrid}>
+        {[
+          { emoji: '🌙', name: 'Bienvenida', earned: true },
+          { emoji: '🔥', name: '7 días', earned: true },
+          { emoji: '⚡', name: 'Primer portal', earned: true },
+          { emoji: '🌕', name: 'Luna llena', earned: true },
+          { emoji: '💎', name: '30 días', earned: false },
+          { emoji: '🌟', name: '90 días', earned: false },
+        ].map((b, i) => (
+          <View key={i} style={[mock.badgeItem, !b.earned && mock.badgeItemLocked]}>
+            <Text style={[mock.badgeEmoji, !b.earned && mock.badgeEmojiLocked]}>{b.emoji}</Text>
+            <Text style={[mock.badgeName, !b.earned && mock.badgeNameLocked]}>{b.name}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={mock.badgeMotivation}>
+        <Text style={mock.badgeMotivationText}>🏆 4 de 6 insignias desbloqueadas</Text>
+      </View>
+    </View>
+  )
+}
+
 export function LandingScreen({ onGetStarted, onLogin }: Props) {
   return (
     <View style={s.container}>
@@ -298,9 +406,9 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
 
         {/* ── CAPTURAS ── */}
         <SectionTag text="LA APP POR DENTRO" />
-        <Text style={s.h2}>5 herramientas que trabajan{'\n'}juntas por ti cada día</Text>
+        <Text style={s.h2}>Así se ve tu vida{'\n'}con Lúmina — día a día</Text>
         <Text style={s.bodyText}>
-          No es una app de afirmaciones. Es un sistema completo donde cada pieza alimenta a la siguiente — desliza para ver.
+          No es una app que abres una vez. Es un sistema que te acompaña cada día y construye el hábito que cambia todo — desliza para ver.
         </Text>
 
         <ScrollView
@@ -320,9 +428,19 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
             <Text style={s.screenDesc}>Intención en la mañana, gratitud al mediodía, reflexión en la noche</Text>
           </View>
           <View style={s.screenCard}>
+            <MockProgress />
+            <Text style={s.screenLabel}>Mapa de progreso</Text>
+            <Text style={s.screenDesc}>Tu % diario, racha activa y nivel de energía semanal en tiempo real</Text>
+          </View>
+          <View style={s.screenCard}>
             <MockHabits />
             <Text style={s.screenLabel}>Seguimiento de hábitos</Text>
             <Text style={s.screenDesc}>Visualiza tu constancia semana a semana y detecta dónde flaqueas</Text>
+          </View>
+          <View style={s.screenCard}>
+            <MockPortals />
+            <Text style={s.screenLabel}>Portales y fases lunares</Text>
+            <Text style={s.screenDesc}>Alertas de fechas de alta vibración para que no pierdas ningún portal</Text>
           </View>
           <View style={s.screenCard}>
             <MockProfile />
@@ -333,6 +451,11 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
             <MockFrequency />
             <Text style={s.screenLabel}>Frecuencias de manifestación</Text>
             <Text style={s.screenDesc}>Escucha mientras trabajas, meditas o descansas</Text>
+          </View>
+          <View style={s.screenCard}>
+            <MockBadges />
+            <Text style={s.screenLabel}>Insignias de constancia</Text>
+            <Text style={s.screenDesc}>Gana badges por cada hito — 7 días, 30 días, portales y más</Text>
           </View>
         </ScrollView>
 
@@ -603,6 +726,47 @@ const mock = StyleSheet.create({
   signalBox: { backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: 6, padding: 7, borderWidth: 1, borderColor: 'rgba(201,168,76,0.2)', gap: 2 },
   signalLabel: { fontSize: 9, color: G, fontWeight: '700' },
   signalText: { fontSize: 9, color: Colors.textSecondary, lineHeight: 13 },
+
+  // Progress mock
+  progressCircleBox: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
+  progressCircle: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: G, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(201,168,76,0.08)' },
+  progressPct: { fontSize: 18, color: G, fontWeight: '900' },
+  progressPctLabel: { fontSize: 8, color: Colors.textDisabled },
+  progressMeta: { flex: 1 },
+  progressMetaVal: { fontSize: 14, color: G, fontWeight: '700' },
+  progressMetaLabel: { fontSize: 9, color: Colors.textDisabled },
+  weekRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8 },
+  weekDay: { alignItems: 'center', gap: 3 },
+  weekDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.1)' },
+  weekDotDone: { backgroundColor: G },
+  weekDotToday: { borderWidth: 2, borderColor: G, backgroundColor: 'transparent' },
+  weekDayLabel: { fontSize: 8, color: Colors.textDisabled },
+  streakBox: { backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: 6, padding: 8, borderWidth: 1, borderColor: 'rgba(201,168,76,0.2)' },
+  streakText: { fontSize: 9, color: G, textAlign: 'center', lineHeight: 14 },
+
+  // Portals mock
+  portalCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  portalCardActive: { borderColor: 'rgba(201,168,76,0.4)', backgroundColor: 'rgba(201,168,76,0.06)' },
+  portalCardLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  portalEmoji: { fontSize: 20 },
+  portalName: { fontSize: 11, color: Colors.textPrimary, fontWeight: '700' },
+  portalDate: { fontSize: 9, color: Colors.textDisabled },
+  portalBadge: { backgroundColor: G, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  portalBadgeText: { fontSize: 8, color: BG, fontWeight: '700' },
+  portalBadgeInactive: { backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  portalBadgeInactiveText: { fontSize: 8, color: Colors.textDisabled, fontWeight: '700' },
+  portalHint: { fontSize: 9, color: Colors.textDisabled, textAlign: 'center', marginTop: 4, lineHeight: 13 },
+
+  // Badges mock
+  badgesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badgeItem: { width: '30%', alignItems: 'center', backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)', gap: 4 },
+  badgeItemLocked: { backgroundColor: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' },
+  badgeEmoji: { fontSize: 22 },
+  badgeEmojiLocked: { opacity: 0.3 },
+  badgeName: { fontSize: 8, color: G, fontWeight: '700', textAlign: 'center' },
+  badgeNameLocked: { color: Colors.textDisabled },
+  badgeMotivation: { backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: 6, padding: 8, borderWidth: 1, borderColor: 'rgba(201,168,76,0.2)', marginTop: 4 },
+  badgeMotivationText: { fontSize: 9, color: G, textAlign: 'center' },
 
   // Habits mock
   habitRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.05)' },
