@@ -465,31 +465,70 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
         <SectionTag text="LO QUE DICEN" />
         <Text style={s.h2}>Personas que ya{'\n'}viven su protocolo</Text>
 
-        {[
-          {
-            name: 'Camila R.',
-            area: 'Dinero · Número 3',
-            text: '"En 3 semanas de protocolo diario recibí dos propuestas de trabajo inesperadas. No lo puedo explicar racionalmente pero la constancia lo cambió todo."',
-          },
-          {
-            name: 'Valentina M.',
-            area: 'Amor · Número 7',
-            text: '"Siempre hacía rituales sueltos sin estructura. Con Luumina por primera vez siento que tengo un sistema real, no solo buenas intenciones."',
-          },
-          {
-            name: 'Andrea L.',
-            area: 'Propósito · Número 1',
-            text: '"Lo que más me sorprendió es que cada día el protocolo es diferente. No es repetitivo. Me mantiene comprometida de una forma que ninguna otra app logró."',
-          },
-        ].map((t, i) => (
-          <View key={i} style={s.testimonialCard}>
-            <Text style={s.testimonialText}>{t.text}</Text>
-            <View style={s.testimonialAuthor}>
-              <Text style={s.testimonialName}>{t.name}</Text>
-              <Text style={s.testimonialArea}>{t.area}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.testimonialsRow}
+          style={s.testimonialsScroll}
+        >
+          {[
+            {
+              name: 'Camila R.',
+              initials: 'CR',
+              area: 'Dinero · Número 3',
+              color: '#C9A84C',
+              text: 'En 3 semanas de protocolo diario recibí dos propuestas de trabajo inesperadas. No lo puedo explicar racionalmente pero la constancia lo cambió todo.',
+            },
+            {
+              name: 'Valentina M.',
+              initials: 'VM',
+              area: 'Amor · Número 7',
+              color: '#9B7FD4',
+              text: 'Siempre hacía rituales sueltos sin estructura. Con Luumina por primera vez siento que tengo un sistema real, no solo buenas intenciones.',
+            },
+            {
+              name: 'Andrea L.',
+              initials: 'AL',
+              area: 'Propósito · Número 1',
+              color: '#4CAF82',
+              text: 'Lo que más me sorprendió es que cada día el protocolo es diferente. No es repetitivo. Me mantiene comprometida de una forma que ninguna otra app logró.',
+            },
+            {
+              name: 'Sofía G.',
+              initials: 'SG',
+              area: 'Salud · Número 5',
+              color: '#E07A5F',
+              text: 'Llevaba años queriendo ser constante con mis hábitos. El seguimiento semanal y las alertas del portal lo hicieron posible por primera vez.',
+            },
+            {
+              name: 'Daniela P.',
+              initials: 'DP',
+              area: 'Felicidad · Número 9',
+              color: '#5B8DEF',
+              text: 'El diario de manifestación me cambió la forma de terminar el día. Escribir mi intención cada mañana me dio una claridad que no sabía que me faltaba.',
+            },
+          ].map((t, i) => (
+            <View key={i} style={s.testimonialCard}>
+              {/* Estrellas + comillas */}
+              <View style={s.testimonialTop}>
+                <Text style={s.testimonialStars}>★★★★★</Text>
+                <Text style={s.testimonialQuoteIcon}>❝</Text>
+              </View>
+              <Text style={s.testimonialText}>"{t.text}"</Text>
+              <View style={s.testimonialDivider} />
+              {/* Avatar + datos */}
+              <View style={s.testimonialAuthor}>
+                <View style={[s.testimonialAvatar, { backgroundColor: t.color + '25', borderColor: t.color + '60' }]}>
+                  <Text style={[s.testimonialInitials, { color: t.color }]}>{t.initials}</Text>
+                </View>
+                <View style={s.testimonialInfo}>
+                  <Text style={s.testimonialName}>{t.name}</Text>
+                  <Text style={s.testimonialArea}>{t.area}</Text>
+                </View>
+              </View>
             </View>
-          </View>
-        ))}
+          ))}
+        </ScrollView>
 
         <Divider />
 
@@ -907,11 +946,20 @@ const s = StyleSheet.create({
   screenDesc: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', lineHeight: 18 },
 
   // Testimonials
-  testimonialCard: { marginHorizontal: Spacing.lg, marginBottom: Spacing.md, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.md, padding: Spacing.md, borderWidth: 1, borderColor: Colors.border, gap: Spacing.sm },
-  testimonialText: { fontSize: 14, color: Colors.textSecondary, lineHeight: 22, fontStyle: 'italic' },
-  testimonialAuthor: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  testimonialsScroll: { marginTop: 8 },
+  testimonialsRow: { paddingHorizontal: Spacing.lg, gap: 12, paddingRight: Spacing.lg },
+  testimonialCard: { width: 240, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.lg, padding: Spacing.md, borderWidth: 1, borderColor: Colors.border, gap: Spacing.sm },
+  testimonialTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  testimonialStars: { fontSize: 13, color: Colors.gold, letterSpacing: 1 },
+  testimonialQuoteIcon: { fontSize: 22, color: 'rgba(201,168,76,0.3)', fontWeight: '900' },
+  testimonialText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, fontStyle: 'italic', flex: 1 },
+  testimonialDivider: { borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.07)' },
+  testimonialAuthor: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  testimonialAvatar: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  testimonialInitials: { fontSize: 13, fontWeight: '700' },
+  testimonialInfo: { flex: 1 },
   testimonialName: { fontSize: 13, color: Colors.textPrimary, fontWeight: '700' },
-  testimonialArea: { fontSize: 11, color: Colors.gold },
+  testimonialArea: { fontSize: 10, color: Colors.textDisabled },
 
   // Features
   featGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Spacing.lg, gap: 10, marginBottom: Spacing.md },
