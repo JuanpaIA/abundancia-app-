@@ -298,13 +298,13 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
         {/* ── HERO ── */}
         <View style={s.hero}>
           <Text style={s.heroMoon}>🌙</Text>
-          <Text style={s.brandName}>Lúmina</Text>
+          <Text style={s.brandName}>Luumina</Text>
           <Text style={s.brandTagline}>el secreto de manifestación judía</Text>
           <View style={s.heroDivider} />
           <Text style={s.heroTitle}>¿Sigues manifestando{'\n'}en desorden?</Text>
           <Text style={s.heroHook}>
             El universo responde a precisión, no a intención vaga.{'\n'}
-            Lúmina crea tu protocolo único — basado en quién eres energéticamente — para que manifestes con exactitud, no con esperanza.
+            Luumina crea tu protocolo único — basado en quién eres energéticamente — para que manifestes con exactitud, no con esperanza.
           </Text>
           <GradientButton title="Crear mi protocolo ahora" onPress={onGetStarted} />
           <TouchableOpacity onPress={onLogin} style={s.loginBtn}>
@@ -348,7 +348,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
 
         {/* ── MECANISMO ÚNICO ── */}
         <SectionTag text="EL MECANISMO ÚNICO" />
-        <Text style={s.h2}>El Sistema Trifuerza{'\n'}de Lúmina</Text>
+        <Text style={s.h2}>El Sistema Trifuerza{'\n'}de Luumina</Text>
         <Text style={s.bodyText}>
           No hay otro sistema que combine estas tres variables para crear un protocolo diferente cada día, diseñado exclusivamente para ti.
         </Text>
@@ -406,7 +406,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
 
         {/* ── CAPTURAS ── */}
         <SectionTag text="LA APP POR DENTRO" />
-        <Text style={s.h2}>Así se ve tu vida{'\n'}con Lúmina — día a día</Text>
+        <Text style={s.h2}>Así se ve tu vida{'\n'}con Luumina — día a día</Text>
         <Text style={s.bodyText}>
           No es una app que abres una vez. Es un sistema que te acompaña cada día y construye el hábito que cambia todo — desliza para ver.
         </Text>
@@ -474,7 +474,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
           {
             name: 'Valentina M.',
             area: 'Amor · Número 7',
-            text: '"Siempre hacía rituales sueltos sin estructura. Con Lúmina por primera vez siento que tengo un sistema real, no solo buenas intenciones."',
+            text: '"Siempre hacía rituales sueltos sin estructura. Con Luumina por primera vez siento que tengo un sistema real, no solo buenas intenciones."',
           },
           {
             name: 'Andrea L.',
@@ -524,7 +524,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
 
         {/* ── PARA QUIÉN ── */}
         <SectionTag text="PARA QUIÉN ES" />
-        <Text style={s.h2}>Lúmina es para ti{'\n'}si te identificas con esto</Text>
+        <Text style={s.h2}>Luumina es para ti{'\n'}si te identificas con esto</Text>
 
         {[
           { icon: '✅', text: 'Has intentado manifestar pero los resultados son inconsistentes o no llegan.' },
@@ -538,6 +538,61 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
             <Text style={s.forText}>{item.text}</Text>
           </View>
         ))}
+
+        <Divider />
+
+        {/* ── COMPARATIVO ── */}
+        <SectionTag text="LA DIFERENCIA" />
+        <Text style={s.h2}>Luumina vs lo{'\n'}que ya intentaste</Text>
+        <Text style={s.bodyText}>
+          No es otro planificador. No son rituales sueltos. Es un sistema vivo que cambia contigo cada día.
+        </Text>
+
+        <View style={s.vsRow}>
+          {/* Columna izquierda — Lo de siempre */}
+          <View style={s.vsCardBad}>
+            <View style={s.vsCardHeader}>
+              <Text style={s.vsCardIcon}>📓</Text>
+              <Text style={s.vsCardTitleBad}>Lo de siempre</Text>
+            </View>
+            <View style={s.vsDividerLine} />
+            {[
+              'Rituales copiados que no son para ti',
+              'Hoy sí, mañana no — sin estructura',
+              'No sabes si estás progresando',
+              'Ignoras portales y ciclos lunares',
+              'Todo disperso en libretas distintas',
+              'Te motivas un día y lo abandonas',
+            ].map((item, i) => (
+              <View key={i} style={s.vsRow2}>
+                <View style={s.vsBadIcon}><Text style={s.vsBadIconText}>✕</Text></View>
+                <Text style={s.vsBadText}>{item}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Columna derecha — Luumina */}
+          <View style={s.vsCardGood}>
+            <View style={s.vsCardHeader}>
+              <Text style={s.vsCardIcon}>🌙</Text>
+              <Text style={s.vsCardTitleGood}>Luumina</Text>
+            </View>
+            <View style={[s.vsDividerLine, { borderColor: 'rgba(201,168,76,0.3)' }]} />
+            {[
+              'Protocolo único para tu energía',
+              'Sistema completo mañana, tarde y noche',
+              'Mapa de progreso y racha diaria',
+              'Alertas de portales y fases lunares',
+              'Todo en un solo lugar, conectado',
+              'El sistema te mantiene constante',
+            ].map((item, i) => (
+              <View key={i} style={s.vsRow2}>
+                <View style={s.vsGoodIcon}><Text style={s.vsGoodIconText}>✓</Text></View>
+                <Text style={s.vsGoodText}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
 
         <Divider />
 
@@ -645,7 +700,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
           },
           {
             q: '¿Funciona en iPhone, Android y computador?',
-            a: 'Sí. Lúmina funciona en cualquier dispositivo a través del navegador web en luumina.pro.',
+            a: 'Sí. Luumina funciona en cualquier dispositivo a través del navegador web en luumina.pro.',
           },
         ].map((item) => (
           <FaqItem key={item.q} q={item.q} a={item.a} />
@@ -801,6 +856,23 @@ const s = StyleSheet.create({
   heroHook: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 24 },
   loginBtn: { paddingVertical: Spacing.sm },
   loginText: { fontSize: 15, color: Colors.gold, fontWeight: '600' },
+
+  // Comparativo
+  vsRow: { flexDirection: 'row', paddingHorizontal: Spacing.lg, gap: 10, alignItems: 'flex-start', marginBottom: Spacing.md },
+  vsCardBad: { flex: 1, backgroundColor: 'rgba(220,53,69,0.06)', borderRadius: Radius.lg, borderWidth: 1, borderColor: 'rgba(220,53,69,0.2)', padding: 14, gap: 8 },
+  vsCardGood: { flex: 1, backgroundColor: 'rgba(201,168,76,0.06)', borderRadius: Radius.lg, borderWidth: 1, borderColor: 'rgba(201,168,76,0.3)', padding: 14, gap: 8 },
+  vsCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
+  vsCardIcon: { fontSize: 16 },
+  vsCardTitleBad: { fontSize: 13, color: '#E07A5F', fontWeight: '700' },
+  vsCardTitleGood: { fontSize: 13, color: Colors.gold, fontWeight: '700' },
+  vsDividerLine: { borderTopWidth: 1, borderColor: 'rgba(220,53,69,0.2)', marginBottom: 4 },
+  vsRow2: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  vsBadIcon: { width: 14, height: 14, borderRadius: 7, backgroundColor: 'rgba(220,53,69,0.2)', alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 },
+  vsBadIconText: { fontSize: 8, color: '#E07A5F', fontWeight: '900' },
+  vsBadText: { fontSize: 11, color: Colors.textSecondary, flex: 1, lineHeight: 16 },
+  vsGoodIcon: { width: 14, height: 14, borderRadius: 7, backgroundColor: 'rgba(201,168,76,0.2)', alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 },
+  vsGoodIconText: { fontSize: 8, color: Colors.gold, fontWeight: '900' },
+  vsGoodText: { fontSize: 11, color: Colors.textPrimary, flex: 1, lineHeight: 16 },
 
   // Pain
   painCard: { flexDirection: 'row', gap: Spacing.md, alignItems: 'flex-start', paddingHorizontal: Spacing.lg, marginBottom: Spacing.md, paddingVertical: Spacing.sm },
