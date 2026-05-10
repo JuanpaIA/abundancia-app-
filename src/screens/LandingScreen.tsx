@@ -1,8 +1,8 @@
 import {
   View, Text, StyleSheet, ScrollView,
-  StatusBar, TouchableOpacity,
+  StatusBar, TouchableOpacity, Animated,
 } from 'react-native'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Colors, Spacing, Radius } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 
@@ -290,27 +290,86 @@ function MockBadges() {
 }
 
 export function LandingScreen({ onGetStarted, onLogin }: Props) {
+  // ── Animaciones ──
+  const moonFloat   = useRef(new Animated.Value(0)).current
+  const moonGlow    = useRef(new Animated.Value(0.4)).current
+  const heroOpacity = useRef(new Animated.Value(0)).current
+  const heroSlide   = useRef(new Animated.Value(40)).current
+  const textOpacity = useRef(new Animated.Value(0)).current
+  const ctaScale    = useRef(new Animated.Value(1)).current
+  const testimonialsRef = useRef<ScrollView>(null)
+  const testimonialIndex = useRef(0)
+
+  useEffect(() => {
+    // Hero entrance: luna → título → CTA en secuencia
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(heroOpacity, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.spring(heroSlide,   { toValue: 0, tension: 55, friction: 9, useNativeDriver: true }),
+      ]),
+      Animated.timing(textOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+    ]).start()
+
+    // Luna flotando suavemente
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(moonFloat, { toValue: -10, duration: 2200, useNativeDriver: true }),
+        Animated.timing(moonFloat, { toValue: 0,   duration: 2200, useNativeDriver: true }),
+      ])
+    ).start()
+
+    // Halo lunar pulsando
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(moonGlow, { toValue: 0.9, duration: 1800, useNativeDriver: true }),
+        Animated.timing(moonGlow, { toValue: 0.4, duration: 1800, useNativeDriver: true }),
+      ])
+    ).start()
+
+    // CTA pulsando para llamar al clic
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(ctaScale, { toValue: 1.04, duration: 1000, useNativeDriver: true }),
+        Animated.timing(ctaScale, { toValue: 1,    duration: 1000, useNativeDriver: true }),
+      ])
+    ).start()
+
+    // Auto-scroll de testimonios cada 3s
+    const interval = setInterval(() => {
+      testimonialIndex.current = (testimonialIndex.current + 1) % 5
+      testimonialsRef.current?.scrollTo({ x: testimonialIndex.current * 254, animated: true })
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <View style={s.container}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── HERO ── */}
-        <View style={s.hero}>
-          <Text style={s.heroMoon}>🌙</Text>
+        <Animated.View style={[s.hero, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}>
+          {/* Halo lunar */}
+          <Animated.View style={[s.moonHalo, { opacity: moonGlow }]} />
+          <Animated.Text style={[s.heroMoon, { transform: [{ translateY: moonFloat }] }]}>🌙</Animated.Text>
           <Text style={s.brandName}>Luumina</Text>
           <Text style={s.brandTagline}>el secreto de manifestación judía</Text>
           <View style={s.heroDivider} />
-          <Text style={s.heroTitle}>¿Sigues manifestando{'\n'}en desorden?</Text>
-          <Text style={s.heroHook}>
-            El universo responde a precisión, no a intención vaga.{'\n'}
-            Luumina crea tu protocolo único — basado en quién eres energéticamente — para que manifestes con exactitud, no con esperanza.
-          </Text>
-          <GradientButton title="Crear mi protocolo ahora" onPress={onGetStarted} />
-          <TouchableOpacity onPress={onLogin} style={s.loginBtn}>
-            <Text style={s.loginText}>Ya soy usuario activo → Iniciar sesión</Text>
-          </TouchableOpacity>
-        </View>
+          <Animated.View style={{ opacity: textOpacity, alignItems: 'center', gap: 16 }}>
+            <Text style={s.heroTitle}>¿Sigues manifestando{'\n'}en desorden?</Text>
+            <Text style={s.heroHook}>
+              El universo responde a precisión, no a intención vaga.{'\n'}
+              Luumina crea tu protocolo único — basado en quién eres energéticamente — para que manifestes con exactitud, no con esperanza.
+            </Text>
+            <Animated.View style={{ transform: [{ scale: ctaScale }], width: '100%' }}>
+              <GradientButton title="Crear mi protocolo ahora" onPress={onGetStarted} />
+            </Animated.View>
+            <TouchableOpacity onPress={onLogin} style={s.loginBtn}>
+              <Text style={s.loginText}>Ya soy usuario activo → Iniciar sesión</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
 
         <Divider />
 
@@ -469,6 +528,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
           <Text style={s.h2White}>Personas que ya{'\n'}viven su protocolo</Text>
 
         <ScrollView
+          ref={testimonialsRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={s.testimonialsRow}
@@ -891,6 +951,11 @@ const s = StyleSheet.create({
 
   // Hero
   hero: { paddingHorizontal: Spacing.lg, paddingTop: 72, paddingBottom: Spacing.xl, alignItems: 'center', gap: Spacing.md },
+  moonHalo: {
+    position: 'absolute', top: 58, width: 110, height: 110, borderRadius: 55,
+    backgroundColor: 'rgba(201,168,76,0.18)',
+    shadowColor: Colors.gold, shadowRadius: 40, shadowOpacity: 1, shadowOffset: { width: 0, height: 0 },
+  },
   heroMoon: { fontSize: 56 },
   brandName: { fontSize: 42, color: Colors.gold, fontWeight: '800', letterSpacing: 3, textAlign: 'center', marginTop: -4 },
   brandTagline: { fontSize: 13, color: Colors.textSecondary, letterSpacing: 1.5, textAlign: 'center', textTransform: 'uppercase', marginTop: -6 },
