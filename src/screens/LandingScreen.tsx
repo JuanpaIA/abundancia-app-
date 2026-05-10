@@ -299,6 +299,8 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
   const ctaScale    = useRef(new Animated.Value(1)).current
   const testimonialsRef = useRef<ScrollView>(null)
   const testimonialIndex = useRef(0)
+  const screensRef = useRef<ScrollView>(null)
+  const screenIndex = useRef(0)
 
   useEffect(() => {
     // Hero entrance: luna → título → CTA en secuencia
@@ -335,12 +337,29 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
     ).start()
 
     // Auto-scroll de testimonios cada 3s
-    const interval = setInterval(() => {
+    const testimonialInterval = setInterval(() => {
       testimonialIndex.current = (testimonialIndex.current + 1) % 5
       testimonialsRef.current?.scrollTo({ x: testimonialIndex.current * 254, animated: true })
     }, 3000)
 
-    return () => clearInterval(interval)
+    // Auto-scroll de pantallas de app cada 2.5s (8 pantallas, ancho ~232px c/u)
+    const CARD_W = 232
+    const TOTAL_SCREENS = 8
+    const screenInterval = setInterval(() => {
+      screenIndex.current = screenIndex.current + 1
+      if (screenIndex.current >= TOTAL_SCREENS) {
+        // Regresa al inicio sin animación y reinicia
+        screensRef.current?.scrollTo({ x: 0, animated: false })
+        screenIndex.current = 0
+      } else {
+        screensRef.current?.scrollTo({ x: screenIndex.current * CARD_W, animated: true })
+      }
+    }, 2500)
+
+    return () => {
+      clearInterval(testimonialInterval)
+      clearInterval(screenInterval)
+    }
   }, [])
 
   return (
@@ -471,6 +490,7 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
         </Text>
 
         <ScrollView
+          ref={screensRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={s.screensRow}
