@@ -342,19 +342,17 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
       testimonialsRef.current?.scrollTo({ x: testimonialIndex.current * 254, animated: true })
     }, 3000)
 
-    // Auto-scroll de pantallas de app cada 2.5s (8 pantallas, ancho ~232px c/u)
-    const CARD_W = 232
-    const TOTAL_SCREENS = 8
+    // Scroll continuo tipo ticker — 1.2px cada 20ms ≈ 60px/seg, ciclo ~26s
+    const TOTAL_WIDTH = 8 * 232
     const screenInterval = setInterval(() => {
-      screenIndex.current = screenIndex.current + 1
-      if (screenIndex.current >= TOTAL_SCREENS) {
-        // Regresa al inicio sin animación y reinicia
-        screensRef.current?.scrollTo({ x: 0, animated: false })
+      screenIndex.current = screenIndex.current + 1.2
+      if (screenIndex.current >= TOTAL_WIDTH) {
         screenIndex.current = 0
+        screensRef.current?.scrollTo({ x: 0, animated: false })
       } else {
-        screensRef.current?.scrollTo({ x: screenIndex.current * CARD_W, animated: true })
+        screensRef.current?.scrollTo({ x: screenIndex.current, animated: false })
       }
-    }, 2500)
+    }, 20)
 
     return () => {
       clearInterval(testimonialInterval)
