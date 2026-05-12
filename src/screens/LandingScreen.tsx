@@ -1,8 +1,9 @@
 import {
   View, Text, StyleSheet, ScrollView,
-  StatusBar, TouchableOpacity, Animated,
+  StatusBar, TouchableOpacity, Animated, Platform,
 } from 'react-native'
 import { useState, useRef, useEffect } from 'react'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 
@@ -366,27 +367,89 @@ export function LandingScreen({ onGetStarted, onLogin }: Props) {
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── HERO ── */}
-        <Animated.View style={[s.hero, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}>
-          {/* Halo lunar */}
-          <Animated.View style={[s.moonHalo, { opacity: moonGlow }]} />
-          <Animated.Text style={[s.heroMoon, { transform: [{ translateY: moonFloat }] }]}>🌙</Animated.Text>
-          <Text style={s.brandName}>Luumina</Text>
-          <Text style={s.brandTagline}>el secreto de manifestación judía</Text>
-          <View style={s.heroDivider} />
-          <Animated.View style={{ opacity: textOpacity, alignItems: 'center', gap: 16 }}>
-            <Text style={s.heroTitle}>¿Sigues manifestando{'\n'}en desorden?</Text>
-            <Text style={s.heroHook}>
-              El universo responde a precisión, no a intención vaga.{'\n'}
-              Luumina crea tu protocolo único — basado en quién eres energéticamente — para que manifestes con exactitud, no con esperanza.
-            </Text>
-            <Animated.View style={{ transform: [{ scale: ctaScale }], width: '100%' }}>
-              <GradientButton title="Crear mi protocolo ahora" onPress={onGetStarted} />
+        <View style={s.heroWrapper}>
+
+          {/* Estrellas de fondo */}
+          {[
+            { top: 18,  left: '10%', size: 10, op: 0.15 },
+            { top: 60,  left: '85%', size: 14, op: 0.20 },
+            { top: 110, left: '5%',  size: 8,  op: 0.12 },
+            { top: 160, left: '92%', size: 10, op: 0.18 },
+            { top: 220, left: '15%', size: 6,  op: 0.10 },
+            { top: 280, left: '78%', size: 12, op: 0.14 },
+            { top: 320, left: '45%', size: 6,  op: 0.08 },
+            { top: 380, left: '25%', size: 8,  op: 0.12 },
+            { top: 420, left: '65%', size: 10, op: 0.16 },
+          ].map((star, i) => (
+            <Text key={i} style={{
+              position: 'absolute', top: star.top, left: star.left as any,
+              fontSize: star.size, color: Colors.gold, opacity: star.op,
+            }}>✦</Text>
+          ))}
+
+          <Animated.View style={[s.hero, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}>
+
+            {/* Brand */}
+            <Text style={s.brandName}>Luumina</Text>
+            <Text style={s.brandTagline}>sistema de manifestación personalizado</Text>
+
+            {/* Orbes Trifuerza */}
+            <View style={s.trifuerzaOrbs}>
+              {[
+                { icon: '🔢', label: 'Número', color: '#C9A84C' },
+                { icon: '🌙', label: 'Luna',   color: '#9B7FD4' },
+                { icon: '♏',  label: 'Zodiacal', color: '#4CAF82' },
+              ].map((orb, i) => (
+                <View key={i} style={s.orbWrapper}>
+                  {i > 0 && <View style={s.orbConnector} />}
+                  <Animated.View style={[
+                    s.orb,
+                    { borderColor: orb.color + '80', shadowColor: orb.color },
+                    i === 1 && { transform: [{ translateY: moonFloat }] },
+                  ]}>
+                    <Text style={s.orbIcon}>{orb.icon}</Text>
+                  </Animated.View>
+                  <Text style={[s.orbLabel, { color: orb.color }]}>{orb.label}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Título con gradiente */}
+            <Animated.View style={{ opacity: textOpacity, alignItems: 'center', gap: 14, width: '100%' }}>
+              <View style={s.heroTitleWrapper}>
+                <Text style={s.heroTitlePlain}>¿Sigues manifestando</Text>
+                <LinearGradient
+                  colors={['#C9A84C', '#F0D080', '#C9A84C']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                  style={s.heroTitleGradientBg}
+                >
+                  <Text style={s.heroTitleGradient}>en desorden?</Text>
+                </LinearGradient>
+              </View>
+
+              <Text style={s.heroHook}>
+                El universo responde a precisión, no a intención vaga.{' '}
+                Luumina combina tu número, tu luna y tu signo para crear un protocolo único — tuyo — cada día.
+              </Text>
+
+              <Animated.View style={{ transform: [{ scale: ctaScale }], width: '100%' }}>
+                <LinearGradient
+                  colors={['#C9A84C', '#E8C060', '#C9A84C']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                  style={s.ctaGradient}
+                >
+                  <TouchableOpacity onPress={onGetStarted} style={s.ctaInner} activeOpacity={0.85}>
+                    <Text style={s.ctaText}>Crear mi protocolo ahora ✦</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </Animated.View>
+
+              <TouchableOpacity onPress={onLogin} style={s.loginBtn}>
+                <Text style={s.loginText}>Ya soy usuario activo → Iniciar sesión</Text>
+              </TouchableOpacity>
             </Animated.View>
-            <TouchableOpacity onPress={onLogin} style={s.loginBtn}>
-              <Text style={s.loginText}>Ya soy usuario activo → Iniciar sesión</Text>
-            </TouchableOpacity>
           </Animated.View>
-        </Animated.View>
+        </View>
 
         <Divider />
 
@@ -968,18 +1031,43 @@ const s = StyleSheet.create({
   bodyText: { fontSize: 15, color: Colors.textSecondary, lineHeight: 23, paddingHorizontal: Spacing.lg, marginBottom: Spacing.lg },
 
   // Hero
-  hero: { paddingHorizontal: Spacing.lg, paddingTop: 72, paddingBottom: Spacing.xl, alignItems: 'center', gap: Spacing.md },
-  moonHalo: {
-    position: 'absolute', top: 58, width: 110, height: 110, borderRadius: 55,
-    backgroundColor: 'rgba(201,168,76,0.18)',
-    shadowColor: Colors.gold, shadowRadius: 40, shadowOpacity: 1, shadowOffset: { width: 0, height: 0 },
+  heroWrapper: {
+    position: 'relative', overflow: 'hidden',
+    backgroundColor: Colors.background,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(201,168,76,0.15)',
   },
-  heroMoon: { fontSize: 56 },
-  brandName: { fontSize: 42, color: Colors.gold, fontWeight: '800', letterSpacing: 3, textAlign: 'center', marginTop: -4 },
-  brandTagline: { fontSize: 13, color: Colors.textSecondary, letterSpacing: 1.5, textAlign: 'center', textTransform: 'uppercase', marginTop: -6 },
-  heroDivider: { width: 40, height: 1, backgroundColor: 'rgba(201,168,76,0.40)', marginVertical: 4 },
-  heroTitle: { fontSize: 34, color: Colors.textPrimary, fontWeight: '800', textAlign: 'center', lineHeight: 42 },
+  hero: { paddingHorizontal: Spacing.lg, paddingTop: 72, paddingBottom: Spacing.xl, alignItems: 'center', gap: Spacing.lg },
+  brandName: { fontSize: 44, color: Colors.gold, fontWeight: '900', letterSpacing: 4, textAlign: 'center' },
+  brandTagline: { fontSize: 11, color: Colors.textDisabled, letterSpacing: 2.5, textAlign: 'center', textTransform: 'uppercase', marginTop: -8 },
+
+  // Orbes Trifuerza
+  trifuerzaOrbs: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 0, marginVertical: 8 },
+  orbWrapper: { alignItems: 'center', gap: 6, flexDirection: 'column' },
+  orbConnector: { width: 28, height: 1, backgroundColor: 'rgba(201,168,76,0.3)', marginBottom: 20, alignSelf: 'center' },
+  orb: {
+    width: 68, height: 68, borderRadius: 34,
+    backgroundColor: 'rgba(201,168,76,0.08)',
+    borderWidth: 1.5,
+    alignItems: 'center', justifyContent: 'center',
+    shadowOffset: { width: 0, height: 0 }, shadowRadius: 16, shadowOpacity: 0.6,
+    elevation: 8,
+  },
+  orbIcon: { fontSize: 28 },
+  orbLabel: { fontSize: 10, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
+
+  // Título gradiente
+  heroTitleWrapper: { alignItems: 'center', gap: 4 },
+  heroTitlePlain: { fontSize: 32, color: Colors.textPrimary, fontWeight: '800', textAlign: 'center', lineHeight: 40 },
+  heroTitleGradientBg: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
+  heroTitleGradient: { fontSize: 32, color: Colors.background, fontWeight: '900', textAlign: 'center', lineHeight: 40 },
+
   heroHook: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 24 },
+
+  // CTA gradiente
+  ctaGradient: { borderRadius: Radius.md, width: '100%' },
+  ctaInner: { paddingVertical: 16, alignItems: 'center' },
+  ctaText: { fontSize: 17, color: Colors.background, fontWeight: '800', letterSpacing: 0.5 },
+
   loginBtn: { paddingVertical: Spacing.sm },
   loginText: { fontSize: 15, color: Colors.gold, fontWeight: '600' },
 
