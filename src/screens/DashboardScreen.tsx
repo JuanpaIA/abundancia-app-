@@ -1092,7 +1092,7 @@ export function DashboardScreen() {
     if (!profile?.plan_start_date) return false
     const start = new Date(profile.plan_start_date + 'T00:00:00')
     const today = new Date(); today.setHours(0, 0, 0, 0)
-    return start.getTime() === today.getTime() && !(profile.goal_details as any)?.welcome_seen
+    return start.getTime() === today.getTime() && !profile.goal_details?.welcome_seen
   })
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null)
   const [dashTab, setDashTab] = useState<'manana' | 'tarde' | 'noche'>('manana')
@@ -1370,8 +1370,8 @@ export function DashboardScreen() {
   })
 
   const overallRate = chartData.length > 0
-    ? Math.round(chartData.reduce((s, d) => s + d.count, 0) / (chartData.length * 4) * 100) : 0
-  const perfectDays = chartData.filter(d => d.count === 4).length
+    ? Math.round(chartData.reduce((s, d) => s + d.count, 0) / (chartData.length * 9) * 100) : 0
+  const perfectDays = chartData.filter(d => d.count === 9).length
   let streak = 0
   const lastIdx = chartData.length - 1
   const startIdx = (chartData[lastIdx]?.count === 0 && chartData[lastIdx]?.isToday) ? lastIdx - 1 : lastIdx

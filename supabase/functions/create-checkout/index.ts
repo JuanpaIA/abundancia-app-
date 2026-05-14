@@ -50,8 +50,8 @@ Deno.serve(async (req) => {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      success_url: `https://vgelzamhfcbdswgizgrp.supabase.co/functions/v1/payment-success`,
-      cancel_url: `https://vgelzamhfcbdswgizgrp.supabase.co/functions/v1/payment-cancel`,
+      success_url: `https://luumina.pro?payment=success`,
+      cancel_url: `https://luumina.pro?payment=cancel`,
       metadata: { supabase_user_id: userId, plan_type: planType },
     })
 

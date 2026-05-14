@@ -1,4 +1,13 @@
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
+  }
+
   try {
     const { email, name } = await req.json()
 
@@ -8,13 +17,13 @@ Deno.serve(async (req) => {
 <div style="background-color:#0E0C1A;padding:40px 20px;font-family:Georgia,serif;max-width:480px;margin:0 auto;border-radius:16px">
   <div style="text-align:center;margin-bottom:32px">
     <p style="font-size:32px;margin:0">🌙</p>
-    <h1 style="color:#C9A84C;font-size:28px;letter-spacing:3px;margin:8px 0 4px">Lúmina</h1>
+    <h1 style="color:#C9A84C;font-size:28px;letter-spacing:3px;margin:8px 0 4px">Luumina</h1>
     <p style="color:#7A7890;font-size:12px;letter-spacing:2px;margin:0;text-transform:uppercase">tu protocolo diario de manifestación</p>
   </div>
 
   <p style="color:#E8E6F0;font-size:16px;line-height:26px;margin-bottom:8px">Hola, ${firstName} ✦</p>
   <p style="color:#E8E6F0;font-size:16px;line-height:26px;margin-bottom:24px">
-    Bienvenida a Lúmina. Tu protocolo personalizado ya está listo — creado especialmente para ti según tu energía, tu ciclo lunar y tu intención.
+    Bienvenida a Luumina. Tu protocolo personalizado ya está listo — creado especialmente para ti según tu energía, tu ciclo lunar y tu intención.
   </p>
 
   <div style="border-top:1px solid rgba(201,168,76,0.2);margin:24px 0;padding-top:24px">
@@ -47,7 +56,7 @@ Deno.serve(async (req) => {
   </div>
 
   <p style="color:#4A4760;font-size:11px;text-align:center;margin-top:32px;line-height:18px">
-    Lúmina · luumina.pro<br>
+    Luumina · luumina.pro<br>
     Tu protocolo diario de manifestación
   </p>
 </div>`
@@ -59,18 +68,21 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Lúmina <hola@luumina.pro>',
+        from: 'Luumina <hola@luumina.pro>',
         to: email,
-        subject: '✦ Bienvenida a Lúmina — tu protocolo está listo',
+        subject: '✦ Bienvenida a Luumina — tu protocolo está listo',
         html,
       }),
     })
 
     const data = await res.json()
     return new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

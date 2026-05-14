@@ -40,7 +40,7 @@ const OPTION_LABELS: Record<string, string> = {
   mente: 'Pensamientos negativos', proposito: 'Falta de dirección',
 }
 
-const QUESTION_LABELS: Record<keyof GoalDetails, string> = {
+const QUESTION_LABELS: Partial<Record<keyof GoalDetails, string>> = {
   situation: 'Situación actual',
   skill: 'Habilidad para generar dinero',
   monthly_goal: 'Meta de ingresos al mes',
@@ -226,7 +226,7 @@ export function EditProfileScreen({ profile, onSave, onBack }: Props) {
             filledFields.map(field => (
               <View key={field} style={styles.detailRow}>
                 <Text style={styles.detailQuestion}>{QUESTION_LABELS[field]}</Text>
-                <Text style={styles.detailAnswer}>{displayValue(field, goalDetails[field]!)}</Text>
+                <Text style={styles.detailAnswer}>{displayValue(field, String(goalDetails[field]!))}</Text>
               </View>
             ))
           ) : (

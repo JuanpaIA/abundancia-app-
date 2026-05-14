@@ -29,6 +29,7 @@ export interface UserProfile {
   plan_type?: PlanType
   plan_duration?: number
   plan_start_date?: string
+  push_token?: string
   created_at: string
 }
 
@@ -55,6 +56,9 @@ export interface GoalDetails {
   joy_blockers?: string
   joy_activities?: string
   happiness_change?: string
+  // App state
+  vision_board_ids?: string[]
+  welcome_seen?: boolean
 }
 
 export interface DailyLog {

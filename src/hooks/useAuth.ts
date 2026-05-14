@@ -35,13 +35,13 @@ export function useAuth() {
   }, [])
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single()
 
-    setProfile(data)
+    if (!error) setProfile(data)
     setLoading(false)
   }
 
@@ -59,13 +59,13 @@ export function useAuth() {
 
   async function updateProfile(updates: Partial<UserProfile>) {
     if (!session) return
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', session.user.id)
       .select()
       .single()
-    setProfile(data)
+    if (!error && data) setProfile(data)
   }
 
   async function refreshProfile() {

@@ -31,8 +31,8 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
     const params = new URLSearchParams(window.location.search)
     if (params.get('payment') === 'success') {
       window.history.replaceState({}, '', window.location.pathname)
-      // Esperar 2s para que el webhook actualice la suscripción
-      setTimeout(() => handleVerify(), 2000)
+      const t = setTimeout(() => handleVerify(), 2000)
+      return () => clearTimeout(t)
     }
   }, [])
 

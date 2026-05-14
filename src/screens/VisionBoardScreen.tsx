@@ -47,7 +47,7 @@ export function VisionBoardScreen({ onBack }: Props) {
 
   useEffect(() => {
     if (!profile) return
-    const saved = (profile.goal_details as any)?.vision_board_ids as string[] | undefined
+    const saved = profile.goal_details?.vision_board_ids
     if (saved && saved.length > 0) setSelectedIds(saved)
     setLoading(false)
   }, [profile])
