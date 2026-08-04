@@ -70,7 +70,9 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
     if (!email.trim()) return showError('Escribe tu email arriba y toca "¿Olvidaste tu contraseña?" de nuevo.')
 
     setLoading(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim())
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: 'https://luumina.pro',
+    })
     setLoading(false)
     if (error) return showError(error.message)
     showSuccess(`Si existe una cuenta con ${email.trim()}, recibirás un enlace para restablecer tu contraseña.`)
