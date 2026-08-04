@@ -60,6 +60,12 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
       if (msg.includes('email not confirmed')) {
         return showError('Confirma tu email antes de iniciar sesión. Revisa tu bandeja de entrada.')
       }
+      void supabase.from('error_reports').insert({
+        user_id: null,
+        section: 'auth',
+        error_message: error.message,
+        app_context: { action: 'login', email: email.trim() },
+      })
       return showError('No se pudo iniciar sesión. Verifica tus datos e intenta de nuevo.')
     }
     onAuthSuccess()

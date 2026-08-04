@@ -91,7 +91,15 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
     }).eq('id', userId)
 
     setLoading(false)
-    if (error) return Alert.alert('Error al guardar', error.message)
+    if (error) {
+      void supabase.from('error_reports').insert({
+        user_id: userId,
+        section: 'onboarding',
+        error_message: error.message,
+        app_context: { action: 'save_profile', manifestation_area: manifestationArea },
+      })
+      return Alert.alert('Error al guardar', error.message)
+    }
 
     // Enviar email de bienvenida en background (no bloqueante)
     supabase.auth.getUser().then(({ data }) => {

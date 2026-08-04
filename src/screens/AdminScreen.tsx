@@ -181,6 +181,7 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
   const [broadcastTitle, setBroadcastTitle] = useState('')
   const [broadcastBody, setBroadcastBody] = useState('')
   const [broadcasting, setBroadcasting] = useState(false)
+  const [broadcastTarget, setBroadcastTarget] = useState<'all' | 'active' | 'inactive'>('all')
 
   const load = useCallback(async () => {
     const thirtyAgo = new Date()
@@ -313,14 +314,24 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
               </View>
             </View>
 
-            {/* Notificar a todos */}
-            <TouchableOpacity
-              style={styles.notifyAllBtn}
-              onPress={() => { setBroadcastTitle(''); setBroadcastBody(''); setBroadcastOpen(true) }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.notifyAllText}>📣 Enviar mensaje a todos los usuarios</Text>
-            </TouchableOpacity>
+            {/* Broadcast por grupo */}
+            <View style={styles.broadcastRow}>
+              {([
+                { target: 'all' as const, label: '📣 Todos', count: users.length },
+                { target: 'active' as const, label: '✓ Activos', count: totalActive },
+                { target: 'inactive' as const, label: '✗ Ausentes', count: totalAbsent },
+              ]).map(({ target, label, count }) => (
+                <TouchableOpacity
+                  key={target}
+                  style={styles.broadcastBtn}
+                  onPress={() => { setBroadcastTarget(target); setBroadcastTitle(''); setBroadcastBody(''); setBroadcastOpen(true) }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.broadcastBtnLabel}>{label}</Text>
+                  <Text style={styles.broadcastBtnCount}>{count}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
             {/* Filtros */}
             <View style={styles.filterRow}>
@@ -341,7 +352,7 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
             {filtered.length === 0 ? (
               <Text style={styles.empty}>No hay usuarios en esta categoría.</Text>
             ) : (
-              filtered.map(user => <UserCard key={user.id} user={user} />)
+              filtered.map(user => <UserCard key={user.id} user={user} onPlanUpdated={load} />)
             )}
           </>
         ) : tab === 'sugerencias' ? (
@@ -374,11 +385,20 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
         )}
       </ScrollView>
 
-      {/* Modal: mensaje personalizado a todos */}
+      {/* Modal: broadcast por grupo */}
       <Modal visible={broadcastOpen} transparent animationType="slide" onRequestClose={() => setBroadcastOpen(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>📣 Mensaje para todos</Text>
+            <Text style={styles.modalTitle}>
+              {broadcastTarget === 'all' ? '📣 Mensaje para todos'
+                : broadcastTarget === 'active' ? '✓ Mensaje para usuarios activos'
+                : '✗ Mensaje para usuarios ausentes'}
+            </Text>
+            <Text style={styles.modalTargetHint}>
+              {broadcastTarget === 'all' ? `${users.length} usuarios`
+                : broadcastTarget === 'active' ? `${totalActive} usuario${totalActive !== 1 ? 's' : ''} activos (últimos 3 días)`
+                : `${totalAbsent} usuario${totalAbsent !== 1 ? 's' : ''} sin entrar en +3 días`}
+            </Text>
             <Text style={styles.modalLabel}>Título</Text>
             <TextInput
               style={styles.modalInput}
@@ -391,7 +411,7 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
             <Text style={styles.modalLabel}>Mensaje</Text>
             <TextInput
               style={[styles.modalInput, styles.modalInputMulti]}
-              placeholder="Escribe aquí el mensaje que verán todos los usuarios al abrir la app…"
+              placeholder="Escribe aquí el mensaje que verán los usuarios al abrir la app…"
               placeholderTextColor={Colors.textDisabled}
               value={broadcastBody}
               onChangeText={setBroadcastBody}
@@ -409,21 +429,27 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
                 disabled={!broadcastTitle.trim() || !broadcastBody.trim() || broadcasting}
                 onPress={async () => {
                   setBroadcasting(true)
-                  const { error } = await supabase.from('admin_notifications').insert({
+                  const targetUsers = broadcastTarget === 'all' ? users
+                    : broadcastTarget === 'active' ? users.filter(u => u.isActive)
+                    : users.filter(u => !u.isActive)
+
+                  const records = targetUsers.map(u => ({
                     title: broadcastTitle.trim(),
                     body: broadcastBody.trim(),
-                    target_user_id: null,
-                  })
+                    target_user_id: u.id,
+                  }))
+
+                  const { error } = await supabase.from('admin_notifications').insert(records)
                   setBroadcasting(false)
                   if (error) {
                     Alert.alert('Error', error.message)
                   } else {
                     setBroadcastOpen(false)
-                    Alert.alert('✓ Enviado', 'Todos los usuarios verán este mensaje la próxima vez que abran la app.')
+                    Alert.alert('✓ Enviado', `Mensaje enviado a ${targetUsers.length} usuario${targetUsers.length !== 1 ? 's' : ''}. Lo verán la próxima vez que abran la app.`)
                   }
                 }}
               >
-                <Text style={styles.modalSendText}>{broadcasting ? 'Enviando…' : 'Enviar a todos'}</Text>
+                <Text style={styles.modalSendText}>{broadcasting ? 'Enviando…' : 'Enviar mensaje'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -529,10 +555,42 @@ function ErrorReportsTab({ reports, onResolve }: { reports: ErrorReport[]; onRes
 
 // ─── Tarjeta de usuario ───────────────────────────────────────────────────────
 
-function UserCard({ user }: { user: AdminUser }) {
+type PlanStatus = 'active' | 'inactive'
+type PlanKind = 'monthly' | 'annual'
+
+function UserCard({ user, onPlanUpdated }: { user: AdminUser; onPlanUpdated: () => void }) {
   const barWidth = Math.min(user.completionRate, 100)
   const barColor = user.completionRate >= 70 ? '#4CAF82' : user.completionRate >= 40 ? '#C9A84C' : '#E05555'
   const [sending, setSending] = useState(false)
+  const [planOpen, setPlanOpen] = useState(false)
+  const [editStatus, setEditStatus] = useState<PlanStatus>('active')
+  const [editKind, setEditKind] = useState<PlanKind>('monthly')
+  const [editStartDate, setEditStartDate] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  function openPlan() {
+    setEditStatus(('subscription_status' in user ? (user as any).subscription_status : 'inactive') as PlanStatus)
+    setEditKind((user.plan_duration === 365 ? 'annual' : 'monthly') as PlanKind)
+    setEditStartDate(user.plan_start_date ?? '')
+    setPlanOpen(true)
+  }
+
+  async function savePlan() {
+    setSaving(true)
+    const { error } = await supabase.from('profiles').update({
+      subscription_status: editStatus,
+      plan_type: editKind,
+      plan_start_date: editStartDate || null,
+    }).eq('id', user.id)
+    setSaving(false)
+    if (error) {
+      Alert.alert('Error', error.message)
+    } else {
+      setPlanOpen(false)
+      Alert.alert('✓ Plan actualizado', `Plan de ${user.full_name.split(' ')[0]} actualizado correctamente.`)
+      onPlanUpdated()
+    }
+  }
 
   async function handleReminder() {
     setSending(true)
@@ -585,14 +643,77 @@ function UserCard({ user }: { user: AdminUser }) {
         <View style={[styles.barFill, { width: `${barWidth}%` as any, backgroundColor: barColor }]} />
       </View>
 
-      {/* Botón recordatorio */}
-      {!user.isActive && (
-        <TouchableOpacity style={styles.reminderBtn} onPress={handleReminder} activeOpacity={0.8} disabled={sending}>
-          <Text style={styles.reminderBtnText}>
-            {sending ? 'Enviando…' : `📩 Enviar mensaje · ${user.daysSinceActive} días sin entrar`}
-          </Text>
+      {/* Acciones */}
+      <View style={styles.cardActions}>
+        <TouchableOpacity style={styles.planBtn} onPress={openPlan} activeOpacity={0.8}>
+          <Text style={styles.planBtnText}>⚙ Gestionar plan</Text>
         </TouchableOpacity>
-      )}
+        {!user.isActive && (
+          <TouchableOpacity style={styles.reminderBtn} onPress={handleReminder} activeOpacity={0.8} disabled={sending}>
+            <Text style={styles.reminderBtnText}>
+              {sending ? 'Enviando…' : `📩 ${user.daysSinceActive}d sin entrar`}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Modal de gestión de plan */}
+      <Modal visible={planOpen} transparent animationType="slide" onRequestClose={() => setPlanOpen(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <Text style={styles.modalTitle}>⚙ Plan de {user.full_name.split(' ')[0]}</Text>
+
+            <Text style={styles.modalLabel}>Estado de suscripción</Text>
+            <View style={styles.segmentRow}>
+              {(['active', 'inactive'] as PlanStatus[]).map(s => (
+                <TouchableOpacity
+                  key={s}
+                  style={[styles.segmentBtn, editStatus === s && styles.segmentBtnActive]}
+                  onPress={() => setEditStatus(s)}
+                >
+                  <Text style={[styles.segmentText, editStatus === s && styles.segmentTextActive]}>
+                    {s === 'active' ? '✓ Activo' : '✗ Inactivo'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.modalLabel}>Tipo de plan</Text>
+            <View style={styles.segmentRow}>
+              {(['monthly', 'annual'] as PlanKind[]).map(k => (
+                <TouchableOpacity
+                  key={k}
+                  style={[styles.segmentBtn, editKind === k && styles.segmentBtnActive]}
+                  onPress={() => setEditKind(k)}
+                >
+                  <Text style={[styles.segmentText, editKind === k && styles.segmentTextActive]}>
+                    {k === 'monthly' ? 'Mensual $14' : 'Anual $99'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.modalLabel}>Fecha inicio del plan (YYYY-MM-DD)</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={editStartDate}
+              onChangeText={setEditStartDate}
+              placeholder="ej: 2025-01-15"
+              placeholderTextColor={Colors.textDisabled}
+              keyboardType="numbers-and-punctuation"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPlanOpen(false)}>
+                <Text style={styles.modalCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalSendBtn} onPress={savePlan} disabled={saving}>
+                <Text style={styles.modalSendText}>{saving ? 'Guardando…' : 'Guardar cambios'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   )
 }
@@ -691,12 +812,12 @@ const styles = StyleSheet.create({
   barFill: { height: 4, borderRadius: 2 },
 
   reminderBtn: {
-    backgroundColor: 'rgba(201,168,76,0.08)',
+    flex: 1, backgroundColor: 'rgba(224,85,85,0.08)',
     borderRadius: Radius.md, padding: Spacing.sm,
     alignItems: 'center', borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.25)',
+    borderColor: 'rgba(224,85,85,0.25)',
   },
-  reminderBtnText: { fontSize: 13, color: Colors.gold, fontWeight: '600' },
+  reminderBtnText: { fontSize: 12, color: '#E05555', fontWeight: '600' },
 
   tabBtnError: { borderColor: 'rgba(224,85,85,0.40)', backgroundColor: 'rgba(224,85,85,0.08)' },
   tabTextError: { color: '#E05555' },
@@ -735,11 +856,35 @@ const styles = StyleSheet.create({
   },
   errResolveBtnText: { fontSize: 13, color: '#4CAF82', fontWeight: '700' },
 
-  notifyAllBtn: {
-    backgroundColor: Colors.gold, borderRadius: Radius.md,
-    padding: Spacing.md, alignItems: 'center', marginBottom: Spacing.lg,
+  broadcastRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
+  broadcastBtn: {
+    flex: 1, backgroundColor: Colors.card, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.gold, padding: Spacing.sm,
+    alignItems: 'center', gap: 2,
   },
-  notifyAllText: { fontSize: 14, color: Colors.background, fontWeight: '700' },
+  broadcastBtnLabel: { fontSize: 12, color: Colors.gold, fontWeight: '700' },
+  broadcastBtnCount: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700' },
+
+  cardActions: { flexDirection: 'row', gap: Spacing.sm },
+  planBtn: {
+    flex: 1, backgroundColor: 'rgba(201,168,76,0.08)',
+    borderRadius: Radius.md, padding: Spacing.sm,
+    alignItems: 'center', borderWidth: 1,
+    borderColor: 'rgba(201,168,76,0.25)',
+  },
+  planBtnText: { fontSize: 12, color: Colors.gold, fontWeight: '600' },
+
+  segmentRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm },
+  segmentBtn: {
+    flex: 1, padding: Spacing.sm, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.border,
+    backgroundColor: Colors.background, alignItems: 'center',
+  },
+  segmentBtnActive: { borderColor: Colors.gold, backgroundColor: 'rgba(201,168,76,0.12)' },
+  segmentText: { fontSize: 13, color: Colors.textSecondary, fontWeight: '500' },
+  segmentTextActive: { color: Colors.gold, fontWeight: '700' },
+
+  modalTargetHint: { fontSize: 12, color: Colors.textSecondary, marginBottom: Spacing.sm, marginTop: -4 },
 
   modalOverlay: {
     flex: 1, justifyContent: 'flex-end',

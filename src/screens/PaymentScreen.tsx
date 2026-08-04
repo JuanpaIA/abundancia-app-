@@ -49,12 +49,25 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
       })
 
       if (error || !data?.url) {
-        Alert.alert('Error', error?.message ?? 'No se pudo iniciar el pago. Intenta de nuevo.')
+        const msg = error?.message ?? 'No se pudo iniciar el pago. Intenta de nuevo.'
+        void supabase.from('error_reports').insert({
+          user_id: userId,
+          section: 'payment',
+          error_message: msg,
+          app_context: { action: 'create_checkout', plan_type: planType },
+        })
+        Alert.alert('Error', msg)
         return
       }
 
       await WebBrowser.openBrowserAsync(data.url)
     } catch (e: any) {
+      void supabase.from('error_reports').insert({
+        user_id: userId,
+        section: 'payment',
+        error_message: e.message,
+        app_context: { action: 'create_checkout_exception', plan_type: planType },
+      })
       Alert.alert('Error', e.message)
     } finally {
       setLoadingCheckout(false)
@@ -77,6 +90,12 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
       setLoadingVerify(false)
       onPaymentSuccess()
     } else {
+      void supabase.from('error_reports').insert({
+        user_id: userId,
+        section: 'payment',
+        error_message: 'Verificación de pago fallida — subscription_status no es active',
+        app_context: { action: 'verify_payment', plan_type: planType },
+      })
       setLoadingVerify(false)
       Alert.alert(
         'Pago no confirmado',
