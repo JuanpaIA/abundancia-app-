@@ -795,15 +795,38 @@ function UserCard({ user, onPlanUpdated, onDeleted }: { user: AdminUser; onPlanU
         )}
         <TouchableOpacity
           style={[styles.deleteBtn, confirmDelete && styles.deleteBtnConfirm]}
-          onPress={handleDelete}
+          onPress={() => setConfirmDelete(v => !v)}
           activeOpacity={0.8}
-          disabled={deleting}
         >
-          <Text style={styles.deleteBtnText}>
-            {deleting ? '…' : confirmDelete ? '✓' : '🗑'}
-          </Text>
+          <Text style={styles.deleteBtnText}>🗑</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Confirmación inline de eliminación */}
+      {confirmDelete && (
+        <View style={styles.deleteConfirmRow}>
+          <Text style={styles.deleteConfirmText}>¿Eliminar a {user.full_name.split(' ')[0]}?</Text>
+          <TouchableOpacity style={styles.deleteConfirmCancel} onPress={() => setConfirmDelete(false)}>
+            <Text style={styles.deleteConfirmCancelText}>Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.deleteConfirmOk, deleting && { opacity: 0.5 }]}
+            disabled={deleting}
+            onPress={async () => {
+              setDeleting(true)
+              setConfirmDelete(false)
+              const { error } = await supabase.functions.invoke('admin-user-actions', {
+                body: { action: 'delete', userId: user.id },
+              })
+              setDeleting(false)
+              if (error) Alert.alert('Error', error.message)
+              else onDeleted()
+            }}
+          >
+            <Text style={styles.deleteConfirmOkText}>{deleting ? 'Eliminando…' : 'Sí, eliminar'}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Modal de gestión de plan */}
       <Modal visible={planOpen} transparent animationType="slide" onRequestClose={() => setPlanOpen(false)}>
@@ -1052,6 +1075,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(224,85,85,0.25)',
     borderColor: 'rgba(224,85,85,0.6)',
   },
+
+  deleteConfirmRow: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
+    backgroundColor: 'rgba(224,85,85,0.08)',
+    borderRadius: Radius.md, padding: Spacing.sm,
+    borderWidth: 1, borderColor: 'rgba(224,85,85,0.25)',
+  },
+  deleteConfirmText: { flex: 1, fontSize: 12, color: '#E05555', fontWeight: '600' },
+  deleteConfirmCancel: {
+    paddingHorizontal: Spacing.sm, paddingVertical: 4,
+    borderRadius: Radius.sm, borderWidth: 1, borderColor: Colors.border,
+  },
+  deleteConfirmCancelText: { fontSize: 12, color: Colors.textSecondary },
+  deleteConfirmOk: {
+    paddingHorizontal: Spacing.sm, paddingVertical: 4,
+    borderRadius: Radius.sm, backgroundColor: '#E05555',
+  },
+  deleteConfirmOkText: { fontSize: 12, color: '#fff', fontWeight: '700' },
 
   modalOverlay: {
     flex: 1, justifyContent: 'flex-end',
