@@ -680,6 +680,7 @@ function UserCard({ user, onPlanUpdated, onDeleted }: { user: AdminUser; onPlanU
   const barColor = user.completionRate >= 70 ? '#4CAF82' : user.completionRate >= 40 ? '#C9A84C' : '#E05555'
   const [sending, setSending] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [planOpen, setPlanOpen] = useState(false)
   const [editStatus, setEditStatus] = useState<PlanStatus>('active')
   const [editKind, setEditKind] = useState<PlanKind>('monthly')
@@ -716,29 +717,23 @@ function UserCard({ user, onPlanUpdated, onDeleted }: { user: AdminUser; onPlanU
     setSending(false)
   }
 
-  function handleDelete() {
-    Alert.alert(
-      'Eliminar usuario',
-      `¿Seguro que quieres eliminar a ${user.full_name}? Esta acción no se puede deshacer.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar', style: 'destructive',
-          onPress: async () => {
-            setDeleting(true)
-            const { error } = await supabase.functions.invoke('admin-user-actions', {
-              body: { action: 'delete', userId: user.id },
-            })
-            setDeleting(false)
-            if (error) {
-              Alert.alert('Error', error.message)
-            } else {
-              onDeleted()
-            }
-          },
-        },
-      ]
-    )
+  async function handleDelete() {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      setTimeout(() => setConfirmDelete(false), 3000)
+      return
+    }
+    setDeleting(true)
+    setConfirmDelete(false)
+    const { error } = await supabase.functions.invoke('admin-user-actions', {
+      body: { action: 'delete', userId: user.id },
+    })
+    setDeleting(false)
+    if (error) {
+      Alert.alert('Error', error.message)
+    } else {
+      onDeleted()
+    }
   }
 
   return (
@@ -798,8 +793,15 @@ function UserCard({ user, onPlanUpdated, onDeleted }: { user: AdminUser; onPlanU
             </Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete} activeOpacity={0.8} disabled={deleting}>
-          <Text style={styles.deleteBtnText}>{deleting ? '…' : '🗑'}</Text>
+        <TouchableOpacity
+          style={[styles.deleteBtn, confirmDelete && styles.deleteBtnConfirm]}
+          onPress={handleDelete}
+          activeOpacity={0.8}
+          disabled={deleting}
+        >
+          <Text style={styles.deleteBtnText}>
+            {deleting ? '…' : confirmDelete ? '✓' : '🗑'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -1046,6 +1048,10 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
   },
   deleteBtnText: { fontSize: 16 },
+  deleteBtnConfirm: {
+    backgroundColor: 'rgba(224,85,85,0.25)',
+    borderColor: 'rgba(224,85,85,0.6)',
+  },
 
   modalOverlay: {
     flex: 1, justifyContent: 'flex-end',
