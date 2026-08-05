@@ -1040,9 +1040,10 @@ const styles = StyleSheet.create({
   addUserText: { fontSize: 14, color: Colors.gold, fontWeight: '700' },
 
   deleteBtn: {
-    width: 36, backgroundColor: 'rgba(224,85,85,0.08)',
+    width: 36, minHeight: 36, backgroundColor: 'rgba(224,85,85,0.08)',
     borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(224,85,85,0.25)',
+    padding: Spacing.sm,
   },
   deleteBtnText: { fontSize: 16 },
 
