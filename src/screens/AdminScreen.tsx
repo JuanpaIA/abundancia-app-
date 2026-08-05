@@ -182,6 +182,13 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
   const [broadcastBody, setBroadcastBody] = useState('')
   const [broadcasting, setBroadcasting] = useState(false)
   const [broadcastTarget, setBroadcastTarget] = useState<'all' | 'active' | 'inactive'>('all')
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [newName, setNewName] = useState('')
+  const [newPlanType, setNewPlanType] = useState<'monthly' | 'annual'>('monthly')
+  const [newStatus, setNewStatus] = useState<'active' | 'inactive'>('inactive')
+  const [creating, setCreating] = useState(false)
 
   const load = useCallback(async () => {
     const thirtyAgo = new Date()
@@ -314,6 +321,15 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
               </View>
             </View>
 
+            {/* Agregar usuario */}
+            <TouchableOpacity
+              style={styles.addUserBtn}
+              onPress={() => { setNewEmail(''); setNewPassword(''); setNewName(''); setNewPlanType('monthly'); setNewStatus('inactive'); setCreateOpen(true) }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.addUserText}>＋ Agregar usuario manual</Text>
+            </TouchableOpacity>
+
             {/* Broadcast por grupo */}
             <View style={styles.broadcastRow}>
               {([
@@ -352,7 +368,7 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
             {filtered.length === 0 ? (
               <Text style={styles.empty}>No hay usuarios en esta categoría.</Text>
             ) : (
-              filtered.map(user => <UserCard key={user.id} user={user} onPlanUpdated={load} />)
+              filtered.map(user => <UserCard key={user.id} user={user} onPlanUpdated={load} onDeleted={load} />)
             )}
           </>
         ) : tab === 'sugerencias' ? (
@@ -453,6 +469,107 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
               </TouchableOpacity>
             </View>
           </View>
+        </KeyboardAvoidingView>
+      </Modal>
+      {/* Modal: crear usuario manual */}
+      <Modal visible={createOpen} transparent animationType="slide" onRequestClose={() => setCreateOpen(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
+          <ScrollView contentContainerStyle={styles.modalSheet} keyboardShouldPersistTaps="handled">
+            <Text style={styles.modalTitle}>＋ Agregar usuario</Text>
+
+            <Text style={styles.modalLabel}>Email</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="correo@email.com"
+              placeholderTextColor={Colors.textDisabled}
+              value={newEmail}
+              onChangeText={setNewEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <Text style={styles.modalLabel}>Contraseña</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Mínimo 6 caracteres"
+              placeholderTextColor={Colors.textDisabled}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+            />
+
+            <Text style={styles.modalLabel}>Nombre completo</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Nombre Apellido"
+              placeholderTextColor={Colors.textDisabled}
+              value={newName}
+              onChangeText={setNewName}
+            />
+
+            <Text style={styles.modalLabel}>Estado de suscripción</Text>
+            <View style={styles.segmentRow}>
+              {(['inactive', 'active'] as const).map(s => (
+                <TouchableOpacity
+                  key={s}
+                  style={[styles.segmentBtn, newStatus === s && styles.segmentBtnActive]}
+                  onPress={() => setNewStatus(s)}
+                >
+                  <Text style={[styles.segmentText, newStatus === s && styles.segmentTextActive]}>
+                    {s === 'active' ? '✓ Activo' : '✗ Inactivo'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.modalLabel}>Tipo de plan</Text>
+            <View style={styles.segmentRow}>
+              {(['monthly', 'annual'] as const).map(k => (
+                <TouchableOpacity
+                  key={k}
+                  style={[styles.segmentBtn, newPlanType === k && styles.segmentBtnActive]}
+                  onPress={() => setNewPlanType(k)}
+                >
+                  <Text style={[styles.segmentText, newPlanType === k && styles.segmentTextActive]}>
+                    {k === 'monthly' ? 'Mensual $14' : 'Anual $99'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setCreateOpen(false)}>
+                <Text style={styles.modalCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalSendBtn, (!newEmail.trim() || !newPassword.trim() || !newName.trim()) && { opacity: 0.4 }]}
+                disabled={!newEmail.trim() || !newPassword.trim() || !newName.trim() || creating}
+                onPress={async () => {
+                  setCreating(true)
+                  const { error } = await supabase.functions.invoke('admin-user-actions', {
+                    body: {
+                      action: 'create',
+                      email: newEmail.trim(),
+                      password: newPassword,
+                      full_name: newName.trim(),
+                      plan_type: newPlanType,
+                      subscription_status: newStatus,
+                    },
+                  })
+                  setCreating(false)
+                  if (error) {
+                    Alert.alert('Error', error.message)
+                  } else {
+                    setCreateOpen(false)
+                    Alert.alert('✓ Usuario creado', `${newName.trim()} ya puede iniciar sesión con su email y contraseña.`)
+                    load()
+                  }
+                }}
+              >
+                <Text style={styles.modalSendText}>{creating ? 'Creando…' : 'Crear usuario'}</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
     </View>
@@ -558,10 +675,11 @@ function ErrorReportsTab({ reports, onResolve }: { reports: ErrorReport[]; onRes
 type PlanStatus = 'active' | 'inactive'
 type PlanKind = 'monthly' | 'annual'
 
-function UserCard({ user, onPlanUpdated }: { user: AdminUser; onPlanUpdated: () => void }) {
+function UserCard({ user, onPlanUpdated, onDeleted }: { user: AdminUser; onPlanUpdated: () => void; onDeleted: () => void }) {
   const barWidth = Math.min(user.completionRate, 100)
   const barColor = user.completionRate >= 70 ? '#4CAF82' : user.completionRate >= 40 ? '#C9A84C' : '#E05555'
   const [sending, setSending] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [planOpen, setPlanOpen] = useState(false)
   const [editStatus, setEditStatus] = useState<PlanStatus>('active')
   const [editKind, setEditKind] = useState<PlanKind>('monthly')
@@ -596,6 +714,31 @@ function UserCard({ user, onPlanUpdated }: { user: AdminUser; onPlanUpdated: () 
     setSending(true)
     await sendInAppNotification(user)
     setSending(false)
+  }
+
+  function handleDelete() {
+    Alert.alert(
+      'Eliminar usuario',
+      `¿Seguro que quieres eliminar a ${user.full_name}? Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar', style: 'destructive',
+          onPress: async () => {
+            setDeleting(true)
+            const { error } = await supabase.functions.invoke('admin-user-actions', {
+              body: { action: 'delete', userId: user.id },
+            })
+            setDeleting(false)
+            if (error) {
+              Alert.alert('Error', error.message)
+            } else {
+              onDeleted()
+            }
+          },
+        },
+      ]
+    )
   }
 
   return (
@@ -655,6 +798,9 @@ function UserCard({ user, onPlanUpdated }: { user: AdminUser; onPlanUpdated: () 
             </Text>
           </TouchableOpacity>
         )}
+        <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete} activeOpacity={0.8} disabled={deleting}>
+          <Text style={styles.deleteBtnText}>{deleting ? '…' : '🗑'}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Modal de gestión de plan */}
@@ -885,6 +1031,20 @@ const styles = StyleSheet.create({
   segmentTextActive: { color: Colors.gold, fontWeight: '700' },
 
   modalTargetHint: { fontSize: 12, color: Colors.textSecondary, marginBottom: Spacing.sm, marginTop: -4 },
+
+  addUserBtn: {
+    borderWidth: 1, borderColor: Colors.gold, borderRadius: Radius.md,
+    borderStyle: 'dashed', padding: Spacing.md,
+    alignItems: 'center', marginBottom: Spacing.md,
+  },
+  addUserText: { fontSize: 14, color: Colors.gold, fontWeight: '700' },
+
+  deleteBtn: {
+    width: 36, backgroundColor: 'rgba(224,85,85,0.08)',
+    borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(224,85,85,0.25)',
+  },
+  deleteBtnText: { fontSize: 16 },
 
   modalOverlay: {
     flex: 1, justifyContent: 'flex-end',
