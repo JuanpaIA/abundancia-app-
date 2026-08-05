@@ -35,13 +35,14 @@ export function useAuth() {
   }, [])
 
   async function fetchProfile(userId: string) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), 8000))
+    const query = supabase.from('profiles').select('*').eq('id', userId).single()
 
-    if (!error) setProfile(data)
+    const result = await Promise.race([query, timeout])
+
+    if (result && 'data' in result && !result.error) {
+      setProfile(result.data)
+    }
     setLoading(false)
   }
 
