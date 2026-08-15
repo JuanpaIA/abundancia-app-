@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import { useState } from 'react'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
 import { PlanType } from '../types'
@@ -174,8 +174,8 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   content: { flex: 1, padding: Spacing.lg, paddingTop: 80, justifyContent: 'center' },
-  title: { fontSize: 28, color: Colors.textPrimary, fontWeight: '700', marginBottom: Spacing.xs },
-  subtitle: { fontSize: 15, color: Colors.gold, marginBottom: Spacing.xl },
+  title: { fontSize: 28, color: Colors.textPrimary, fontFamily: Fonts.heading, marginBottom: Spacing.xs },
+  subtitle: { fontSize: 15, color: Colors.gold, fontFamily: Fonts.bodyMedium, marginBottom: Spacing.xl },
   form: { gap: Spacing.md, marginBottom: Spacing.lg },
   inputWrapper: { gap: Spacing.xs },
   label: { fontSize: 14, color: Colors.textSecondary },

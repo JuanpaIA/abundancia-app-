@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Card } from '../components/ui/Card'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { getLunarPhase } from '../utils/calculations'
 import { LUNAR_PHASE_CONTENT, getNextKeyPhase } from '../utils/lunarPhaseContent'
 import { getPortalForDate, getNextPortal, getPortalPowerColor, getPortalPowerLabel } from '../utils/energeticPortals'
@@ -234,20 +234,20 @@ function MultiLineChart({ data }: { data: ChartPoint[] }) {
           </React.Fragment>
         ))}
 
-        {/* Línea roja — completados (dibujada primero, queda debajo cuando hay poco progreso) */}
+        {/* Línea verde — tareas completadas */}
         {n > 1 && (
           <Polyline
             points={greenPts}
-            fill="none" stroke="#E05555" strokeWidth={2.5}
+            fill="none" stroke="#4CAF82" strokeWidth={2.5}
             strokeLinejoin="round" strokeLinecap="round"
           />
         )}
 
-        {/* Línea verde — pendientes invertido (dibujada después, queda encima) */}
+        {/* Línea roja — tareas pendientes (invertido) */}
         {n > 1 && (
           <Polyline
             points={redPts}
-            fill="none" stroke="#4CAF82" strokeWidth={2.5}
+            fill="none" stroke="#E05555" strokeWidth={2.5}
             strokeLinejoin="round" strokeLinecap="round"
           />
         )}
@@ -258,8 +258,8 @@ function MultiLineChart({ data }: { data: ChartPoint[] }) {
           const rx = xOf(i); const ry = yOf(Y_MAX - d.count)
           return (
             <React.Fragment key={d.day}>
-              <Circle cx={gx} cy={gy} r={d.isToday ? 4.5 : 3} fill="#E05555" />
-              <Circle cx={rx} cy={ry} r={d.isToday ? 4.5 : 3} fill="#4CAF82" />
+              <Circle cx={gx} cy={gy} r={d.isToday ? 4.5 : 3} fill="#4CAF82" />
+              <Circle cx={rx} cy={ry} r={d.isToday ? 4.5 : 3} fill="#E05555" />
               {d.isToday && (
                 <>
                   <Circle cx={gx} cy={gy} r={8} fill="none" stroke="#E05555" strokeWidth={1} strokeOpacity={0.35}/>
@@ -3209,7 +3209,7 @@ const styles = StyleSheet.create({
   },
   journalHeroEmoji: { fontSize: 40 },
   journalHeroText: { flex: 1, gap: 4 },
-  journalHeroTitle: { fontSize: 20, color: Colors.gold, fontWeight: '700' },
+  journalHeroTitle: { fontSize: 20, color: Colors.gold, fontFamily: Fonts.heading },
   journalHeroSub: { fontSize: 13, color: Colors.textSecondary },
   journalHeroArrow: { fontSize: 32, color: Colors.gold, fontWeight: '300', marginRight: 4 },
 
@@ -3312,7 +3312,7 @@ const celebStyles = StyleSheet.create({
     elevation: 10,
   },
   moon: { fontSize: 52 },
-  title: { fontSize: 26, color: Colors.gold, fontWeight: '800', letterSpacing: 0.5 },
+  title: { fontSize: 26, color: Colors.gold, fontFamily: Fonts.heading, letterSpacing: 0.5 },
   name: { fontSize: 16, color: Colors.textPrimary, fontWeight: '600' },
   subtitle: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center' },
   divider: { width: 40, height: 1, backgroundColor: Colors.border, marginVertical: 4 },

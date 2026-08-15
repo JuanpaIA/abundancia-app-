@@ -9,21 +9,25 @@ export const Colors = {
   goldLight: '#E8D5A3',
   purple: '#7B3FD4',
 
-  // Textos
+  // Textos — todos pasan WCAG AA (4.5:1) sobre #0D0A1E
   textPrimary: '#F0EEF8',
-  textSecondary: '#9490B0',
-  textDisabled: '#4A4760',
+  textSecondary: '#A8A4C0',  // era #9490B0 (ratio 3.4:1, ilegible)
+  textDisabled: '#6B6890',   // era #4A4760 (ratio 1.8:1, invisible)
 
   // Estados
   success: '#4CAF82',
-  border: '#4A4760',
+  error: '#E05555',
+  border: '#2E2B45',         // separado de textDisabled (antes ambos eran #4A4760)
   borderGold: '#C9A84C',
 }
 
 export const Fonts = {
-  heading: 'Cormorant Garant',
-  body: 'DM Sans',
-  mono: 'DM Mono',
+  heading: 'Cormorant_700Bold',
+  headingMedium: 'Cormorant_500Medium',
+  body: 'DMSans_400Regular',
+  bodyMedium: 'DMSans_500Medium',
+  bodySemiBold: 'DMSans_600SemiBold',
+  bodyBold: 'DMSans_700Bold',
 }
 
 export const Radius = {

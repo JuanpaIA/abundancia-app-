@@ -4,7 +4,7 @@ import {
 } from 'react-native'
 import { useState, useRef, useEffect } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 
 const planBenefits = [
@@ -1027,7 +1027,7 @@ const s = StyleSheet.create({
   sectionTag: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,168,76,0.12)', borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 12, marginHorizontal: Spacing.lg, borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)' },
   sectionTagText: { fontSize: 10, color: Colors.gold, fontWeight: '700', letterSpacing: 1 },
 
-  h2: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700', lineHeight: 34, marginBottom: Spacing.md, paddingHorizontal: Spacing.lg },
+  h2: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, lineHeight: 34, marginBottom: Spacing.md, paddingHorizontal: Spacing.lg },
   bodyText: { fontSize: 15, color: Colors.textSecondary, lineHeight: 23, paddingHorizontal: Spacing.lg, marginBottom: Spacing.lg },
 
   // Hero
@@ -1037,7 +1037,7 @@ const s = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: 'rgba(201,168,76,0.15)',
   },
   hero: { paddingHorizontal: Spacing.lg, paddingTop: 72, paddingBottom: Spacing.xl, alignItems: 'center', gap: Spacing.lg },
-  brandName: { fontSize: 44, color: Colors.gold, fontWeight: '900', letterSpacing: 4, textAlign: 'center' },
+  brandName: { fontSize: 44, color: Colors.gold, fontFamily: Fonts.heading, letterSpacing: 4, textAlign: 'center' },
   brandTagline: { fontSize: 11, color: Colors.textDisabled, letterSpacing: 2.5, textAlign: 'center', textTransform: 'uppercase', marginTop: -8 },
 
   // Orbes Trifuerza
@@ -1057,9 +1057,9 @@ const s = StyleSheet.create({
 
   // Título gradiente
   heroTitleWrapper: { alignItems: 'center', gap: 4 },
-  heroTitlePlain: { fontSize: 32, color: Colors.textPrimary, fontWeight: '800', textAlign: 'center', lineHeight: 40 },
+  heroTitlePlain: { fontSize: 32, color: Colors.textPrimary, fontFamily: Fonts.heading, textAlign: 'center', lineHeight: 40 },
   heroTitleGradientBg: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
-  heroTitleGradient: { fontSize: 32, color: Colors.background, fontWeight: '900', textAlign: 'center', lineHeight: 40 },
+  heroTitleGradient: { fontSize: 32, color: Colors.background, fontFamily: Fonts.heading, textAlign: 'center', lineHeight: 40 },
 
   heroHook: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 24 },
 
