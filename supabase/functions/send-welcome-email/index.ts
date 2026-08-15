@@ -1,6 +1,15 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+function err(msg: string, status = 400) {
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
 }
 
 Deno.serve(async (req) => {
@@ -9,9 +18,32 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Validar JWT — solo usuarios autenticados pueden disparar este email
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) return err('No autorizado', 401)
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+    if (authError || !user) return err('Sesión inválida', 401)
+
     const { email, name } = await req.json()
 
-    const firstName = name ? name.split(' ')[0] : 'hola'
+    // El email de destino debe coincidir con el usuario autenticado
+    if (!email || email.trim().toLowerCase() !== user.email?.toLowerCase()) {
+      return err('Email no coincide con la sesión', 403)
+    }
+
+    // Sanitizar nombre: solo texto plano, sin HTML
+    const rawName = typeof name === 'string' ? name : ''
+    const firstName = rawName
+      .split(' ')[0]
+      .replace(/[<>&"']/g, '')
+      .trim() || 'hola'
 
     const html = `
 <div style="background-color:#0E0C1A;padding:40px 20px;font-family:Georgia,serif;max-width:480px;margin:0 auto;border-radius:16px">
@@ -69,7 +101,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'Luumina <hola@luumina.pro>',
-        to: email,
+        to: email.trim(),
         subject: '✦ Bienvenida a Luumina — tu protocolo está listo',
         html,
       }),

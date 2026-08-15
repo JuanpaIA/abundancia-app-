@@ -18,6 +18,7 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+  const [lastResetAt, setLastResetAt] = useState(0)
 
   function showError(msg: string) { setErrorMsg(msg); setSuccessMsg('') }
   function showSuccess(msg: string) { setSuccessMsg(msg); setErrorMsg('') }
@@ -64,7 +65,7 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
         user_id: null,
         section: 'auth',
         error_message: error.message,
-        app_context: { action: 'login', email: email.trim() },
+        app_context: { action: 'login' },
       })
       return showError('No se pudo iniciar sesión. Verifica tus datos e intenta de nuevo.')
     }
@@ -75,12 +76,19 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
     setErrorMsg(''); setSuccessMsg('')
     if (!email.trim()) return showError('Escribe tu email arriba y toca "¿Olvidaste tu contraseña?" de nuevo.')
 
+    const now = Date.now()
+    const secondsSinceLast = (now - lastResetAt) / 1000
+    if (lastResetAt && secondsSinceLast < 60) {
+      return showError(`Espera ${Math.ceil(60 - secondsSinceLast)} segundos antes de solicitar otro enlace.`)
+    }
+
     setLoading(true)
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: 'https://luumina.pro',
     })
     setLoading(false)
     if (error) return showError(error.message)
+    setLastResetAt(now)
     showSuccess(`Si existe una cuenta con ${email.trim()}, recibirás un enlace para restablecer tu contraseña.`)
   }
 

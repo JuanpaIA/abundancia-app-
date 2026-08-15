@@ -16,7 +16,41 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { priceId, userId, email, planType } = await req.json()
+    // Validar JWT y extraer usuario autenticado
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'No autorizado' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Sesión inválida' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const { priceId, planType } = await req.json()
+
+    const ALLOWED_PRICE_IDS = new Set([
+      'price_1TSSJMP1zGvRRWhKGykXARXa', // mensual
+      'price_1TSSK4P1zGvRRWhKcZa0wiAs', // anual
+    ])
+    if (!priceId || !ALLOWED_PRICE_IDS.has(priceId)) {
+      return new Response(JSON.stringify({ error: 'Plan no válido' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -27,21 +61,21 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_customer_id')
-      .eq('id', userId)
+      .eq('id', user.id)
       .single()
 
     let customerId = profile?.stripe_customer_id
 
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email,
-        metadata: { supabase_user_id: userId },
+        email: user.email,
+        metadata: { supabase_user_id: user.id },
       })
       customerId = customer.id
       await supabase
         .from('profiles')
         .update({ stripe_customer_id: customerId })
-        .eq('id', userId)
+        .eq('id', user.id)
     }
 
     // Crear sesión de checkout
@@ -52,7 +86,7 @@ Deno.serve(async (req) => {
       mode: 'subscription',
       success_url: `https://luumina.pro?payment=success`,
       cancel_url: `https://luumina.pro?payment=cancel`,
-      metadata: { supabase_user_id: userId, plan_type: planType },
+      metadata: { supabase_user_id: user.id, plan_type: planType },
     })
 
     return new Response(JSON.stringify({ url: session.url }), {
