@@ -6,7 +6,7 @@ import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Card } from '../components/ui/Card'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { getLunarPhase } from '../utils/calculations'
+import { getLunarPhase, getLunarPhaseLabel, getLunarPhaseEmoji } from '../utils/calculations'
 import { LUNAR_PHASE_CONTENT, getNextKeyPhase } from '../utils/lunarPhaseContent'
 import { getPortalForDate, getNextPortal, getPortalPowerColor, getPortalPowerLabel } from '../utils/energeticPortals'
 import { scheduleAbundanciaNotifications, scheduleWeeklyPatternNotification } from '../utils/notifications'
@@ -1763,6 +1763,53 @@ export function DashboardScreen() {
           </View>
         )}
 
+        {/* ── Briefing: por qué tu protocolo es único hoy ── */}
+        {(() => {
+          const ZODIAC_LABELS: Record<string, { emoji: string; label: string }> = {
+            aries:       { emoji: '♈', label: 'Aries' },
+            tauro:       { emoji: '♉', label: 'Tauro' },
+            geminis:     { emoji: '♊', label: 'Géminis' },
+            cancer:      { emoji: '♋', label: 'Cáncer' },
+            leo:         { emoji: '♌', label: 'Leo' },
+            virgo:       { emoji: '♍', label: 'Virgo' },
+            libra:       { emoji: '♎', label: 'Libra' },
+            escorpio:    { emoji: '♏', label: 'Escorpio' },
+            sagitario:   { emoji: '♐', label: 'Sagitario' },
+            capricornio: { emoji: '♑', label: 'Capricornio' },
+            acuario:     { emoji: '♒', label: 'Acuario' },
+            piscis:      { emoji: '♓', label: 'Piscis' },
+          }
+          const AREA_LABELS: Record<string, { emoji: string; label: string }> = {
+            dinero:    { emoji: '💰', label: 'Abundancia' },
+            amor:      { emoji: '💕', label: 'Amor' },
+            salud:     { emoji: '✨', label: 'Salud' },
+            proposito: { emoji: '🎯', label: 'Propósito' },
+            felicidad: { emoji: '🌟', label: 'Felicidad' },
+          }
+          const zodiac = ZODIAC_LABELS[profile.zodiac_sign] ?? { emoji: '⭐', label: profile.zodiac_sign }
+          const area   = AREA_LABELS[profile.manifestation_area] ?? { emoji: '✦', label: profile.manifestation_area }
+          const chips = [
+            { emoji: '🔢', label: `Número ${profile.numerology_number}` },
+            { emoji: zodiac.emoji, label: zodiac.label },
+            { emoji: getLunarPhaseEmoji(lunarPhase), label: getLunarPhaseLabel(lunarPhase) },
+            { emoji: area.emoji, label: area.label },
+          ]
+          return (
+            <View style={styles.briefingCard}>
+              <Text style={styles.briefingTitle}>Tu protocolo de hoy es único</Text>
+              <Text style={styles.briefingSubtitle}>4 sistemas se combinaron para crearlo</Text>
+              <View style={styles.briefingChips}>
+                {chips.map((c, i) => (
+                  <View key={i} style={styles.briefingChip}>
+                    <Text style={styles.briefingChipEmoji}>{c.emoji}</Text>
+                    <Text style={styles.briefingChipLabel}>{c.label}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )
+        })()}
+
         {/* ── Tab bar ── */}
         {(() => {
           const manañaPending = (!energyLevel ? 1 : 0) + (!objectiveDone ? 1 : 0) + (!morningDone ? 1 : 0) + (!affirmationDone ? 1 : 0) + (!colorDone ? 1 : 0) + (!foodsDone ? 1 : 0) + (!biohackDone ? 1 : 0)
@@ -2736,6 +2783,51 @@ const styles = StyleSheet.create({
   alertBtnText: { fontSize: 18, color: Colors.gold, fontWeight: '700' },
   signOut: { fontSize: 18, color: Colors.textDisabled },
   adminBtn: { fontSize: 18, color: '#9B7FD4' },
+
+  // ── Briefing de personalización ───────────────────────────────────────────
+  briefingCard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    backgroundColor: 'rgba(201,168,76,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(201,168,76,0.20)',
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+  },
+  briefingTitle: {
+    fontFamily: Fonts.heading,
+    fontSize: 16,
+    color: Colors.gold,
+    marginBottom: 2,
+  },
+  briefingSubtitle: {
+    fontSize: 11,
+    color: Colors.textDisabled,
+    marginBottom: Spacing.sm,
+    letterSpacing: 0.3,
+  },
+  briefingChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+  },
+  briefingChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(201,168,76,0.10)',
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(201,168,76,0.25)',
+  },
+  briefingChipEmoji: { fontSize: 12 },
+  briefingChipLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontFamily: Fonts.bodyMedium,
+  },
   firstStepBadge: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(201,168,76,0.15)',
