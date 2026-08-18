@@ -53,12 +53,31 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
     return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`
   }
 
+  // Normaliza cualquier formato de entrada a YYYY-MM-DD
+  function normalizeBirthDate(input: string): string {
+    const digits = input.replace(/\D/g, '')
+    if (digits.length === 8) {
+      return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`
+    }
+    return input.trim()
+  }
+
   function handleDateNext() {
+    const normalized = normalizeBirthDate(birthDate)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-    if (!dateRegex.test(birthDate)) return Alert.alert('Ingresa tu fecha completa\nEjemplo: 19901115')
-    const zodiac = getZodiacSign(birthDate)
+    if (!dateRegex.test(normalized)) {
+      Alert.alert('Fecha incompleta', 'Ingresa tu fecha de nacimiento completa.\nEjemplo: 1990-11-15')
+      return
+    }
+    const year = parseInt(normalized.slice(0, 4))
+    if (year < 1920 || year > 2010) {
+      Alert.alert('Fecha inválida', 'Verifica el año de nacimiento.')
+      return
+    }
+    const zodiac = getZodiacSign(normalized)
     const numerology = calculateNumerology(name)
     const frequency = getBaseFrequency(numerology)
+    setBirthDate(normalized)
     setCalculated({ zodiac, numerology, frequency })
     setStep(3)
   }
