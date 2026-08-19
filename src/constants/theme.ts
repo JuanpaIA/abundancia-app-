@@ -1,24 +1,29 @@
 export const Colors = {
-  // Fondos
-  background: '#0D0A1E',
+  // Fondos — mockup: #16102a → #0e0b1e → #0a0814
+  background: '#0a0814',
   card: '#16132A',
+  cardBg: 'rgba(255,255,255,0.03)',   // surface cards sin borde (mockup .card-new)
   input: '#1F1B35',
 
-  // Acentos
-  gold: '#C9A84C',
-  goldLight: '#E8D5A3',
-  purple: '#7B3FD4',
+  // Acentos — valores exactos del mockup
+  gold: '#d4af55',                            // #d4af55 mockup (era #C9A84C)
+  goldLight: '#eccb7a',
+  goldDim: 'rgba(212,175,85,0.15)',
+  purple: '#7B3FD4',                          // brand purple
+  purpleAccent: '#a78bfa',                    // interactive accent (mockup)
+  purpleDim: 'rgba(167,139,250,0.12)',
 
-  // Textos — todos pasan WCAG AA (4.5:1) sobre #0D0A1E
-  textPrimary: '#F0EEF8',
-  textSecondary: '#A8A4C0',  // era #9490B0 (ratio 3.4:1, ilegible)
-  textDisabled: '#6B6890',   // era #4A4760 (ratio 1.8:1, invisible)
+  // Textos
+  textPrimary: '#f0ece4',                     // warm white mockup (era #F0EEF8)
+  textSecondary: '#A8A4C0',
+  textDim: 'rgba(232,228,240,0.28)',          // subtítulos muy apagados
+  textDisabled: '#6B6890',
 
   // Estados
   success: '#4CAF82',
   error: '#E05555',
-  border: '#2E2B45',         // separado de textDisabled (antes ambos eran #4A4760)
-  borderGold: '#C9A84C',
+  border: 'rgba(255,255,255,0.06)',            // era #2E2B45
+  borderGold: 'rgba(212,175,85,0.30)',
 }
 
 export const Fonts = {
@@ -35,7 +40,7 @@ export const Fonts = {
 export const Radius = {
   sm: 8,
   md: 12,
-  lg: 16,
+  lg: 18,
   xl: 24,
   full: 999,
 }

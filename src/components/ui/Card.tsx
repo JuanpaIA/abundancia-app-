@@ -17,12 +17,12 @@ export function Card({ children, style, goldBorder }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     padding: Spacing.md,
   },
   goldBorder: {
-    borderColor: Colors.gold,
+    borderColor: Colors.borderGold,
     borderWidth: 1,
   },
 })
