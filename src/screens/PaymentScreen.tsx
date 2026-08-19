@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Alert, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Platform, ScrollView } from 'react-native'
 import { useState, useEffect } from 'react'
 import * as WebBrowser from 'expo-web-browser'
 import { supabase } from '../services/supabase'
@@ -119,12 +119,12 @@ export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPay
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.emoji}>✦</Text>
         <Text style={styles.title}>Elige tu plan</Text>
         <Text style={styles.subtitle}>Sin cobros durante la prueba · Cancela cuando quieras</Text>
 
-        {/* Selector de plan integrado */}
+        {/* Selector de plan */}
         <View style={styles.planSelector}>
           {plans.map(p => (
             <TouchableOpacity
@@ -143,6 +143,21 @@ export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPay
                 {p.price}<Text style={styles.planPeriod}>{p.period}</Text>
               </Text>
             </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Testimonios */}
+        <View style={styles.testimonials}>
+          {[
+            { quote: '"En 2 semanas noté diferencia en mi energía y mis ingresos. El protocolo me dio claridad."', name: 'Valentina M.', area: 'Dinero y Prosperidad' },
+            { quote: '"El ritual de la mañana me cambió la perspectiva completamente. Nunca pensé que algo tan simple funcionara."', name: 'Carolina R.', area: 'Propósito de Vida' },
+            { quote: '"Llevaba meses bloqueada. Con Luumina en 3 semanas manifesté algo que llevaba 2 años buscando."', name: 'Daniela L.', area: 'Amor y Relaciones' },
+          ].map((t, i) => (
+            <View key={i} style={styles.testimonialCard}>
+              <Text style={styles.testimonialStars}>⭐⭐⭐⭐⭐</Text>
+              <Text style={styles.testimonialQuote}>{t.quote}</Text>
+              <Text style={styles.testimonialName}>{t.name} · {t.area}</Text>
+            </View>
           ))}
         </View>
 
@@ -166,14 +181,14 @@ export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPay
           Pago seguro vía Stripe · Se cobra al finalizar la prueba.{'\n'}
           Serás redirigido a Stripe para completar el pago.
         </Text>
-      </View>
+      </ScrollView>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background, justifyContent: 'center' },
-  content: { padding: Spacing.lg, gap: Spacing.md },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40, gap: Spacing.md },
   emoji: { fontSize: 40, textAlign: 'center', color: Colors.gold },
   title: {
     fontSize: 26, color: Colors.textPrimary, fontWeight: '700',
@@ -200,6 +215,22 @@ const styles = StyleSheet.create({
     fontSize: 11, color: Colors.textDisabled,
     textAlign: 'center', lineHeight: 18, marginTop: Spacing.sm,
   },
+  testimonials: { gap: Spacing.sm },
+  testimonialCard: {
+    backgroundColor: Colors.card,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.md,
+    gap: 6,
+  },
+  testimonialStars: { fontSize: 12 },
+  testimonialQuote: {
+    fontSize: 13, color: Colors.textPrimary,
+    lineHeight: 20, fontStyle: 'italic',
+  },
+  testimonialName: { fontSize: 12, color: Colors.gold, fontWeight: '600' },
+
   signOutBtn: { alignItems: 'center', paddingVertical: Spacing.sm },
   signOutText: { fontSize: 13, color: Colors.textDisabled },
 })
