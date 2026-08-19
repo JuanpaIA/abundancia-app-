@@ -1,13 +1,20 @@
 export type PlanType = 'monthly' | 'weekly'
-
 export type SubscriptionStatus = 'active' | 'inactive'
+export type ManifestationArea = 'dinero' | 'amor' | 'salud' | 'proposito' | 'felicidad'
 
 export type ZodiacSign =
   | 'aries' | 'tauro' | 'geminis' | 'cancer'
   | 'leo' | 'virgo' | 'libra' | 'escorpio'
   | 'sagitario' | 'capricornio' | 'acuario' | 'piscis'
 
-export type ManifestationArea = 'dinero' | 'amor' | 'salud' | 'proposito' | 'felicidad'
+export interface OnboardingData {
+  name: string
+  birthDate: string
+  zodiac: string
+  numerology: number
+  frequency: number
+  manifestationArea: ManifestationArea
+}
 
 export type LunarPhase =
   | 'nueva' | 'creciente_inicial' | 'cuarto_creciente' | 'creciente_gibosa'

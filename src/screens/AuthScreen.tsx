@@ -9,9 +9,10 @@ interface Props {
   selectedPlan: PlanType
   onAuthSuccess: () => void
   loginOnly?: boolean
+  registerOnly?: boolean
 }
 
-export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
+export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly, registerOnly }: Props) {
   const [mode, setMode] = useState<'register' | 'login'>(loginOnly ? 'login' : 'register')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -103,7 +104,7 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
         </Text>
         <Text style={styles.subtitle}>
           {mode === 'register'
-            ? `Plan ${selectedPlan === 'weekly' ? 'semanal $6.99' : 'mensual $14.99'} seleccionado`
+            ? 'Crea tu cuenta para desbloquear tu protocolo'
             : 'Bienvenida de vuelta'
           }
         </Text>
@@ -152,14 +153,16 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
           />
         </View>
 
-        <TouchableOpacity onPress={() => setMode(mode === 'register' ? 'login' : 'register')}>
-          <Text style={styles.toggle}>
-            {mode === 'register'
-              ? '¿Ya tienes cuenta? Inicia sesión'
-              : '¿No tienes cuenta? Regístrate'
-            }
-          </Text>
-        </TouchableOpacity>
+        {!loginOnly && !registerOnly && (
+          <TouchableOpacity onPress={() => setMode(mode === 'register' ? 'login' : 'register')}>
+            <Text style={styles.toggle}>
+              {mode === 'register'
+                ? '¿Ya tienes cuenta? Inicia sesión'
+                : '¿No tienes cuenta? Regístrate'
+              }
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {mode === 'login' && (
           <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotWrapper}>

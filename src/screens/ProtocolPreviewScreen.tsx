@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { Colors, Spacing, Radius } from '../constants/theme'
-import { UserProfile } from '../types'
+import { OnboardingData } from '../types'
 
 interface Props {
-  profile: UserProfile
+  data: OnboardingData
   onUnlock: () => void
 }
 
@@ -31,8 +31,8 @@ function BlurredBlock() {
   )
 }
 
-export function ProtocolPreviewScreen({ profile, onUnlock }: Props) {
-  const areaLabel = AREA_LABELS[profile.manifestation_area] ?? 'Manifestación'
+export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
+  const areaLabel = AREA_LABELS[data.manifestationArea] ?? 'Manifestación'
 
   return (
     <View style={styles.container}>
@@ -41,7 +41,7 @@ export function ProtocolPreviewScreen({ profile, onUnlock }: Props) {
         <Text style={styles.emoji}>🔮</Text>
         <Text style={styles.title}>Tu protocolo está listo</Text>
         <Text style={styles.subtitle}>
-          Personalizado para {profile.full_name.split(' ')[0]} · {areaLabel}
+          Personalizado para {data.name.split(' ')[0]} · {areaLabel}
         </Text>
 
         {/* Preview difuminado del protocolo */}
@@ -85,8 +85,8 @@ export function ProtocolPreviewScreen({ profile, onUnlock }: Props) {
 
         {/* Chips del sistema de personalización */}
         <View style={styles.chips}>
-          <View style={styles.chip}><Text style={styles.chipText}>🔢 Número {profile.numerology_number}</Text></View>
-          <View style={styles.chip}><Text style={styles.chipText}>⚡ {profile.base_frequency} Hz</Text></View>
+          <View style={styles.chip}><Text style={styles.chipText}>🔢 Número {data.numerology}</Text></View>
+          <View style={styles.chip}><Text style={styles.chipText}>⚡ {data.frequency} Hz</Text></View>
           <View style={styles.chip}><Text style={styles.chipText}>🌙 Fase lunar</Text></View>
           <View style={styles.chip}><Text style={styles.chipText}>✨ {areaLabel}</Text></View>
         </View>
