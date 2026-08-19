@@ -2129,11 +2129,18 @@ export function DashboardScreen() {
           </View>
           <Text style={styles.sectionSubtitle}>¿Cómo optimizo mi rendimiento hoy?</Text>
           <Text style={styles.sectionBody}>{protocol.biohack.activity}</Text>
-          <View style={styles.frequencyBox}>
-            <View style={styles.freqLeft}>
-              <Text style={styles.frequencyHz}>{protocol.frequency.hz} Hz</Text>
-              <Text style={styles.frequencyName}>{protocol.frequency.name}</Text>
-            </View>
+        </Card>
+
+        {/* 🎵 Frecuencia del día — standalone card */}
+        <LinearGradient
+          colors={['rgba(167,139,250,0.13)', 'rgba(123,97,220,0.04)']}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={styles.freqCard}
+        >
+          <Text style={styles.freqCardLabel}>Frecuencia del día</Text>
+          <Text style={styles.frequencyHz}>{protocol.frequency.hz} Hz</Text>
+          <Text style={styles.frequencyName}>{protocol.frequency.name}</Text>
+          <View style={styles.freqPlayRow}>
             <TouchableOpacity
               style={[styles.playButton, playing && styles.playButtonActive]}
               onPress={() => play(protocol.frequency.hz)}
@@ -2163,7 +2170,7 @@ export function DashboardScreen() {
               </View>
             )
           })()}
-        </Card>
+        </LinearGradient>
 
         </>)}
         {/* ══════════════ FIN TAB MAÑANA ══════════════ */}
@@ -3149,6 +3156,9 @@ const styles = StyleSheet.create({
   },
   foodChipEmoji: { fontSize: 13 },
   foodChipText:  { fontSize: 13, color: Colors.textPrimary, fontWeight: '500' },
+  freqCard: { borderRadius: Radius.lg, padding: Spacing.md, marginBottom: Spacing.md, gap: Spacing.xs },
+  freqCardLabel: { fontSize: 11, color: 'rgba(167,139,250,0.6)', fontWeight: '600', letterSpacing: 1, textTransform: 'uppercase' },
+  freqPlayRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.xs },
   frequencyBox: {
     backgroundColor: Colors.input,
     borderRadius: 12,
@@ -3160,7 +3170,7 @@ const styles = StyleSheet.create({
   },
   freqLeft: { gap: 2 },
   frequencyHz: { fontSize: 44, color: '#a78bfa', fontFamily: Fonts.heading, lineHeight: 50, includeFontPadding: false },
-  frequencyName: { fontSize: 14, color: Colors.textSecondary, marginBottom: Spacing.sm },
+  frequencyName: { fontSize: 14, color: Colors.textSecondary, marginBottom: Spacing.xs },
   playButton: {
     width: 44, height: 44, borderRadius: 22,
     backgroundColor: '#a78bfa',
