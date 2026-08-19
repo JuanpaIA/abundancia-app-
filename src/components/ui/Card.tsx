@@ -20,8 +20,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderRadius: Radius.lg,
     padding: Spacing.md,
-    borderWidth: 0.5,
-    borderColor: 'rgba(201, 168, 76, 0.15)',
   },
   goldBorder: {
     borderColor: Colors.gold,

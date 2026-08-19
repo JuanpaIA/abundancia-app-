@@ -2024,7 +2024,11 @@ export function DashboardScreen() {
         </Card>
 
         {/* 💬 Afirmación del día */}
-        <Card style={affirmationDone ? [styles.sectionCard, styles.cardDone] : styles.sectionCard}>
+        <LinearGradient
+          colors={['rgba(167,139,250,0.10)', 'rgba(212,175,85,0.05)']}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={[styles.affirmationCard, affirmationDone && styles.cardDone]}
+        >
           <View style={styles.cardTopRow}>
             <Text style={styles.sectionLabel}>💬 Afirmación del día</Text>
             {affirmationDone
@@ -2061,7 +2065,7 @@ export function DashboardScreen() {
               </View>
             )
           })()}
-        </Card>
+        </LinearGradient>
 
         {/* 👗 Color del día */}
         <Card style={colorDone ? [styles.sectionCard, styles.cardDone] : styles.sectionCard}>
@@ -3075,7 +3079,7 @@ const styles = StyleSheet.create({
   },
   patternTipLabel: { fontSize: 10, color: Colors.gold, fontWeight: '700', letterSpacing: 0.4 },
   patternTip: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  sectionLabel: { fontSize: 12, color: Colors.textSecondary, letterSpacing: 0.5 },
+  sectionLabel: { fontSize: 11, color: Colors.textSecondary, letterSpacing: 0.8, fontWeight: '600', textTransform: 'uppercase' },
   sectionSubtitle: {
     fontSize: 12,
     color: Colors.textSecondary,
@@ -3096,6 +3100,7 @@ const styles = StyleSheet.create({
   sectionBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
   affirmation: { fontSize: 16, color: Colors.textPrimary, fontStyle: 'italic', lineHeight: 24 },
   affirmationHero: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.headingItalic, lineHeight: 32, marginTop: Spacing.xs },
+  affirmationCard: { borderRadius: Radius.lg, padding: Spacing.md, gap: Spacing.sm, marginBottom: Spacing.md },
   numerologyTag: { fontSize: 12, color: Colors.gold },
   numBox: {
     backgroundColor: 'rgba(201,168,76,0.06)',
@@ -3307,8 +3312,8 @@ const styles = StyleSheet.create({
   cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardDone: { borderColor: Colors.success, borderWidth: 1 },
   doneBadge: { fontSize: 12, color: Colors.success, fontWeight: '600' },
-  doneBtn: { backgroundColor: Colors.gold, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
-  doneBtnText: { fontSize: 11, color: Colors.background, fontWeight: '600' },
+  doneBtn: { backgroundColor: '#a78bfa', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  doneBtnText: { fontSize: 11, color: '#ffffff', fontWeight: '600' },
   objectiveFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.sm },
   objectiveDuration: { fontSize: 12, color: Colors.textDisabled },
   objectiveBtn: { backgroundColor: Colors.gold, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: 20 },
