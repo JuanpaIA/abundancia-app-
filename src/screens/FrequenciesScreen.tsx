@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
-  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
 
   infoCard: {

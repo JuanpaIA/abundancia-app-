@@ -23,7 +23,9 @@ export const Colors = {
 
 export const Fonts = {
   heading: 'Cormorant_700Bold',
+  headingSemiBold: 'Cormorant_600SemiBold',
   headingMedium: 'Cormorant_500Medium',
+  headingItalic: 'Cormorant_500Medium_Italic',
   body: 'DMSans_400Regular',
   bodyMedium: 'DMSans_500Medium',
   bodySemiBold: 'DMSans_600SemiBold',

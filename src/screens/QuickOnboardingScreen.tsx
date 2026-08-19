@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   progressDotActive: { backgroundColor: Colors.gold, width: 24 },
   stepContainer: { gap: Spacing.md },
   stepEmoji: { fontSize: 48, textAlign: 'center' },
-  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, textAlign: 'center' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textAlign: 'center' },
   subtitle: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
   inputWrapper: { gap: Spacing.xs },
   label: { fontSize: 14, color: Colors.textSecondary },

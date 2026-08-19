@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40, gap: Spacing.md },
   emoji: { fontSize: 40, textAlign: 'center', color: Colors.gold },
   title: {
-    fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading,
+    fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold,
     textAlign: 'center', lineHeight: 34,
   },
   subtitle: {

@@ -2765,7 +2765,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
   header: { flexDirection: 'column', marginBottom: Spacing.lg, gap: 4 },
-  greeting: { fontSize: 30, color: Colors.textPrimary, fontFamily: Fonts.heading },
+  greeting: { fontSize: 30, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   date: { fontSize: 14, color: 'rgba(240,238,248,0.5)', marginTop: 2, textTransform: 'capitalize' },
   planCounter: { fontSize: 12, color: Colors.gold, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
   goalLabel:   { fontSize: 13, color: Colors.textSecondary, marginTop: 4, fontStyle: 'italic' },
@@ -2801,7 +2801,7 @@ const styles = StyleSheet.create({
   featureIconGold: { backgroundColor: 'rgba(201,168,76,0.15)' },
   featureIconPurple: { backgroundColor: 'rgba(167,139,250,0.15)' },
   featureIcon: { fontSize: 20 },
-  featureTitle: { fontSize: 17, color: Colors.textPrimary, fontFamily: Fonts.heading },
+  featureTitle: { fontSize: 17, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   featureSub: { fontSize: 11, color: Colors.textDisabled },
 
   // Legados (no se usan pero evitan errores si algo los referencia)
@@ -3095,7 +3095,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 17, color: Colors.textPrimary, fontWeight: '600' },
   sectionBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
   affirmation: { fontSize: 16, color: Colors.textPrimary, fontStyle: 'italic', lineHeight: 24 },
-  affirmationHero: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.heading, fontStyle: 'italic', lineHeight: 32, marginTop: Spacing.xs },
+  affirmationHero: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.headingItalic, lineHeight: 32, marginTop: Spacing.xs },
   numerologyTag: { fontSize: 12, color: Colors.gold },
   numBox: {
     backgroundColor: 'rgba(201,168,76,0.06)',

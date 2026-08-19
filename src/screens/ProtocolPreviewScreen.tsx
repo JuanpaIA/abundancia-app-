@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center', gap: Spacing.lg },
 
   emoji: { fontSize: 48, textAlign: 'center' },
-  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, textAlign: 'center' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textAlign: 'center' },
   subtitle: { fontSize: 14, color: Colors.gold, textAlign: 'center', marginTop: -Spacing.sm },
 
   previewCard: {
