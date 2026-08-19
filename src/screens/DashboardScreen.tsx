@@ -1670,6 +1670,15 @@ export function DashboardScreen() {
         style={StyleSheet.absoluteFillObject}
         pointerEvents="none"
       />
+      {/* Noise texture — web-only grain para acabado premium */}
+      <View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFillObject, styles.noiseBg]}
+      />
+      {/* Glow orb morado — esquina superior derecha */}
+      <View pointerEvents="none" style={styles.orbPurple} />
+      {/* Glow orb dorado — esquina inferior izquierda */}
+      <View pointerEvents="none" style={styles.orbGold} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* 1 — Header */}
@@ -2775,6 +2784,23 @@ const legalContentStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
+  // Atmospheric background layers
+  noiseBg: {
+    // @ts-ignore — web-only CSS passthrough
+    backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+    backgroundRepeat: 'repeat',
+    opacity: 0.04,
+  },
+  orbPurple: {
+    position: 'absolute', width: 320, height: 320, top: -80, right: -80, borderRadius: 160,
+    // @ts-ignore — web-only
+    background: 'radial-gradient(circle, rgba(167,139,250,0.18) 0%, transparent 65%)',
+  },
+  orbGold: {
+    position: 'absolute', width: 260, height: 260, bottom: 200, left: -80, borderRadius: 130,
+    // @ts-ignore — web-only
+    background: 'radial-gradient(circle, rgba(201,168,76,0.10) 0%, transparent 65%)',
+  },
   header: { flexDirection: 'column', marginBottom: Spacing.lg, gap: 4 },
   greeting: { fontSize: 30, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   date: { fontSize: 14, color: 'rgba(240,238,248,0.5)', marginTop: 2, textTransform: 'capitalize' },
