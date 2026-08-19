@@ -96,40 +96,56 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
     if (!calculated || !manifestationArea) return
     setLoading(true)
 
-    const today = new Date().toISOString().split('T')[0]
-    const { error } = await supabase.from('profiles').update({
-      full_name: name,
-      birth_date: birthDate,
-      zodiac_sign: calculated.zodiac,
-      numerology_number: calculated.numerology,
-      base_frequency: calculated.frequency,
-      manifestation_area: manifestationArea,
-      goal_details: goalDetails,
-      plan_duration: planDuration,
-      plan_start_date: today,
-    }).eq('id', userId)
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const { error } = await supabase.from('profiles').update({
+        full_name: name,
+        birth_date: birthDate,
+        zodiac_sign: calculated.zodiac,
+        numerology_number: calculated.numerology,
+        base_frequency: calculated.frequency,
+        manifestation_area: manifestationArea,
+        goal_details: goalDetails,
+        plan_duration: planDuration,
+        plan_start_date: today,
+      }).eq('id', userId)
 
-    setLoading(false)
-    if (error) {
+      setLoading(false)
+      if (error) {
+        void supabase.from('error_reports').insert({
+          user_id: userId,
+          section: 'onboarding',
+          error_message: error.message,
+          app_context: { action: 'save_profile', manifestation_area: manifestationArea },
+        })
+        Alert.alert(
+          'Error al guardar',
+          `No se pudo guardar tu perfil.\n\nDetalle: ${error.message}\n\nContacta soporte si persiste.`,
+          [{ text: 'OK' }]
+        )
+        return
+      }
+
+      // Enviar email de bienvenida en background (no bloqueante)
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user?.email) {
+          supabase.functions.invoke('send-welcome-email', {
+            body: { email: data.user.email, name },
+          }).catch(() => {})
+        }
+      })
+
+      onComplete()
+    } catch (e: any) {
+      setLoading(false)
       void supabase.from('error_reports').insert({
         user_id: userId,
         section: 'onboarding',
-        error_message: error.message,
-        app_context: { action: 'save_profile', manifestation_area: manifestationArea },
+        error_message: e?.message ?? 'Error inesperado',
+        app_context: { action: 'save_profile_exception', manifestation_area: manifestationArea },
       })
-      return Alert.alert('Error al guardar', error.message)
+      Alert.alert('Error inesperado', `${e?.message ?? 'Error desconocido'}`, [{ text: 'OK' }])
     }
-
-    // Enviar email de bienvenida en background (no bloqueante)
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) {
-        supabase.functions.invoke('send-welcome-email', {
-          body: { email: data.user.email, name },
-        }).catch(() => {})
-      }
-    })
-
-    onComplete()
   }
 
   if (step === 4 && manifestationArea) {
