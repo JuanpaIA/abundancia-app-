@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Alert, TouchableOpacity, Platform, ScrollView }
 import { useState, useEffect } from 'react'
 import * as WebBrowser from 'expo-web-browser'
 import { supabase } from '../services/supabase'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { PlanType } from '../types'
 
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40, gap: Spacing.md },
   emoji: { fontSize: 40, textAlign: 'center', color: Colors.gold },
   title: {
-    fontSize: 26, color: Colors.textPrimary, fontWeight: '700',
+    fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading,
     textAlign: 'center', lineHeight: 34,
   },
   subtitle: {

@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { OnboardingData } from '../types'
 
 interface Props {
@@ -13,6 +14,14 @@ const AREA_LABELS: Record<string, string> = {
   salud: 'Salud y Vitalidad',
   proposito: 'Propósito de Vida',
   felicidad: 'Felicidad y Paz',
+}
+
+const AREA_COLORS: Record<string, string> = {
+  dinero: '#C9A84C',
+  amor: '#EC4899',
+  salud: '#4CAF82',
+  proposito: '#7B3FD4',
+  felicidad: '#4FC3F7',
 }
 
 function BlurredLine({ width = '100%', height = 14 }: { width?: string | number; height?: number }) {
@@ -33,14 +42,22 @@ function BlurredBlock() {
 
 export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
   const areaLabel = AREA_LABELS[data.manifestationArea] ?? 'Manifestación'
+  const areaColor = AREA_COLORS[data.manifestationArea] ?? Colors.gold
 
   return (
     <View style={styles.container}>
+      {/* Gradiente ambiental del área */}
+      <LinearGradient
+        colors={[areaColor + '28', Colors.background]}
+        start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.45 }}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <Text style={styles.emoji}>🔮</Text>
         <Text style={styles.title}>Tu protocolo está listo</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: areaColor }]}>
           Personalizado para {data.name.split(' ')[0]} · {areaLabel}
         </Text>
 
@@ -72,7 +89,7 @@ export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
           <View style={styles.previewSection}>
             <Text style={styles.sectionLabel}>✦ COLOR VIBRACIONAL</Text>
             <View style={styles.colorRow}>
-              <View style={styles.colorCircle} />
+              <View style={[styles.colorCircle, { backgroundColor: areaColor }]} />
               <BlurredLine width="50%" height={14} />
             </View>
           </View>
@@ -86,9 +103,14 @@ export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
         {/* Chips del sistema de personalización */}
         <View style={styles.chips}>
           <View style={styles.chip}><Text style={styles.chipText}>🔢 Número {data.numerology}</Text></View>
-          <View style={styles.chip}><Text style={styles.chipText}>⚡ {data.frequency} Hz</Text></View>
+          <View style={[styles.chip, styles.chipHz, { borderColor: areaColor + '66', backgroundColor: areaColor + '18' }]}>
+            <Text style={[styles.chipHzNum, { color: areaColor }]}>{data.frequency}</Text>
+            <Text style={[styles.chipHzUnit, { color: areaColor }]}>Hz</Text>
+          </View>
           <View style={styles.chip}><Text style={styles.chipText}>🌙 Fase lunar</Text></View>
-          <View style={styles.chip}><Text style={styles.chipText}>✨ {areaLabel}</Text></View>
+          <View style={[styles.chip, { borderColor: areaColor + '66', backgroundColor: areaColor + '18' }]}>
+            <Text style={[styles.chipText, { color: areaColor }]}>✨ {areaLabel}</Text>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.unlockBtn} onPress={onUnlock} activeOpacity={0.85}>
@@ -107,7 +129,7 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center', gap: Spacing.lg },
 
   emoji: { fontSize: 48, textAlign: 'center' },
-  title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, textAlign: 'center' },
   subtitle: { fontSize: 14, color: Colors.gold, textAlign: 'center', marginTop: -Spacing.sm },
 
   previewCard: {
@@ -164,6 +186,12 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(201,168,76,0.3)',
   },
   chipText: { fontSize: 12, color: Colors.gold, fontWeight: '600' },
+  chipHz: {
+    flexDirection: 'row', alignItems: 'baseline', gap: 2,
+    paddingHorizontal: 14, paddingVertical: 6,
+  },
+  chipHzNum: { fontSize: 22, fontWeight: '800', lineHeight: 26, includeFontPadding: false },
+  chipHzUnit: { fontSize: 11, fontWeight: '700' },
 
   unlockBtn: {
     width: '100%',

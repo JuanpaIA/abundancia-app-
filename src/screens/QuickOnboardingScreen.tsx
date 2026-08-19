@@ -1,9 +1,18 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native'
 import { useState } from 'react'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { calculateNumerology, getZodiacSign, getBaseFrequency } from '../utils/calculations'
 import { ManifestationArea, OnboardingData } from '../types'
+
+const AREA_COLORS: Record<ManifestationArea, string> = {
+  dinero: '#C9A84C',
+  amor: '#EC4899',
+  salud: '#4CAF82',
+  proposito: '#7B3FD4',
+  felicidad: '#4FC3F7',
+}
 
 const AREAS: { key: ManifestationArea; label: string; emoji: string; description: string }[] = [
   { key: 'dinero',    label: 'Dinero y Prosperidad', emoji: '💰', description: 'Abundancia financiera, ingresos, riqueza' },
@@ -140,20 +149,33 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
             <Text style={styles.title}>¿Qué deseas manifestar?</Text>
             <Text style={styles.subtitle}>Tu protocolo se alinea con tu intención principal</Text>
             <View style={styles.areaGrid}>
-              {AREAS.map(area => (
-                <TouchableOpacity
-                  key={area.key}
-                  style={[styles.areaCard, manifestationArea === area.key && styles.areaCardSelected]}
-                  onPress={() => setManifestationArea(area.key)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.areaEmoji}>{area.emoji}</Text>
-                  <Text style={[styles.areaLabel, manifestationArea === area.key && styles.areaLabelSelected]}>
-                    {area.label}
-                  </Text>
-                  <Text style={styles.areaDescription}>{area.description}</Text>
-                </TouchableOpacity>
-              ))}
+              {AREAS.map(area => {
+                const areaColor = AREA_COLORS[area.key]
+                const isSelected = manifestationArea === area.key
+                return (
+                  <TouchableOpacity
+                    key={area.key}
+                    style={[styles.areaCard, isSelected && { borderColor: areaColor, borderWidth: 2 }]}
+                    onPress={() => setManifestationArea(area.key)}
+                    activeOpacity={0.8}
+                  >
+                    {isSelected && (
+                      <LinearGradient
+                        colors={[areaColor + '28', 'transparent']}
+                        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                        style={StyleSheet.absoluteFillObject}
+                      />
+                    )}
+                    <View style={[styles.areaEmojiWrap, isSelected && { backgroundColor: areaColor + '22' }]}>
+                      <Text style={styles.areaEmoji}>{area.emoji}</Text>
+                    </View>
+                    <Text style={[styles.areaLabel, isSelected && { color: areaColor }]}>
+                      {area.label}
+                    </Text>
+                    <Text style={styles.areaDescription}>{area.description}</Text>
+                  </TouchableOpacity>
+                )
+              })}
             </View>
             <GradientButton title="Ver mi protocolo" onPress={handleAreaNext} />
           </View>
@@ -174,7 +196,7 @@ const styles = StyleSheet.create({
   progressDotActive: { backgroundColor: Colors.gold, width: 24 },
   stepContainer: { gap: Spacing.md },
   stepEmoji: { fontSize: 48, textAlign: 'center' },
-  title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, textAlign: 'center' },
   subtitle: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
   inputWrapper: { gap: Spacing.xs },
   label: { fontSize: 14, color: Colors.textSecondary },
@@ -190,11 +212,15 @@ const styles = StyleSheet.create({
   areaGrid: { gap: Spacing.sm },
   areaCard: {
     backgroundColor: Colors.card, borderRadius: Radius.lg,
-    padding: Spacing.md, borderWidth: 1, borderColor: Colors.border, gap: 4,
+    padding: Spacing.md, borderWidth: 1, borderColor: Colors.border,
+    gap: 6, overflow: 'hidden',
   },
-  areaCardSelected: { borderColor: Colors.gold, borderWidth: 2, backgroundColor: 'rgba(201,168,76,0.08)' },
-  areaEmoji: { fontSize: 28 },
+  areaEmojiWrap: {
+    width: 44, height: 44, borderRadius: Radius.sm,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.input,
+  },
+  areaEmoji: { fontSize: 24 },
   areaLabel: { fontSize: 16, color: Colors.textPrimary, fontWeight: '600' },
-  areaLabelSelected: { color: Colors.gold },
   areaDescription: { fontSize: 13, color: Colors.textSecondary },
 })

@@ -3,7 +3,8 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity,
 } from 'react-native'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 
@@ -217,7 +218,10 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
           const isOpen = expanded === freq.hz
 
           return (
-            <View key={freq.hz} style={[styles.freqCard, isToday && styles.freqCardToday]}>
+            <View key={freq.hz} style={[styles.freqCard, isToday && styles.freqCardToday, isPlaying && { borderColor: freq.color + '99' }]}>
+              {/* Franja de color izquierda */}
+              <View style={[styles.freqStripe, { backgroundColor: freq.color }]} />
+
               {/* Cabecera */}
               <TouchableOpacity
                 style={styles.freqHeader}
@@ -245,9 +249,29 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
                 </TouchableOpacity>
               </TouchableOpacity>
 
+              {/* Onda visual cuando está expandida */}
+              {isOpen && (
+                <View style={styles.freqWave}>
+                  {[4, 8, 14, 20, 16, 22, 12, 18, 8, 20, 14, 10, 18, 6, 14].map((h, i) => (
+                    <View
+                      key={i}
+                      style={[styles.freqWaveBar, {
+                        height: h,
+                        backgroundColor: freq.color,
+                        opacity: isPlaying ? 0.85 : 0.22,
+                      }]}
+                    />
+                  ))}
+                </View>
+              )}
+
               {/* Contenido expandido */}
               {isOpen && (
-                <View style={styles.freqBody}>
+                <LinearGradient
+                  colors={[freq.color + '12', 'transparent']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                  style={styles.freqBody}
+                >
                   <Text style={styles.freqPurpose}>{freq.purpose}</Text>
 
                   <View style={styles.freqMeta}>
@@ -278,7 +302,7 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
                       </View>
                     ))}
                   </View>
-                </View>
+                </LinearGradient>
               )}
             </View>
           )
@@ -298,7 +322,7 @@ const styles = StyleSheet.create({
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
-  title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
 
   infoCard: {
@@ -320,14 +344,23 @@ const styles = StyleSheet.create({
   freqCard: {
     backgroundColor: Colors.card, borderRadius: Radius.lg,
     borderWidth: 1, borderColor: Colors.border,
-    marginBottom: Spacing.sm, overflow: 'hidden',
+    marginBottom: Spacing.sm, overflow: 'hidden', position: 'relative',
+  },
+  freqStripe: {
+    position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
   },
   freqCardToday: { borderColor: 'rgba(201,168,76,0.40)' },
 
   freqHeader: {
     flexDirection: 'row', alignItems: 'center',
-    padding: Spacing.md, gap: Spacing.sm,
+    paddingLeft: Spacing.md + 4, paddingRight: Spacing.md,
+    paddingVertical: Spacing.md, gap: Spacing.sm,
   },
+  freqWave: {
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center',
+    paddingVertical: 10, paddingHorizontal: Spacing.md + 4, gap: 3,
+  },
+  freqWaveBar: { width: 3, borderRadius: 2 },
   freqHzBadge: {
     width: 56, height: 56, borderRadius: Radius.md,
     borderWidth: 1, alignItems: 'center', justifyContent: 'center',
