@@ -14,6 +14,7 @@ export interface OnboardingData {
   numerology: number
   frequency: number
   manifestationArea: ManifestationArea
+  goalDetails?: GoalDetails
 }
 
 export type LunarPhase =

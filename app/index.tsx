@@ -5,6 +5,7 @@ import { useAuth } from '../src/hooks/useAuth'
 import { LandingScreen } from '../src/screens/LandingScreen'
 import { AuthScreen } from '../src/screens/AuthScreen'
 import { QuickOnboardingScreen } from '../src/screens/QuickOnboardingScreen'
+import { ManifestationIntakeScreen } from '../src/screens/ManifestationIntakeScreen'
 import { OnboardingScreen } from '../src/screens/OnboardingScreen'
 import { DashboardScreen } from '../src/screens/DashboardScreen'
 import { PaymentScreen } from '../src/screens/PaymentScreen'
@@ -13,7 +14,7 @@ import { ResetPasswordScreen } from '../src/screens/ResetPasswordScreen'
 import { Colors } from '../src/constants/theme'
 import { OnboardingData, PlanType } from '../src/types'
 
-type FlowStep = 'landing' | 'quick-onboarding' | 'preview' | 'register' | 'login'
+type FlowStep = 'landing' | 'quick-onboarding' | 'intake' | 'preview' | 'register' | 'login'
 
 export default function Index() {
   const { session, profile, loading, refreshProfile, resetPasswordMode, clearResetMode } = useAuth()
@@ -35,7 +36,7 @@ export default function Index() {
       numerology_number: onboardingData.numerology,
       base_frequency: onboardingData.frequency,
       manifestation_area: onboardingData.manifestationArea,
-      goal_details: {},
+      goal_details: onboardingData.goalDetails ?? {},
       plan_duration: 30,
       plan_start_date: today,
     }).eq('id', session.user.id).then(({ error }) => {
@@ -76,8 +77,21 @@ export default function Index() {
         <QuickOnboardingScreen
           onComplete={(data) => {
             setOnboardingData(data)
+            setFlowStep('intake')
+          }}
+        />
+      )
+    }
+
+    if (flowStep === 'intake' && onboardingData) {
+      return (
+        <ManifestationIntakeScreen
+          area={onboardingData.manifestationArea}
+          onComplete={(goalDetails) => {
+            setOnboardingData(prev => prev ? { ...prev, goalDetails } : null)
             setFlowStep('preview')
           }}
+          onBack={() => setFlowStep('quick-onboarding')}
         />
       )
     }
