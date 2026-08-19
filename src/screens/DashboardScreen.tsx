@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, Fragment } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, AppState, Modal, KeyboardAvoidingView, Platform, Animated } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import Svg, { Polyline, Line, Circle, Text as SvgText } from 'react-native-svg'
 import { useAuth } from '../hooks/useAuth'
 import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
@@ -1663,74 +1664,73 @@ export function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#16102A', '#0e0b1e', Colors.background]}
+        start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.55 }}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* 1 — Header */}
         <View style={styles.header}>
-          <View style={styles.headerActions}>
-            <View style={styles.headerRow}>
-              <TouchableOpacity
-                onPress={() => { setViewingNotifications(true); setUnreadCount(0) }}
-                style={unreadCount > 0 ? styles.alertBtnActive : undefined}
-              >
-                <Text style={[styles.editProfile, unreadCount > 0 && styles.alertBtnText]}>
-                  🔔 Alertas{unreadCount > 0 ? ` · ${unreadCount}` : ''}
+          {/* Nav compacta */}
+          <View style={styles.navRow}>
+            <View style={styles.navLeft}>
+              <TouchableOpacity onPress={() => { setViewingNotifications(true); setUnreadCount(0) }}>
+                <Text style={[styles.navLink, unreadCount > 0 && styles.navLinkActive]}>
+                  🔔{unreadCount > 0 ? ` ${unreadCount}` : ''}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setViewingHistory(true)}>
-                <Text style={styles.editProfile}>📅 Historial</Text>
+                <Text style={styles.navLink}>📅</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setViewingFrequencies(true)}>
-                <Text style={styles.editProfile}>🎵 Frecuencias</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.headerRow}>
-              <TouchableOpacity onPress={() => setEditingProfile(true)}>
-                <Text style={styles.editProfile}>✦ Perfil</Text>
+                <Text style={styles.navLink}>🎵</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setViewingBadges(true)}>
-                <Text style={styles.editProfile}>🏅 Logros</Text>
+                <Text style={styles.navLink}>🏅</Text>
               </TouchableOpacity>
               {profile.is_admin && (
                 <TouchableOpacity onPress={() => setViewingAdmin(true)}>
-                  <Text style={styles.adminBtn}>⚙ Admin</Text>
+                  <Text style={styles.navLink}>⚙</Text>
                 </TouchableOpacity>
               )}
+            </View>
+            <View style={styles.navRight}>
+              <TouchableOpacity onPress={() => setEditingProfile(true)}>
+                <Text style={styles.navLinkText}>Perfil</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={signOut}>
-                <Text style={styles.signOut}>Salir</Text>
+                <Text style={styles.navLinkDim}>Salir</Text>
               </TouchableOpacity>
             </View>
           </View>
-          <Text style={styles.greeting}>Hola, {profile.full_name.split(' ')[0]} 🌙</Text>
-          <Text style={styles.date}>{dateLabel}</Text>
-          <Text style={styles.planCounter}>
-            Día {Math.min(planDay, planDuration)} de {planDuration} · {Math.max(planDaysLeft, 0)} días restantes
-          </Text>
-          {goalLabel && (
-            <Text style={styles.goalLabel}>✦ {goalLabel}</Text>
-          )}
 
-          {/* Botón grande de Diario */}
-          <TouchableOpacity
-            style={styles.journalHeroBtn}
-            onPress={() => setViewingJournal(true)}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.journalHeroEmoji}>📖</Text>
-            <View style={styles.journalHeroText}>
-              <Text style={styles.journalHeroTitle}>Diario de Manifestación</Text>
-              <Text style={styles.journalHeroSub}>Intención · Gratitud · Señal del día</Text>
-            </View>
-            <Text style={styles.journalHeroArrow}>›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.journalHeroBtn} onPress={() => setViewingVisionBoard(true)} activeOpacity={0.85}>
-            <Text style={styles.journalHeroEmoji}>🖼️</Text>
-            <View style={styles.journalHeroText}>
-              <Text style={styles.journalHeroTitle}>Mi Tablero de Visión</Text>
-              <Text style={styles.journalHeroSub}>Imágenes · Activación · Manifestación</Text>
-            </View>
-            <Text style={styles.journalHeroArrow}>›</Text>
-          </TouchableOpacity>
+          {/* Saludo */}
+          <Text style={styles.greeting}>Hola, {profile.full_name.split(' ')[0]}</Text>
+          <Text style={styles.date}>{dateLabel} · Día {Math.min(planDay, planDuration)} de {planDuration}</Text>
+          <View style={styles.lunarBadge}>
+            <Text style={styles.lunarBadgeText}>🌙 {getLunarPhaseLabel(lunarPhase)} · {lunarContent.energy.split(' · ')[0]}</Text>
+          </View>
+
+          {/* Cards de acceso rápido: Diario + Visión */}
+          <View style={styles.featureGrid}>
+            <TouchableOpacity style={styles.featureCard} onPress={() => setViewingJournal(true)} activeOpacity={0.8}>
+              <View style={[styles.featureIconWrap, styles.featureIconGold]}>
+                <Text style={styles.featureIcon}>📖</Text>
+              </View>
+              <Text style={styles.featureTitle}>Diario</Text>
+              <Text style={styles.featureSub}>Intención · Gratitud</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.featureCard} onPress={() => setViewingVisionBoard(true)} activeOpacity={0.8}>
+              <View style={[styles.featureIconWrap, styles.featureIconPurple]}>
+                <Text style={styles.featureIcon}>🖼️</Text>
+              </View>
+              <Text style={styles.featureTitle}>Visión</Text>
+              <Text style={styles.featureSub}>Imágenes · Activación</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Banner de error de sincronización */}
@@ -2035,7 +2035,7 @@ export function DashboardScreen() {
             }
           </View>
           <Text style={styles.sectionSubtitle}>¿Qué declaro para mí hoy?</Text>
-          <Text style={styles.affirmation}>"{protocol.affirmation}"</Text>
+          <Text style={styles.affirmationHero}>"{protocol.affirmation}"</Text>
           {(() => {
             const info = NUMEROLOGY_INFO[profile.numerology_number]
             if (!info) return null
@@ -2765,24 +2765,53 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
   header: { flexDirection: 'column', marginBottom: Spacing.lg, gap: 4 },
-  greeting: { fontSize: 22, color: Colors.textPrimary, fontWeight: '700' },
-  date: { fontSize: 23, color: Colors.textSecondary, marginTop: 2, textTransform: 'capitalize' },
+  greeting: { fontSize: 30, color: Colors.textPrimary, fontFamily: Fonts.heading },
+  date: { fontSize: 14, color: 'rgba(240,238,248,0.5)', marginTop: 2, textTransform: 'capitalize' },
   planCounter: { fontSize: 12, color: Colors.gold, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
   goalLabel:   { fontSize: 13, color: Colors.textSecondary, marginTop: 4, fontStyle: 'italic' },
-  headerActions: { flexDirection: 'column', gap: Spacing.sm, marginBottom: 35 },
-  headerRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
-  editProfile: { fontSize: 18, color: Colors.gold },
-  alertBtnActive: {
-    backgroundColor: 'rgba(201,168,76,0.15)',
-    borderRadius: Radius.md,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.50)',
+
+  // Nav compacta
+  navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
+  navLeft: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
+  navRight: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
+  navLink: { fontSize: 20, color: Colors.textSecondary },
+  navLinkActive: { color: Colors.gold },
+  navLinkText: { fontSize: 13, color: Colors.textSecondary, fontFamily: Fonts.bodyMedium },
+  navLinkDim: { fontSize: 13, color: Colors.textDisabled },
+
+  // Lunar badge
+  lunarBadge: {
+    alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(167,139,250,0.10)', borderWidth: 1, borderColor: 'rgba(167,139,250,0.20)',
+    borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 5,
+    marginTop: 6, marginBottom: Spacing.md,
   },
-  alertBtnText: { fontSize: 18, color: Colors.gold, fontWeight: '700' },
-  signOut: { fontSize: 18, color: Colors.textDisabled },
-  adminBtn: { fontSize: 18, color: '#9B7FD4' },
+  lunarBadgeText: { fontSize: 12, color: '#a78bfa', fontWeight: '600' },
+
+  // Feature grid (Diario + Visión)
+  featureGrid: { flexDirection: 'row', gap: 10, marginTop: Spacing.sm },
+  featureCard: {
+    flex: 1, backgroundColor: 'rgba(255,255,255,0.04)',
+    borderRadius: Radius.lg, padding: Spacing.md, gap: 4, overflow: 'hidden',
+  },
+  featureIconWrap: {
+    width: 40, height: 40, borderRadius: 12,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 4,
+  },
+  featureIconGold: { backgroundColor: 'rgba(201,168,76,0.15)' },
+  featureIconPurple: { backgroundColor: 'rgba(167,139,250,0.15)' },
+  featureIcon: { fontSize: 20 },
+  featureTitle: { fontSize: 17, color: Colors.textPrimary, fontFamily: Fonts.heading },
+  featureSub: { fontSize: 11, color: Colors.textDisabled },
+
+  // Legados (no se usan pero evitan errores si algo los referencia)
+  headerActions: { flexDirection: 'column', gap: Spacing.sm },
+  headerRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
+  editProfile: { fontSize: 13, color: Colors.textSecondary },
+  alertBtnActive: { backgroundColor: 'rgba(201,168,76,0.15)', borderRadius: Radius.md, paddingHorizontal: Spacing.sm, paddingVertical: 3 },
+  alertBtnText: { fontSize: 13, color: Colors.gold, fontWeight: '700' },
+  signOut: { fontSize: 13, color: Colors.textDisabled },
+  adminBtn: { fontSize: 13, color: '#9B7FD4' },
 
   // ── Briefing de personalización ───────────────────────────────────────────
   briefingCard: {
@@ -2861,23 +2890,22 @@ const styles = StyleSheet.create({
   dayTabBar: {
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: 16, padding: 4, marginBottom: Spacing.md,
-    borderWidth: 1, borderColor: Colors.border,
   },
   dayTab: {
     flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 12,
     gap: 2, position: 'relative',
   },
-  dayTabActive: { backgroundColor: Colors.gold },
+  dayTabActive: { backgroundColor: 'rgba(167,139,250,0.18)' },
   dayTabEmoji:  { fontSize: 16 },
   dayTabLabel:  { fontSize: 11, color: Colors.textSecondary, fontWeight: '600' },
-  dayTabLabelActive: { color: Colors.background },
+  dayTabLabelActive: { color: '#a78bfa' },
   dayTabBadge: {
     position: 'absolute', top: 4, right: 8,
-    backgroundColor: '#E05252', borderRadius: 8,
+    backgroundColor: Colors.gold, borderRadius: 8,
     minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  dayTabBadgeText: { fontSize: 9, color: '#fff', fontWeight: '800' },
+  dayTabBadgeText: { fontSize: 9, color: Colors.background, fontWeight: '800' },
 
   feedbackBtn: { alignItems: 'center', paddingVertical: Spacing.lg, marginTop: Spacing.md },
   feedbackText: { fontSize: 13, color: Colors.textDisabled },
@@ -3067,6 +3095,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 17, color: Colors.textPrimary, fontWeight: '600' },
   sectionBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
   affirmation: { fontSize: 16, color: Colors.textPrimary, fontStyle: 'italic', lineHeight: 24 },
+  affirmationHero: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.heading, fontStyle: 'italic', lineHeight: 32, marginTop: Spacing.xs },
   numerologyTag: { fontSize: 12, color: Colors.gold },
   numBox: {
     backgroundColor: 'rgba(201,168,76,0.06)',
@@ -3125,14 +3154,14 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   freqLeft: { gap: 2 },
-  frequencyHz: { fontSize: 28, color: Colors.gold, fontWeight: '700' },
-  frequencyName: { fontSize: 13, color: Colors.textSecondary },
+  frequencyHz: { fontSize: 44, color: '#a78bfa', fontFamily: Fonts.heading, lineHeight: 50, includeFontPadding: false },
+  frequencyName: { fontSize: 14, color: Colors.textSecondary, marginBottom: Spacing.sm },
   playButton: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: Colors.purple,
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: '#a78bfa',
     justifyContent: 'center', alignItems: 'center',
   },
-  playIcon: { color: Colors.textPrimary, fontSize: 18 },
+  playIcon: { color: '#fff', fontSize: 16 },
   freqGuide: {
     backgroundColor: 'rgba(123,63,212,0.07)',
     borderRadius: Radius.md,
