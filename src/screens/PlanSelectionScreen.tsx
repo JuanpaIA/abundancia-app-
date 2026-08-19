@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
-import { useState } from 'react'
 import { Colors, Spacing, Radius } from '../constants/theme'
 import { PlanType } from '../types'
 
@@ -18,106 +17,68 @@ const benefits = [
   'Seguimiento de 9 hábitos diarios',
   'Portales energéticos y fases lunares',
   'Acceso web y móvil',
-  'Actualizaciones constantes',
 ]
 
-const annualExclusive = '🔍 Análisis de patrones: descubre qué te sabotea sin darte cuenta'
+const plans: { type: PlanType; trial: number; price: string; period: string; recommended: boolean }[] = [
+  { type: 'monthly', trial: 7, price: '$14.99', period: '/mes', recommended: true },
+  { type: 'weekly',  trial: 3, price: '$6.99',  period: '/semana', recommended: false },
+]
 
 export function PlanSelectionScreen({ onSelectPlan }: Props) {
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        <Text style={styles.title}>Elige tu plan</Text>
-        <Text style={styles.subtitle}>Acceso completo a todo el sistema de manifestación</Text>
+        <Text style={styles.title}>Empieza gratis hoy</Text>
+        <Text style={styles.subtitle}>Sin cobros durante el período de prueba · Cancela cuando quieras</Text>
 
-        {/* Toggle mensual / anual */}
-        <View style={styles.toggle}>
-          <TouchableOpacity
-            style={[styles.toggleBtn, billing === 'monthly' && styles.toggleBtnActive]}
-            onPress={() => setBilling('monthly')}
+        {plans.map(plan => (
+          <View
+            key={plan.type}
+            style={[styles.card, plan.recommended && styles.cardRecommended]}
           >
-            <Text style={[styles.toggleText, billing === 'monthly' && styles.toggleTextActive]}>Mensual</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleBtn, billing === 'annual' && styles.toggleBtnActive]}
-            onPress={() => setBilling('annual')}
-          >
-            <Text style={[styles.toggleText, billing === 'annual' && styles.toggleTextActive]}>Anual</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Cards lado a lado */}
-        <View style={styles.cardsRow}>
-
-          {/* Card Mensual */}
-          <View style={[styles.card, billing === 'monthly' && styles.cardSelected]}>
-            <Text style={styles.planName}>Mensual</Text>
-            <Text style={styles.planDesc}>Flexibilidad total</Text>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceCurrency}>$</Text>
-              <Text style={styles.priceAmount}>14</Text>
-            </View>
-            <Text style={styles.pricePeriod}>/mes</Text>
-
-            <View style={styles.divider} />
-
-            {benefits.map((b, i) => (
-              <View key={i} style={styles.benefitRow}>
-                <Text style={styles.check}>✦</Text>
-                <Text style={styles.benefitText}>{b}</Text>
+            {plan.recommended && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>MÁS POPULAR</Text>
               </View>
-            ))}
+            )}
+
+            <View style={styles.trialHero}>
+              <Text style={styles.trialDays}>{plan.trial}</Text>
+              <Text style={styles.trialLabel}>días gratis</Text>
+            </View>
+
+            <Text style={styles.planPrice}>
+              {plan.price}<Text style={styles.planPeriod}>{plan.period}</Text>
+            </Text>
+            <Text style={styles.planAfter}>después del período de prueba gratuita</Text>
 
             <TouchableOpacity
-              style={[styles.btn, styles.btnSecondary]}
-              onPress={() => onSelectPlan('monthly')}
-              activeOpacity={0.8}
+              style={[styles.btn, plan.recommended ? styles.btnPrimary : styles.btnOutline]}
+              onPress={() => onSelectPlan(plan.type)}
+              activeOpacity={0.85}
             >
-              <Text style={styles.btnSecondaryText}>Comenzar ahora</Text>
+              <Text style={[styles.btnText, !plan.recommended && styles.btnTextOutline]}>
+                Comenzar {plan.trial} días gratis
+              </Text>
             </TouchableOpacity>
           </View>
+        ))}
 
-          {/* Card Anual */}
-          <View style={[styles.card, styles.cardAnnual, billing === 'annual' && styles.cardSelected]}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Más popular</Text>
+        <View style={styles.benefitsSection}>
+          <Text style={styles.benefitsTitle}>Todo incluye</Text>
+          {benefits.map((b, i) => (
+            <View key={i} style={styles.benefitRow}>
+              <Text style={styles.check}>✦</Text>
+              <Text style={styles.benefitText}>{b}</Text>
             </View>
-            <Text style={[styles.planName, { color: Colors.gold }]}>Anual</Text>
-            <Text style={styles.planDesc}>41% de descuento</Text>
-            <View style={styles.priceRow}>
-              <Text style={[styles.priceCurrency, { color: Colors.gold }]}>$</Text>
-              <Text style={[styles.priceAmount, { color: Colors.gold }]}>99</Text>
-            </View>
-            <Text style={styles.pricePeriod}>$8.25/mes · Ahorras $69</Text>
-
-            <View style={[styles.divider, { borderColor: 'rgba(201,168,76,0.3)' }]} />
-
-            <View style={styles.exclusiveBox}>
-              <Text style={styles.exclusiveText}>{annualExclusive}</Text>
-            </View>
-
-            {benefits.map((b, i) => (
-              <View key={i} style={styles.benefitRow}>
-                <Text style={[styles.check, { color: Colors.gold }]}>✦</Text>
-                <Text style={styles.benefitText}>{b}</Text>
-              </View>
-            ))}
-
-            <TouchableOpacity
-              style={[styles.btn, styles.btnPrimary]}
-              onPress={() => onSelectPlan('annual')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.btnPrimaryText}>Comenzar ahora</Text>
-            </TouchableOpacity>
-          </View>
-
+          ))}
         </View>
 
-        <Text style={styles.legal}>Pago seguro vía Stripe · Cancela cuando quieras</Text>
+        <Text style={styles.legal}>
+          Pago seguro vía Stripe · Se cobra al finalizar la prueba{'\n'}
+          Cancela en cualquier momento antes sin costo
+        </Text>
       </ScrollView>
     </View>
   )
@@ -125,79 +86,92 @@ export function PlanSelectionScreen({ onSelectPlan }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center' },
+  scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center', gap: Spacing.lg },
 
-  title:    { fontSize: 26, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center', marginBottom: 6 },
-  subtitle: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginBottom: Spacing.lg },
-
-  toggle: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: Radius.full,
-    padding: 4,
-    marginBottom: Spacing.lg,
+  title: {
+    fontSize: 28, color: Colors.textPrimary, fontWeight: '700',
+    textAlign: 'center',
   },
-  toggleBtn: { paddingHorizontal: 24, paddingVertical: 8, borderRadius: Radius.full },
-  toggleBtnActive: { backgroundColor: Colors.gold },
-  toggleText: { fontSize: 14, color: Colors.textSecondary, fontWeight: '600' },
-  toggleTextActive: { color: Colors.background },
-
-  cardsRow: { flexDirection: 'row', gap: 12, width: '100%', alignItems: 'flex-start' },
+  subtitle: {
+    fontSize: 13, color: Colors.textSecondary, textAlign: 'center',
+    lineHeight: 20, marginTop: -Spacing.sm,
+  },
 
   card: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    width: '100%',
+    backgroundColor: Colors.card,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    padding: 16,
-    gap: 4,
+    padding: Spacing.xl,
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
-  cardAnnual: {
-    borderColor: 'rgba(201,168,76,0.4)',
-    backgroundColor: 'rgba(201,168,76,0.05)',
+  cardRecommended: {
+    borderColor: Colors.gold,
+    borderWidth: 2,
+    backgroundColor: 'rgba(201,168,76,0.06)',
   },
-  cardSelected: { borderWidth: 2 },
 
   badge: {
     backgroundColor: Colors.gold,
     borderRadius: Radius.full,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    alignSelf: 'flex-start',
-    marginBottom: 4,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 4,
+    marginBottom: Spacing.sm,
   },
-  badgeText: { fontSize: 10, color: Colors.background, fontWeight: '700' },
+  badgeText: { color: Colors.background, fontSize: 11, fontWeight: '700', letterSpacing: 1 },
 
-  planName: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700' },
-  planDesc: { fontSize: 12, color: Colors.textSecondary, marginBottom: 6 },
-
-  priceRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 4 },
-  priceCurrency: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700', marginTop: 6 },
-  priceAmount:   { fontSize: 42, color: Colors.textPrimary, fontWeight: '700', lineHeight: 48 },
-  pricePeriod:   { fontSize: 11, color: Colors.textSecondary, marginBottom: 8 },
-
-  divider: { borderTopWidth: 1, borderColor: Colors.border, marginVertical: 10 },
-
-  benefitRow: { flexDirection: 'row', gap: 6, alignItems: 'flex-start', marginBottom: 5 },
-  check:       { color: '#4CAF82', fontSize: 10, marginTop: 3 },
-  benefitText: { fontSize: 12, color: Colors.textPrimary, flex: 1, lineHeight: 18 },
-
-  btn: { borderRadius: Radius.md, paddingVertical: 12, alignItems: 'center', marginTop: 12 },
-  btnPrimary:      { backgroundColor: Colors.gold },
-  btnPrimaryText:  { color: Colors.background, fontWeight: '700', fontSize: 14 },
-  btnSecondary:    { borderWidth: 1, borderColor: Colors.border },
-  btnSecondaryText:{ color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
-
-  exclusiveBox: {
-    backgroundColor: 'rgba(201,168,76,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.35)',
-    borderRadius: Radius.md,
-    padding: 10,
-    marginBottom: 8,
+  trialHero: { alignItems: 'center', gap: 0 },
+  trialDays: {
+    fontSize: 88,
+    fontWeight: '700',
+    color: Colors.gold,
+    lineHeight: 96,
+    includeFontPadding: false,
   },
-  exclusiveText: { fontSize: 12, color: Colors.gold, fontWeight: '600', lineHeight: 18 },
+  trialLabel: {
+    fontSize: 22,
+    color: Colors.gold,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
 
-  legal: { fontSize: 11, color: Colors.textDisabled, textAlign: 'center', marginTop: Spacing.lg, marginBottom: Spacing.xl },
+  planPrice: {
+    fontSize: 18, color: Colors.textPrimary, fontWeight: '700',
+    marginTop: Spacing.sm,
+  },
+  planPeriod: { fontSize: 14, color: Colors.textSecondary, fontWeight: '400' },
+  planAfter:  { fontSize: 12, color: Colors.textSecondary, textAlign: 'center' },
+
+  btn: {
+    width: '100%', paddingVertical: 14,
+    borderRadius: Radius.md, alignItems: 'center',
+    marginTop: Spacing.sm,
+  },
+  btnPrimary: { backgroundColor: Colors.gold },
+  btnOutline: { borderWidth: 1, borderColor: Colors.gold },
+  btnText: { color: Colors.background, fontSize: 15, fontWeight: '700' },
+  btnTextOutline: { color: Colors.gold },
+
+  benefitsSection: {
+    width: '100%',
+    borderTopWidth: 1,
+    borderColor: Colors.border,
+    paddingTop: Spacing.lg,
+    gap: Spacing.xs,
+  },
+  benefitsTitle: {
+    fontSize: 13, color: Colors.textSecondary, fontWeight: '600',
+    textAlign: 'center', marginBottom: Spacing.sm, letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  benefitRow: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
+  check: { color: Colors.success, fontSize: 10, marginTop: 4 },
+  benefitText: { fontSize: 14, color: Colors.textPrimary, flex: 1, lineHeight: 22 },
+
+  legal: {
+    fontSize: 11, color: Colors.textDisabled,
+    textAlign: 'center', lineHeight: 18,
+  },
 })

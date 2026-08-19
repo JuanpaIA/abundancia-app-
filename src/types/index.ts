@@ -1,4 +1,4 @@
-export type PlanType = 'monthly' | 'annual'
+export type PlanType = 'monthly' | 'weekly'
 
 export type SubscriptionStatus = 'active' | 'inactive'
 

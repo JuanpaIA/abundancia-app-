@@ -17,7 +17,7 @@ type NewUserStep = 'plans' | 'auth' | 'login' | null
 export default function Index() {
   const { session, profile, loading, refreshProfile, resetPasswordMode, clearResetMode } = useAuth()
   const [newUserStep, setNewUserStep] = useState<NewUserStep>(null)
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('annual')
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('monthly')
   const [changingPlan, setChangingPlan] = useState(false)
 
   // Recuperación de contraseña — máxima prioridad, intercepta cualquier otro estado

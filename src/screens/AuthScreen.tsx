@@ -103,7 +103,7 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly }: Props) {
         </Text>
         <Text style={styles.subtitle}>
           {mode === 'register'
-            ? `Plan ${selectedPlan === 'annual' ? 'anual $99' : 'mensual $14'} seleccionado`
+            ? `Plan ${selectedPlan === 'weekly' ? 'semanal $6.99' : 'mensual $14.99'} seleccionado`
             : 'Bienvenida de vuelta'
           }
         </Text>

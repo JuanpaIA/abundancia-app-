@@ -41,9 +41,14 @@ Deno.serve(async (req) => {
 
     const { priceId, planType } = await req.json()
 
+    const TRIAL_DAYS: Record<string, number> = {
+      monthly: 7,
+      weekly:  3,
+    }
+
     const ALLOWED_PRICE_IDS = new Set([
-      'price_1TSSJMP1zGvRRWhKGykXARXa', // mensual
-      'price_1TSSK4P1zGvRRWhKcZa0wiAs', // anual
+      'price_1TSSJMP1zGvRRWhKGykXARXa', // mensual $14.99
+      'WEEKLY_PRICE_ID_PENDIENTE',       // semanal $6.99 — reemplazar en Stripe
     ])
     if (!priceId || !ALLOWED_PRICE_IDS.has(priceId)) {
       return new Response(JSON.stringify({ error: 'Plan no válido' }), {
@@ -51,6 +56,8 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+
+    const trialDays = TRIAL_DAYS[planType] ?? 7
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -78,12 +85,13 @@ Deno.serve(async (req) => {
         .eq('id', user.id)
     }
 
-    // Crear sesión de checkout
+    // Crear sesión de checkout con período de prueba gratuito
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
+      subscription_data: { trial_period_days: trialDays },
       success_url: `https://luumina.pro?payment=success`,
       cancel_url: `https://luumina.pro?payment=cancel`,
       metadata: { supabase_user_id: user.id, plan_type: planType },

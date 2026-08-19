@@ -8,7 +8,12 @@ import { PlanType } from '../types'
 
 const PRICE_IDS: Record<PlanType, string> = {
   monthly: 'price_1TSSJMP1zGvRRWhKGykXARXa',
-  annual:  'price_1TSSK4P1zGvRRWhKcZa0wiAs',
+  weekly:  'WEEKLY_PRICE_ID_PENDIENTE',       // reemplazar con el Price ID de Stripe
+}
+
+const TRIAL_DAYS: Record<PlanType, number> = {
+  monthly: 7,
+  weekly:  3,
 }
 
 interface Props {
@@ -104,31 +109,28 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
     }
   }
 
-  const isAnnual = planType === 'annual'
+  const isWeekly = planType === 'weekly'
+  const trialDays = TRIAL_DAYS[planType]
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.emoji}>✦</Text>
-        <Text style={styles.title}>Un paso para activar{'\n'}tu sistema</Text>
+        <Text style={styles.title}>Activa tu período{'\n'}de prueba gratis</Text>
         <Text style={styles.subtitle}>
-          Estás a punto de acceder a tu protocolo diario personalizado.
+          Sin cobros durante los {trialDays} días de prueba. Cancela cuando quieras.
         </Text>
 
         <View style={styles.planCard}>
-          {isAnnual && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Más popular — 41% descuento</Text>
-            </View>
-          )}
-          <Text style={styles.planPrice}>{isAnnual ? '$99' : '$14'}</Text>
-          <Text style={styles.planPeriod}>
-            {isAnnual ? '/año · $8.25/mes · Ahorras $69' : '/mes'}
+          <Text style={styles.trialBig}>{trialDays}</Text>
+          <Text style={styles.trialLabel}>días gratis</Text>
+          <Text style={styles.planPrice}>
+            {isWeekly ? 'Luego $6.99/semana' : 'Luego $14.99/mes'}
           </Text>
         </View>
 
         <GradientButton
-          title={isAnnual ? 'Pagar $99/año' : 'Pagar $14/mes'}
+          title={`Empezar ${trialDays} días gratis`}
           onPress={handleCheckout}
           loading={loadingCheckout}
         />
@@ -173,14 +175,12 @@ const styles = StyleSheet.create({
     padding: Spacing.lg, borderWidth: 2, borderColor: Colors.gold,
     alignItems: 'center', gap: 4, marginVertical: Spacing.sm,
   },
-  badge: {
-    backgroundColor: Colors.gold, borderRadius: Radius.full,
-    paddingHorizontal: Spacing.md, paddingVertical: 4,
-    marginBottom: Spacing.sm,
+  trialBig: {
+    fontSize: 72, color: Colors.gold, fontWeight: '700',
+    lineHeight: 80, includeFontPadding: false,
   },
-  badgeText: { color: Colors.background, fontSize: 12, fontWeight: '700' },
-  planPrice: { fontSize: 48, color: Colors.gold, fontWeight: '700' },
-  planPeriod: { fontSize: 14, color: Colors.textSecondary },
+  trialLabel: { fontSize: 20, color: Colors.gold, fontWeight: '600' },
+  planPrice: { fontSize: 15, color: Colors.textSecondary, marginTop: 4 },
   changePlan: {
     color: Colors.textSecondary, fontSize: 13,
     textAlign: 'center', textDecorationLine: 'underline',
