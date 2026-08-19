@@ -27,9 +27,10 @@ const AREAS: { key: ManifestationArea; label: string; emoji: string; description
 interface Props {
   userId: string
   onComplete: () => void
+  onSignOut: () => void
 }
 
-export function OnboardingScreen({ userId, onComplete }: Props) {
+export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
   const [step, setStep] = useState(1)
   const [name, setName] = useState('')
   const [birthDate, setBirthDate] = useState('')
@@ -162,6 +163,9 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.signOutBtn} onPress={onSignOut}>
+        <Text style={styles.signOutText}>Cerrar sesión</Text>
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {step > 1 && (
@@ -360,6 +364,8 @@ export function OnboardingScreen({ userId, onComplete }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  signOutBtn: { position: 'absolute', top: 52, right: Spacing.lg, zIndex: 10 },
+  signOutText: { fontSize: 13, color: Colors.textDisabled },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
   backBtn: { paddingBottom: Spacing.sm },
   backText: { fontSize: 14, color: Colors.textSecondary },

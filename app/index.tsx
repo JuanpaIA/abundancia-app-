@@ -77,6 +77,7 @@ export default function Index() {
       <OnboardingScreen
         userId={session.user.id}
         onComplete={refreshProfile}
+        onSignOut={async () => { await supabase.auth.signOut() }}
       />
     )
   }
