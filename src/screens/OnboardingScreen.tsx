@@ -3,10 +3,9 @@ import { useState } from 'react'
 import { Colors, Spacing, Radius } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { Card } from '../components/ui/Card'
-import { ManifestationIntakeScreen } from './ManifestationIntakeScreen'
 import { supabase } from '../services/supabase'
 import { calculateNumerology, getZodiacSign, getBaseFrequency } from '../utils/calculations'
-import { ManifestationArea, GoalDetails } from '../types'
+import { ManifestationArea } from '../types'
 import { NUMEROLOGY_PROFILES } from '../content/numerologyContent'
 
 const ZODIAC_LABELS: Record<string, string> = {
@@ -35,8 +34,6 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
   const [name, setName] = useState('')
   const [birthDate, setBirthDate] = useState('')
   const [manifestationArea, setManifestationArea] = useState<ManifestationArea | null>(null)
-  const [goalDetails, setGoalDetails] = useState<GoalDetails>({})
-  const [planDuration, setPlanDuration] = useState<number>(30)
   const [loading, setLoading] = useState(false)
   const [calculated, setCalculated] = useState<{
     zodiac: string; numerology: number; frequency: number
@@ -85,12 +82,7 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
 
   function handleAreaNext() {
     if (!manifestationArea) return Alert.alert('Selecciona qué deseas manifestar')
-    setStep(4)
-  }
-
-  function handleIntakeComplete(details: GoalDetails) {
-    setGoalDetails(details)
-    setStep(5)   // → duración del plan
+    setStep(6)
   }
 
   async function handleSave() {
@@ -106,8 +98,8 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
         numerology_number: calculated.numerology,
         base_frequency: calculated.frequency,
         manifestation_area: manifestationArea,
-        goal_details: goalDetails,
-        plan_duration: planDuration,
+        goal_details: {},
+        plan_duration: 30,
         plan_start_date: today,
       }).eq('id', userId)
 
@@ -149,17 +141,7 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
     }
   }
 
-  if (step === 4 && manifestationArea) {
-    return (
-      <ManifestationIntakeScreen
-        area={manifestationArea}
-        onComplete={handleIntakeComplete}
-        onBack={() => setStep(3)}
-      />
-    )
-  }
-
-  const BACK_STEPS: Record<number, number> = { 2: 1, 3: 2, 5: 4, 6: 5 }
+  const BACK_STEPS: Record<number, number> = { 2: 1, 3: 2, 6: 3 }
 
   return (
     <View style={styles.container}>
@@ -175,7 +157,7 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
         )}
 
         <View style={styles.progress}>
-          {[1, 2, 3, 5, 6].map(i => (
+          {[1, 2, 3, 6].map(i => (
             <View key={i} style={[styles.progressDot, step >= i && styles.progressDotActive]} />
           ))}
         </View>
@@ -256,37 +238,6 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
             </View>
 
             <GradientButton title="Continuar" onPress={handleAreaNext} />
-          </View>
-        )}
-
-        {step === 5 && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.stepEmoji}>⏳</Text>
-            <Text style={styles.title}>¿Cuánto dura tu plan?</Text>
-            <Text style={styles.subtitle}>
-              Define el tiempo de tu compromiso. La constancia dentro de un plazo claro acelera la manifestación.
-            </Text>
-            <View style={styles.durationGrid}>
-              {[
-                { days: 30, label: '30 días', desc: 'El ciclo mínimo de transformación' },
-                { days: 45, label: '45 días', desc: 'Ideal para crear hábitos sólidos' },
-                { days: 60, label: '60 días', desc: 'Donde ocurren los cambios profundos' },
-                { days: 90, label: '90 días', desc: 'El plan de manifestación completo' },
-              ].map(opt => (
-                <TouchableOpacity
-                  key={opt.days}
-                  style={[styles.durationCard, planDuration === opt.days && styles.durationCardSelected]}
-                  onPress={() => setPlanDuration(opt.days)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.durationDays, planDuration === opt.days && styles.durationDaysSelected]}>
-                    {opt.label}
-                  </Text>
-                  <Text style={styles.durationDesc}>{opt.desc}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <GradientButton title="Continuar" onPress={() => setStep(6)} />
           </View>
         )}
 
@@ -447,21 +398,4 @@ const styles = StyleSheet.create({
   dateHintSep: { fontSize: 13, color: Colors.textDisabled },
   dateHintLabel: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
 
-  durationGrid: { gap: Spacing.sm },
-  durationCard: {
-    backgroundColor: Colors.card,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    gap: 4,
-  },
-  durationCardSelected: {
-    borderColor: Colors.gold,
-    borderWidth: 2,
-    backgroundColor: 'rgba(201,168,76,0.08)',
-  },
-  durationDays: { fontSize: 20, color: Colors.textPrimary, fontWeight: '700' },
-  durationDaysSelected: { color: Colors.gold },
-  durationDesc: { fontSize: 13, color: Colors.textSecondary },
 })

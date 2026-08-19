@@ -19,13 +19,14 @@ const TRIAL_DAYS: Record<PlanType, number> = {
 interface Props {
   userId: string
   email: string
-  planType: PlanType
+  selectedPlan: PlanType
+  onSelectPlan: (plan: PlanType) => void
   onPaymentSuccess: () => void
-  onChangePlan: () => void
   onSignOut: () => void
 }
 
-export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onChangePlan, onSignOut }: Props) {
+export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPaymentSuccess, onSignOut }: Props) {
+  const planType = selectedPlan
   const [loadingCheckout, setLoadingCheckout] = useState(false)
   const [loadingVerify, setLoadingVerify] = useState(false)
 
@@ -109,24 +110,40 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
     }
   }
 
-  const isWeekly = planType === 'weekly'
   const trialDays = TRIAL_DAYS[planType]
+
+  const plans: { type: PlanType; trial: number; price: string; period: string }[] = [
+    { type: 'monthly', trial: 7, price: '$14.99', period: '/mes' },
+    { type: 'weekly',  trial: 3, price: '$6.99',  period: '/semana' },
+  ]
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.emoji}>✦</Text>
-        <Text style={styles.title}>Activa tu período{'\n'}de prueba gratis</Text>
-        <Text style={styles.subtitle}>
-          Sin cobros durante los {trialDays} días de prueba. Cancela cuando quieras.
-        </Text>
+        <Text style={styles.title}>Elige tu plan</Text>
+        <Text style={styles.subtitle}>Sin cobros durante la prueba · Cancela cuando quieras</Text>
 
-        <View style={styles.planCard}>
-          <Text style={styles.trialBig}>{trialDays}</Text>
-          <Text style={styles.trialLabel}>días gratis</Text>
-          <Text style={styles.planPrice}>
-            {isWeekly ? 'Luego $6.99/semana' : 'Luego $14.99/mes'}
-          </Text>
+        {/* Selector de plan integrado */}
+        <View style={styles.planSelector}>
+          {plans.map(p => (
+            <TouchableOpacity
+              key={p.type}
+              style={[styles.planOption, planType === p.type && styles.planOptionSelected]}
+              onPress={() => onSelectPlan(p.type)}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.planTrialNum, planType === p.type && styles.planTrialNumActive]}>
+                {p.trial}
+              </Text>
+              <Text style={[styles.planTrialLabel, planType === p.type && styles.planTrialLabelActive]}>
+                días gratis
+              </Text>
+              <Text style={styles.planPriceSmall}>
+                {p.price}<Text style={styles.planPeriod}>{p.period}</Text>
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <GradientButton
@@ -141,17 +158,13 @@ export function PaymentScreen({ userId, email, planType, onPaymentSuccess, onCha
           loading={loadingVerify}
         />
 
-        <Text style={styles.changePlan} onPress={onChangePlan}>
-          Cambiar plan
-        </Text>
-
         <TouchableOpacity onPress={onSignOut} style={styles.signOutBtn}>
           <Text style={styles.signOutText}>Cerrar sesión</Text>
         </TouchableOpacity>
 
         <Text style={styles.legal}>
-          Pago seguro vía Stripe · Cancela cuando quieras.{'\n'}
-          Serás redirigido a una página externa para completar el pago.
+          Pago seguro vía Stripe · Se cobra al finalizar la prueba.{'\n'}
+          Serás redirigido a Stripe para completar el pago.
         </Text>
       </View>
     </View>
@@ -170,21 +183,19 @@ const styles = StyleSheet.create({
     fontSize: 15, color: Colors.textSecondary,
     textAlign: 'center', lineHeight: 22,
   },
-  planCard: {
-    backgroundColor: Colors.card, borderRadius: Radius.lg,
-    padding: Spacing.lg, borderWidth: 2, borderColor: Colors.gold,
-    alignItems: 'center', gap: 4, marginVertical: Spacing.sm,
+  planSelector: { flexDirection: 'row', gap: 12 },
+  planOption: {
+    flex: 1, backgroundColor: Colors.card,
+    borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border,
+    padding: Spacing.md, alignItems: 'center', gap: 2,
   },
-  trialBig: {
-    fontSize: 72, color: Colors.gold, fontWeight: '700',
-    lineHeight: 80, includeFontPadding: false,
-  },
-  trialLabel: { fontSize: 20, color: Colors.gold, fontWeight: '600' },
-  planPrice: { fontSize: 15, color: Colors.textSecondary, marginTop: 4 },
-  changePlan: {
-    color: Colors.textSecondary, fontSize: 13,
-    textAlign: 'center', textDecorationLine: 'underline',
-  },
+  planOptionSelected: { borderColor: Colors.gold, borderWidth: 2, backgroundColor: 'rgba(201,168,76,0.07)' },
+  planTrialNum: { fontSize: 52, fontWeight: '700', color: Colors.textSecondary, lineHeight: 58, includeFontPadding: false },
+  planTrialNumActive: { color: Colors.gold },
+  planTrialLabel: { fontSize: 14, color: Colors.textSecondary, fontWeight: '600' },
+  planTrialLabelActive: { color: Colors.gold },
+  planPriceSmall: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, fontWeight: '600' },
+  planPeriod: { fontSize: 11, color: Colors.textDisabled, fontWeight: '400' },
   legal: {
     fontSize: 11, color: Colors.textDisabled,
     textAlign: 'center', lineHeight: 18, marginTop: Spacing.sm,
