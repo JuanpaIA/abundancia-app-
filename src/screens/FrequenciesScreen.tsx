@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
+import { FrequencyPlayerOverlay } from '../components/overlays/FrequencyPlayerOverlay'
 
 // ─── Catálogo de frecuencias ──────────────────────────────────────────────────
 
@@ -163,6 +164,7 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
   const { reportError } = useErrorReporter('frequencies')
   const [playingHz, setPlayingHz] = useState<number | null>(null)
   const [expanded, setExpanded] = useState<number | null>(todayHz ?? null)
+  const [overlayFreq, setOverlayFreq] = useState<{ hz: number; name: string; purpose: string } | null>(null)
 
   async function handlePlay(hz: number) {
     try {
@@ -309,6 +311,13 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
                       </View>
                     ))}
                   </View>
+
+                  <TouchableOpacity
+                    style={styles.overlayBtn}
+                    onPress={() => setOverlayFreq({ hz: freq.hz, name: freq.name, purpose: freq.purpose })}
+                  >
+                    <Text style={styles.overlayBtnText}>✦ Abrir visualizador de frecuencia</Text>
+                  </TouchableOpacity>
                 </LinearGradient>
               )}
             </View>
@@ -317,6 +326,17 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
 
         <View style={{ height: Spacing.xxl }} />
       </ScrollView>
+
+      {overlayFreq && (
+        <FrequencyPlayerOverlay
+          hz={overlayFreq.hz}
+          name={overlayFreq.name}
+          purpose={overlayFreq.purpose}
+          playing={playingHz === overlayFreq.hz}
+          onToggle={() => handlePlay(overlayFreq.hz)}
+          onClose={() => setOverlayFreq(null)}
+        />
+      )}
     </LinearGradient>
   )
 }
@@ -435,4 +455,17 @@ const styles = StyleSheet.create({
     borderColor: Colors.border, backgroundColor: Colors.cardBg,
   },
   freqAreaText: { fontSize: 11, color: Colors.textSecondary },
+  overlayBtn: {
+    marginTop: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  overlayBtnText: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 13,
+    color: Colors.purpleAccent,
+    opacity: 0.85,
+  },
 })

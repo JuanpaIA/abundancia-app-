@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native'
 import { useState } from 'react'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
 import { calculateNumerology, getZodiacSign, getBaseFrequency } from '../utils/calculations'
@@ -142,6 +143,14 @@ export function EditProfileScreen({ profile, onSave, onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#16102a', '#0e0b1e', '#0a0814']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+      {/* @ts-ignore */}
+      <View style={styles.orbGold} aria-hidden />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>
@@ -338,132 +347,136 @@ export function EditProfileScreen({ profile, onSave, onBack }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  orbGold: {
+    position: 'absolute', width: 300, height: 300, bottom: 60, left: -60, borderRadius: 999,
+    // @ts-ignore
+    background: 'radial-gradient(circle, rgba(212,175,85,0.10) 0%, transparent 60%)',
+    pointerEvents: 'none',
+  },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
   header: { marginBottom: Spacing.xl, gap: Spacing.sm },
-  back: { color: Colors.gold, fontSize: 15 },
-  title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700' },
+  back: { fontFamily: Fonts.body, color: Colors.gold, fontSize: 15 },
+  title: { fontFamily: Fonts.headingSemiBold, fontSize: 28, color: Colors.textPrimary, lineHeight: 34 },
 
   energyCard: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.gold,
+    borderColor: Colors.borderGold,
     marginBottom: Spacing.xl,
     gap: Spacing.md,
   },
-  energyName: { fontSize: 20, color: Colors.textPrimary, fontWeight: '700' },
+  energyName: { fontFamily: Fonts.headingSemiBold, fontSize: 22, color: Colors.textPrimary },
   energyRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
   energyItem: { alignItems: 'center', gap: 3 },
-  energyValue: { fontSize: 14, color: Colors.gold, fontWeight: '700' },
-  energyLabel: { fontSize: 11, color: Colors.textSecondary },
-  energySep: { width: 0.5, height: 32, backgroundColor: 'rgba(201,168,76,0.20)' },
+  energyValue: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold },
+  energyLabel: { fontFamily: Fonts.body, fontSize: 11, color: Colors.textSecondary },
+  energySep: { width: 0.5, height: 32, backgroundColor: Colors.borderGold },
 
   numSection: {
     borderTopWidth: 0.5,
-    borderTopColor: 'rgba(201,168,76,0.20)',
+    borderTopColor: Colors.borderGold,
     paddingTop: Spacing.md,
     gap: Spacing.sm,
   },
   numHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   numHeaderRight: { flex: 1, gap: 6 },
-  numBigNumber: { fontSize: 48, color: Colors.gold, fontWeight: '700', lineHeight: 52 },
-  numArchetype: { fontSize: 18, color: Colors.gold, fontWeight: '700' },
+  numBigNumber: { fontFamily: Fonts.heading, fontSize: 52, color: Colors.gold, lineHeight: 56 },
+  numArchetype: { fontFamily: Fonts.headingSemiBold, fontSize: 18, color: Colors.gold },
   qualityRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   qualityChip: {
-    backgroundColor: 'rgba(201,168,76,0.12)',
-    borderRadius: Radius.sm,
+    backgroundColor: Colors.goldDim,
+    borderRadius: Radius.full,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.30)',
+    borderColor: Colors.borderGold,
   },
-  qualityText: { fontSize: 11, color: Colors.gold, fontWeight: '600' },
-  numEssence: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, fontStyle: 'italic' },
+  qualityText: { fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.gold },
+  numEssence: { fontFamily: Fonts.headingItalic, fontSize: 14, color: Colors.textSecondary, lineHeight: 22 },
   numAreaBlock: {
-    backgroundColor: 'rgba(201,168,76,0.06)',
+    backgroundColor: Colors.goldDim,
     borderRadius: Radius.md,
     padding: Spacing.sm,
     gap: 6,
     borderLeftWidth: 2,
     borderLeftColor: Colors.gold,
   },
-  numAreaLabel: { fontSize: 11, color: Colors.gold, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-  numAreaMessage: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20 },
+  numAreaLabel: { fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.gold, textTransform: 'uppercase', letterSpacing: 0.5 },
+  numAreaMessage: { fontFamily: Fonts.body, fontSize: 13, color: Colors.textPrimary, lineHeight: 20 },
 
-  sectionBlock: {
-    marginBottom: Spacing.xl,
-    gap: Spacing.md,
-  },
+  sectionBlock: { marginBottom: Spacing.xl, gap: Spacing.md },
   sectionBlockHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  sectionBlockTitle: { fontSize: 16, color: Colors.textPrimary, fontWeight: '700' },
-  sectionBlockSub: { fontSize: 12, color: Colors.textSecondary, marginTop: -Spacing.sm },
-  editLink: { fontSize: 13, color: Colors.gold },
+  sectionBlockTitle: { fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary },
+  sectionBlockSub: { fontFamily: Fonts.body, fontSize: 12, color: Colors.textSecondary, marginTop: -Spacing.sm },
+  editLink: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.gold },
 
   intentionAreaRow: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
-    backgroundColor: 'rgba(201,168,76,0.08)',
+    backgroundColor: Colors.goldDim,
     borderRadius: Radius.md, padding: Spacing.md,
-    borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)',
+    borderWidth: 1, borderColor: Colors.borderGold,
   },
   intentionAreaEmoji: { fontSize: 28 },
-  intentionAreaLabel: { fontSize: 11, color: Colors.textSecondary },
-  intentionAreaName: { fontSize: 15, color: Colors.gold, fontWeight: '700' },
+  intentionAreaLabel: { fontFamily: Fonts.body, fontSize: 11, color: Colors.textSecondary },
+  intentionAreaName: { fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.gold },
 
   detailRow: {
-    backgroundColor: Colors.card,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
-    borderWidth: 0.5,
-    borderColor: Colors.border,
-    gap: 4,
-  },
-  detailQuestion: { fontSize: 11, color: Colors.textSecondary, letterSpacing: 0.3 },
-  detailAnswer: { fontSize: 14, color: Colors.textPrimary, fontWeight: '500' },
-
-  emptyIntention: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.md,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.25)',
+    borderColor: Colors.border,
+    gap: 4,
+  },
+  detailQuestion: { fontFamily: Fonts.body, fontSize: 11, color: Colors.textDim, letterSpacing: 0.3 },
+  detailAnswer: { fontFamily: Fonts.bodyMedium, fontSize: 14, color: Colors.textPrimary },
+
+  emptyIntention: {
+    backgroundColor: Colors.cardBg,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
     borderStyle: 'dashed',
     gap: Spacing.sm,
     alignItems: 'center',
   },
-  emptyIntentionText: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
-  emptyIntentionCta: { fontSize: 13, color: Colors.gold, fontWeight: '600' },
+  emptyIntentionText: { fontFamily: Fonts.body, fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+  emptyIntentionCta: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.gold },
 
   durationRow: { flexDirection: 'row', gap: Spacing.sm },
   durationBtn: {
     flex: 1, alignItems: 'center', paddingVertical: Spacing.sm,
     borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border,
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
   },
-  durationBtnSelected: { borderColor: Colors.gold, borderWidth: 2, backgroundColor: 'rgba(201,168,76,0.08)' },
-  durationBtnText: { fontSize: 15, color: Colors.textSecondary, fontWeight: '600' },
-  durationBtnTextSelected: { color: Colors.gold },
+  durationBtnSelected: { borderColor: Colors.borderGold, backgroundColor: Colors.goldDim },
+  durationBtnText: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.textSecondary },
+  durationBtnTextSelected: { fontFamily: Fonts.bodySemiBold, color: Colors.gold },
 
   field: { gap: Spacing.xs },
-  fieldLabel: { fontSize: 13, color: Colors.textSecondary },
+  fieldLabel: { fontFamily: Fonts.bodySemiBold, fontSize: 12, color: Colors.textDim, letterSpacing: 0.5 },
   input: {
-    backgroundColor: Colors.input,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.md,
     padding: Spacing.md,
     color: Colors.textPrimary,
+    fontFamily: Fonts.body,
     fontSize: 16,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  preview: { fontSize: 13, color: Colors.gold },
+  preview: { fontFamily: Fonts.bodyMedium, fontSize: 13, color: Colors.gold },
   dateHint: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  dateHintPart: { fontSize: 13, color: Colors.gold, fontWeight: '700', letterSpacing: 1 },
+  dateHintPart: { fontFamily: Fonts.bodyBold, fontSize: 12, color: Colors.gold, letterSpacing: 1 },
   dateHintSep: { fontSize: 13, color: Colors.textDisabled },
-  dateHintLabel: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
+  dateHintLabel: { fontFamily: Fonts.body, fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
 
   areaGrid: { gap: Spacing.sm },
   areaCard: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     borderWidth: 1,
@@ -471,13 +484,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+    overflow: 'hidden',
   },
   areaCardSelected: {
-    borderColor: Colors.gold,
-    borderWidth: 2,
-    backgroundColor: 'rgba(201, 168, 76, 0.08)',
+    borderColor: Colors.borderGold,
+    backgroundColor: Colors.goldDim,
   },
   areaEmoji: { fontSize: 24 },
-  areaLabel: { fontSize: 15, color: Colors.textPrimary, fontWeight: '500' },
-  areaLabelSelected: { color: Colors.gold },
+  areaLabel: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.textPrimary },
+  areaLabelSelected: { fontFamily: Fonts.bodySemiBold, color: Colors.gold },
 })
