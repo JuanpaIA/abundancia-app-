@@ -6,7 +6,7 @@ import {
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { useErrorReporter } from '../hooks/useErrorReporter'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { getLunarPhase, getLunarPhaseEmoji, getLunarPhaseLabel } from '../utils/calculations'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
-  title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
   description: {
     fontSize: 13,
@@ -309,8 +309,8 @@ const styles = StyleSheet.create({
   contextBadgeText: { fontSize: 12, color: Colors.gold, fontWeight: '600' },
 
   todayCard: {
-    backgroundColor: Colors.card, borderRadius: Radius.xl,
-    borderWidth: 1, borderColor: 'rgba(201,168,76,0.30)',
+    backgroundColor: Colors.cardBg, borderRadius: Radius.xl,
+    borderWidth: 1, borderColor: Colors.borderGold,
     padding: Spacing.lg, marginBottom: Spacing.xl, gap: Spacing.lg,
   },
   todayHeader: {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   pastDividerLabel: { fontSize: 11, color: Colors.textDisabled, letterSpacing: 1, textTransform: 'uppercase' },
 
   pastCard: {
-    backgroundColor: Colors.card, borderRadius: Radius.lg,
+    backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
     borderWidth: 1, borderColor: Colors.border,
     padding: Spacing.md, marginBottom: Spacing.md, gap: Spacing.sm,
   },

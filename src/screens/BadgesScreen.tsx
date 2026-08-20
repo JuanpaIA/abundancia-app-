@@ -5,7 +5,7 @@ import {
 } from 'react-native'
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { DailyLog } from '../types'
 
 // ─── Definición de insignias ──────────────────────────────────────────────────
@@ -341,12 +341,12 @@ const styles = StyleSheet.create({
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
-  title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700' },
+  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
 
   progressCard: {
-    backgroundColor: Colors.card, borderRadius: Radius.lg,
-    borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)',
+    backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
+    borderWidth: 1, borderColor: Colors.borderGold,
     padding: Spacing.md, marginBottom: Spacing.xl, gap: Spacing.sm,
   },
   progressTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -369,15 +369,15 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   badgeCard: {
     width: '30.5%',
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.goldDim,
     borderRadius: Radius.lg, borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.30)',
+    borderColor: Colors.borderGold,
     padding: Spacing.sm, alignItems: 'center',
     gap: 4, position: 'relative',
   },
   badgeCardLocked: {
     borderColor: Colors.border,
-    backgroundColor: 'rgba(22,19,42,0.5)',
+    backgroundColor: Colors.cardBg,
   },
   badgeEmoji: { fontSize: 28, marginBottom: 2 },
   badgeEmojiLocked: { opacity: 0.3 },

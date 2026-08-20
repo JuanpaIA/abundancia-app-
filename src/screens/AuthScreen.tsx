@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import { useState } from 'react'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
@@ -98,6 +99,12 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly, registerOnl
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <LinearGradient
+        colors={['#16102a', '#0e0b1e', '#0a0814']}
+        locations={[0, 0.4, 1]}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
       <View style={styles.content}>
         <Text style={styles.title}>
           {mode === 'register' ? 'Crea tu cuenta' : 'Inicia sesión'}
@@ -175,9 +182,9 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly, registerOnl
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: Colors.background, position: 'relative' },
   content: { flex: 1, padding: Spacing.lg, paddingTop: 80, justifyContent: 'center' },
-  title: { fontSize: 28, color: Colors.textPrimary, fontFamily: Fonts.heading, marginBottom: Spacing.xs },
+  title: { fontSize: 28, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, marginBottom: Spacing.xs },
   subtitle: { fontSize: 15, color: Colors.gold, fontFamily: Fonts.bodyMedium, marginBottom: Spacing.xl },
   form: { gap: Spacing.md, marginBottom: Spacing.lg },
   inputWrapper: { gap: Spacing.xs },

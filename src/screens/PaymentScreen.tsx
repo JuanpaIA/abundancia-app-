@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Alert, TouchableOpacity, Platform, ScrollView } from 'react-native'
 import { useState, useEffect } from 'react'
 import * as WebBrowser from 'expo-web-browser'
+import { LinearGradient } from 'expo-linear-gradient'
 import { supabase } from '../services/supabase'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
@@ -119,6 +120,12 @@ export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPay
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#16102a', '#0e0b1e', '#0a0814']}
+        locations={[0, 0.4, 1]}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.emoji}>✦</Text>
         <Text style={styles.title}>Elige tu plan</Text>
@@ -200,11 +207,11 @@ const styles = StyleSheet.create({
   },
   planSelector: { flexDirection: 'row', gap: 12 },
   planOption: {
-    flex: 1, backgroundColor: Colors.card,
+    flex: 1, backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border,
     padding: Spacing.md, alignItems: 'center', gap: 2,
   },
-  planOptionSelected: { borderColor: Colors.gold, borderWidth: 2, backgroundColor: 'rgba(201,168,76,0.07)' },
+  planOptionSelected: { borderColor: Colors.gold, borderWidth: 2, backgroundColor: Colors.goldDim },
   planTrialNum: { fontSize: 52, fontWeight: '700', color: Colors.textSecondary, lineHeight: 58, includeFontPadding: false },
   planTrialNumActive: { color: Colors.gold },
   planTrialLabel: { fontSize: 14, color: Colors.textSecondary, fontWeight: '600' },
@@ -217,7 +224,7 @@ const styles = StyleSheet.create({
   },
   testimonials: { gap: Spacing.sm },
   testimonialCard: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
