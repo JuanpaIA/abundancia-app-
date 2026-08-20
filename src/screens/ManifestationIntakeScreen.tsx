@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native'
 import { useState } from 'react'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { ManifestationArea, GoalDetails } from '../types'
 
@@ -205,6 +206,15 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#16102a', '#0e0b1e', '#0a0814']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+      {/* @ts-ignore */}
+      <View style={styles.orbGold} aria-hidden />
+
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
@@ -213,10 +223,15 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
 
         {/* Barra de progreso */}
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress * 100}%` as any }]} />
+          <LinearGradient
+            colors={[Colors.purpleAccent, Colors.gold]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={[styles.progressFill, { width: `${progress * 100}%` as any }]}
+          />
         </View>
         <Text style={styles.progressLabel}>{currentQ + 1} de {qs.length}</Text>
 
+        <Text style={styles.stepEyebrow}>TU INTENCIÓN</Text>
         <Text style={styles.title}>{question.label}</Text>
 
         {question.type === 'options' && question.options && (
@@ -272,28 +287,33 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, gap: Spacing.lg },
+  orbGold: {
+    position: 'absolute', width: 300, height: 300, bottom: 40, left: -60, borderRadius: 999,
+    // @ts-ignore
+    background: 'radial-gradient(circle, rgba(212,175,85,0.12) 0%, transparent 60%)',
+    pointerEvents: 'none',
+  },
+  scroll: { padding: Spacing.lg, paddingTop: 64, gap: Spacing.lg },
+
   progressBar: {
-    height: 3,
-    backgroundColor: Colors.border,
-    borderRadius: 2,
-    overflow: 'hidden',
+    height: 3, backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 2, overflow: 'hidden',
   },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.gold,
-    borderRadius: 2,
+  progressFill: { height: '100%', borderRadius: 2 },
+  progressLabel: { fontFamily: Fonts.body, fontSize: 11, color: Colors.textDim, textAlign: 'right' },
+
+  stepEyebrow: {
+    fontFamily: Fonts.bodySemiBold, fontSize: 11,
+    color: Colors.textDim, letterSpacing: 2,
   },
-  progressLabel: { fontSize: 12, color: Colors.textDisabled, textAlign: 'right' },
   title: {
-    fontSize: 22,
-    color: Colors.textPrimary,
-    fontWeight: '700',
-    lineHeight: 30,
+    fontFamily: Fonts.headingSemiBold, fontSize: 24,
+    color: Colors.textPrimary, lineHeight: 32,
   },
+
   optionsGrid: { gap: Spacing.sm },
   optionCard: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     borderWidth: 1,
@@ -301,21 +321,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
+    overflow: 'hidden',
   },
   optionCardSelected: {
-    borderColor: Colors.gold,
-    borderWidth: 2,
-    backgroundColor: 'rgba(201, 168, 76, 0.08)',
+    borderColor: Colors.borderGold,
+    borderWidth: 1,
+    backgroundColor: Colors.goldDim,
   },
-  optionEmoji: { fontSize: 26 },
-  optionLabel: { fontSize: 15, color: Colors.textPrimary, flex: 1 },
-  optionLabelSelected: { color: Colors.gold, fontWeight: '600' },
+  optionEmoji: { fontSize: 24 },
+  optionLabel: { fontFamily: Fonts.bodyMedium, fontSize: 15, color: Colors.textPrimary, flex: 1 },
+  optionLabelSelected: { fontFamily: Fonts.bodySemiBold, color: Colors.gold },
+
   input: {
-    backgroundColor: Colors.input,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.md,
     padding: Spacing.md,
     color: Colors.textPrimary,
-    fontSize: 16,
+    fontFamily: Fonts.body,
+    fontSize: 15,
     borderWidth: 1,
     borderColor: Colors.border,
     minHeight: 100,
@@ -323,5 +346,5 @@ const styles = StyleSheet.create({
   },
   actions: { gap: Spacing.sm },
   backBtn: { paddingVertical: Spacing.sm },
-  backText: { fontSize: 14, color: Colors.textSecondary },
+  backText: { fontFamily: Fonts.body, fontSize: 14, color: Colors.gold, opacity: 0.8 },
 })

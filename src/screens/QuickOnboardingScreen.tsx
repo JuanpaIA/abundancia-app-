@@ -80,6 +80,16 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
 
   return (
     <View style={styles.container}>
+      {/* Atmospheric background */}
+      <LinearGradient
+        colors={['#16102a', '#0e0b1e', '#0a0814']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+      {/* @ts-ignore */}
+      <View style={styles.orbPurple} aria-hidden />
+
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {step > 1 && (
@@ -88,15 +98,19 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
           </TouchableOpacity>
         )}
 
+        {/* Progress bars — stories style */}
         <View style={styles.progress}>
           {[1, 2, 3].map(i => (
-            <View key={i} style={[styles.progressDot, step >= i && styles.progressDotActive]} />
+            <View key={i} style={styles.progressTrack}>
+              <View style={[styles.progressFill, step >= i && styles.progressFillActive]} />
+            </View>
           ))}
         </View>
 
         {step === 1 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.stepEmoji}>✨</Text>
+            <View style={styles.stepEmojiWrap}><Text style={styles.stepEmoji}>✨</Text></View>
+            <Text style={styles.stepEyebrow}>PASO 1 DE 3</Text>
             <Text style={styles.title}>Tu nombre energético</Text>
             <Text style={styles.subtitle}>Lo usamos para calcular tu número numerológico personal</Text>
             <View style={styles.inputWrapper}>
@@ -116,7 +130,8 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
 
         {step === 2 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.stepEmoji}>🌙</Text>
+            <View style={styles.stepEmojiWrap}><Text style={styles.stepEmoji}>🌙</Text></View>
+            <Text style={styles.stepEyebrow}>PASO 2 DE 3</Text>
             <Text style={styles.title}>Tu fecha de nacimiento</Text>
             <Text style={styles.subtitle}>Calculamos tu signo zodiacal y número numerológico</Text>
             <View style={styles.inputWrapper}>
@@ -145,7 +160,8 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
 
         {step === 3 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.stepEmoji}>🎯</Text>
+            <View style={styles.stepEmojiWrap}><Text style={styles.stepEmoji}>🎯</Text></View>
+            <Text style={styles.stepEyebrow}>PASO 3 DE 3</Text>
             <Text style={styles.title}>¿Qué deseas manifestar?</Text>
             <Text style={styles.subtitle}>Tu protocolo se alinea con tu intención principal</Text>
             <View style={styles.areaGrid}>
@@ -188,39 +204,69 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60 },
+  orbPurple: {
+    position: 'absolute', width: 360, height: 360, top: -80, right: -80, borderRadius: 999,
+    // @ts-ignore
+    background: 'radial-gradient(circle, rgba(167,139,250,0.18) 0%, transparent 60%)',
+    pointerEvents: 'none',
+  },
+  scroll: { padding: Spacing.lg, paddingTop: 64 },
   backBtn: { paddingBottom: Spacing.sm },
-  backText: { fontSize: 14, color: Colors.textSecondary },
-  progress: { flexDirection: 'row', gap: Spacing.sm, marginBottom: 40, justifyContent: 'center' },
-  progressDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.border },
-  progressDotActive: { backgroundColor: Colors.gold, width: 24 },
-  stepContainer: { gap: Spacing.md },
-  stepEmoji: { fontSize: 48, textAlign: 'center' },
-  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textAlign: 'center' },
+  backText: { fontSize: 14, color: Colors.gold, opacity: 0.8 },
+
+  progress: { flexDirection: 'row', gap: Spacing.sm, marginBottom: 36 },
+  progressTrack: {
+    flex: 1, height: 3, borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.10)', overflow: 'hidden',
+  },
+  progressFill: { height: '100%', borderRadius: 2, width: '0%', backgroundColor: 'transparent' },
+  progressFillActive: { width: '100%', backgroundColor: Colors.purpleAccent },
+
+  stepContainer: { gap: Spacing.lg },
+  stepEmojiWrap: {
+    width: 72, height: 72, borderRadius: 36,
+    backgroundColor: Colors.purpleDim,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.25)',
+    alignItems: 'center', justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  stepEmoji: { fontSize: 34 },
+  stepEyebrow: {
+    fontFamily: Fonts.bodySemiBold, fontSize: 11,
+    color: Colors.textDim, letterSpacing: 2,
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: 28, color: Colors.textPrimary,
+    fontFamily: Fonts.headingSemiBold, textAlign: 'center', lineHeight: 34,
+  },
   subtitle: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
-  inputWrapper: { gap: Spacing.xs },
-  label: { fontSize: 14, color: Colors.textSecondary },
+
+  inputWrapper: { gap: Spacing.sm },
+  label: { fontFamily: Fonts.bodySemiBold, fontSize: 12, color: Colors.textDim, letterSpacing: 0.8 },
   input: {
-    backgroundColor: Colors.input, borderRadius: Radius.md,
+    backgroundColor: Colors.cardBg, borderRadius: Radius.md,
     padding: Spacing.md, color: Colors.textPrimary,
     fontSize: 16, borderWidth: 1, borderColor: Colors.border,
+    fontFamily: Fonts.body,
   },
-  dateHint: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  dateHintPart: { fontSize: 13, color: Colors.gold, fontWeight: '700', letterSpacing: 1 },
+  dateHint: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  dateHintPart: { fontFamily: Fonts.bodyBold, fontSize: 12, color: Colors.gold, letterSpacing: 1 },
   dateHintSep: { fontSize: 13, color: Colors.textDisabled },
-  dateHintLabel: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
+  dateHintLabel: { fontFamily: Fonts.body, fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
+
   areaGrid: { gap: Spacing.sm },
   areaCard: {
-    backgroundColor: Colors.card, borderRadius: Radius.lg,
+    backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
     padding: Spacing.md, borderWidth: 1, borderColor: Colors.border,
     gap: 6, overflow: 'hidden',
   },
   areaEmojiWrap: {
-    width: 44, height: 44, borderRadius: Radius.sm,
+    width: 44, height: 44, borderRadius: Radius.md,
     alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.input,
+    backgroundColor: Colors.purpleDim,
   },
-  areaEmoji: { fontSize: 24 },
-  areaLabel: { fontSize: 16, color: Colors.textPrimary, fontWeight: '600' },
-  areaDescription: { fontSize: 13, color: Colors.textSecondary },
+  areaEmoji: { fontSize: 22 },
+  areaLabel: { fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary },
+  areaDescription: { fontFamily: Fonts.body, fontSize: 13, color: Colors.textSecondary },
 })

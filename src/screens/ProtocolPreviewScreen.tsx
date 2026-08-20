@@ -55,10 +55,11 @@ export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
       />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        <Text style={styles.emoji}>🔮</Text>
+        <View style={styles.emojiWrap}><Text style={styles.emoji}>🔮</Text></View>
+        <Text style={styles.eyebrow}>PLAN PERSONALIZADO</Text>
         <Text style={styles.title}>Tu protocolo está listo</Text>
         <Text style={[styles.subtitle, { color: areaColor }]}>
-          Personalizado para {data.name.split(' ')[0]} · {areaLabel}
+          {data.name.split(' ')[0]} · {areaLabel}
         </Text>
 
         {/* Preview difuminado del protocolo */}
@@ -114,7 +115,13 @@ export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
         </View>
 
         <TouchableOpacity style={styles.unlockBtn} onPress={onUnlock} activeOpacity={0.85}>
-          <Text style={styles.unlockBtnText}>Desbloquear mi protocolo gratis</Text>
+          <LinearGradient
+            colors={[Colors.gold, Colors.goldLight]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={styles.unlockBtnGradient}
+          >
+            <Text style={styles.unlockBtnText}>Desbloquear mi protocolo gratis ✦</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
         <Text style={styles.legal}>Sin cobros durante tu período de prueba · Cancela cuando quieras</Text>
@@ -128,16 +135,27 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center', gap: Spacing.lg },
 
-  emoji: { fontSize: 48, textAlign: 'center' },
-  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textAlign: 'center' },
-  subtitle: { fontSize: 14, color: Colors.gold, textAlign: 'center', marginTop: -Spacing.sm },
+  emojiWrap: {
+    width: 80, height: 80, borderRadius: 40,
+    backgroundColor: Colors.purpleDim,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.25)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  emoji: { fontSize: 36 },
+  eyebrow: {
+    fontFamily: Fonts.bodySemiBold, fontSize: 11,
+    color: Colors.textDim, letterSpacing: 2,
+    textAlign: 'center',
+  },
+  title: { fontSize: 28, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textAlign: 'center', lineHeight: 34 },
+  subtitle: { fontFamily: Fonts.headingItalic, fontSize: 15, color: Colors.gold, textAlign: 'center', marginTop: -Spacing.xs },
 
   previewCard: {
     width: '100%',
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.borderGold,
     padding: Spacing.lg,
     gap: Spacing.md,
     overflow: 'hidden',
@@ -145,16 +163,16 @@ const styles = StyleSheet.create({
   lockOverlay: {
     position: 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(13,10,30,0.72)',
+    backgroundColor: 'rgba(10,8,20,0.80)',
     zIndex: 10,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
     borderRadius: Radius.lg,
   },
-  lockEmoji: { fontSize: 36 },
-  lockText: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700' },
-  lockSub: { fontSize: 13, color: Colors.textSecondary },
+  lockEmoji: { fontSize: 32 },
+  lockText: { fontFamily: Fonts.headingSemiBold, fontSize: 18, color: Colors.textPrimary },
+  lockSub: { fontFamily: Fonts.body, fontSize: 13, color: Colors.textSecondary },
 
   previewSection: { gap: 8 },
   sectionLabel: {
@@ -190,17 +208,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'baseline', gap: 2,
     paddingHorizontal: 14, paddingVertical: 6,
   },
-  chipHzNum: { fontSize: 22, fontWeight: '800', lineHeight: 26, includeFontPadding: false },
-  chipHzUnit: { fontSize: 11, fontWeight: '700' },
+  chipHzNum: { fontFamily: Fonts.heading, fontSize: 22, lineHeight: 26, includeFontPadding: false },
+  chipHzUnit: { fontFamily: Fonts.bodyBold, fontSize: 11 },
 
   unlockBtn: {
     width: '100%',
-    backgroundColor: Colors.gold,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    overflow: 'hidden',
+  },
+  unlockBtnGradient: {
     paddingVertical: 16,
     alignItems: 'center',
   },
-  unlockBtnText: { color: Colors.background, fontSize: 16, fontWeight: '700' },
+  unlockBtnText: { fontFamily: Fonts.bodySemiBold, color: Colors.background, fontSize: 16, letterSpacing: 0.3 },
 
   legal: {
     fontSize: 12, color: Colors.textDisabled,
