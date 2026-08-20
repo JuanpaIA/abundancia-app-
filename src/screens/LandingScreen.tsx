@@ -915,7 +915,7 @@ const MOCK_W = 200
 const MOCK_H = 340
 const G = Colors.gold
 const BG = Colors.background
-const CARD_C = Colors.card
+const CARD_C = Colors.cardBg
 
 const mock = StyleSheet.create({
   phone: {
@@ -1024,8 +1024,8 @@ const s = StyleSheet.create({
   scroll: { paddingBottom: 60 },
   divider: { height: 1, backgroundColor: 'rgba(201,168,76,0.18)', marginVertical: 36, marginHorizontal: Spacing.lg },
 
-  sectionTag: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,168,76,0.12)', borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 12, marginHorizontal: Spacing.lg, borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)' },
-  sectionTagText: { fontSize: 10, color: Colors.gold, fontWeight: '700', letterSpacing: 1 },
+  sectionTag: { alignSelf: 'flex-start', backgroundColor: Colors.goldDim, borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 12, marginHorizontal: Spacing.lg, borderWidth: 1, borderColor: Colors.borderGold },
+  sectionTagText: { fontFamily: Fonts.bodySemiBold, fontSize: 10, color: Colors.gold, letterSpacing: 1 },
 
   h2: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, lineHeight: 34, marginBottom: Spacing.md, paddingHorizontal: Spacing.lg },
   bodyText: { fontSize: 15, color: Colors.textSecondary, lineHeight: 23, paddingHorizontal: Spacing.lg, marginBottom: Spacing.lg },
@@ -1066,10 +1066,10 @@ const s = StyleSheet.create({
   // CTA gradiente
   ctaGradient: { borderRadius: Radius.md, width: '100%' },
   ctaInner: { paddingVertical: 16, alignItems: 'center' },
-  ctaText: { fontSize: 17, color: Colors.background, fontWeight: '800', letterSpacing: 0.5 },
+  ctaText: { fontFamily: Fonts.bodyBold, fontSize: 17, color: Colors.background, letterSpacing: 0.5 },
 
   loginBtn: { paddingVertical: Spacing.sm },
-  loginText: { fontSize: 15, color: Colors.gold, fontWeight: '600' },
+  loginText: { fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.gold },
 
   // Comparativo
   vsRow: { flexDirection: 'row', paddingHorizontal: Spacing.lg, gap: 10, alignItems: 'flex-start', marginBottom: Spacing.md },
@@ -1092,26 +1092,26 @@ const s = StyleSheet.create({
   painCard: { flexDirection: 'row', gap: Spacing.md, alignItems: 'flex-start', paddingHorizontal: Spacing.lg, marginBottom: Spacing.md, paddingVertical: Spacing.sm },
   painIcon: { fontSize: 28, marginTop: 2 },
   painBody: { flex: 1, gap: 4 },
-  painTitle: { fontSize: 16, color: Colors.textPrimary, fontWeight: '700', lineHeight: 22 },
-  painText: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
+  painTitle: { fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary, lineHeight: 22 },
+  painText: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
 
   // Trifuerza
   trifuerzaRow: { flexDirection: 'row', paddingHorizontal: Spacing.lg, gap: 10, marginBottom: Spacing.md },
-  trifuerzaCard: { flex: 1, backgroundColor: 'rgba(201,168,76,0.06)', borderRadius: Radius.md, borderWidth: 1, borderColor: 'rgba(201,168,76,0.2)', padding: 12, gap: 3, alignItems: 'center' },
+  trifuerzaCard: { flex: 1, backgroundColor: Colors.goldDim, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderGold, padding: 12, gap: 3, alignItems: 'center' },
   trifuerzaIcon: { fontSize: 24, marginBottom: 4 },
-  trifuerzaTitle: { fontSize: 13, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
-  trifuerzaSub: { fontSize: 10, color: Colors.gold, textAlign: 'center', marginBottom: 4 },
-  trifuerzaDesc: { fontSize: 11, color: Colors.textSecondary, textAlign: 'center', lineHeight: 16 },
-  trifuerzaResult: { marginHorizontal: Spacing.lg, backgroundColor: 'rgba(201,168,76,0.1)', borderRadius: Radius.md, padding: Spacing.md, borderWidth: 1, borderColor: 'rgba(201,168,76,0.3)', marginBottom: Spacing.lg },
-  trifuerzaResultText: { fontSize: 14, color: Colors.gold, textAlign: 'center', lineHeight: 21, fontWeight: '600' },
+  trifuerzaTitle: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.textPrimary, textAlign: 'center' },
+  trifuerzaSub: { fontFamily: Fonts.body, fontSize: 10, color: Colors.gold, textAlign: 'center', marginBottom: 4 },
+  trifuerzaDesc: { fontFamily: Fonts.body, fontSize: 11, color: Colors.textSecondary, textAlign: 'center', lineHeight: 16 },
+  trifuerzaResult: { marginHorizontal: Spacing.lg, backgroundColor: Colors.goldDim, borderRadius: Radius.lg, padding: Spacing.md, borderWidth: 1, borderColor: Colors.borderGold, marginBottom: Spacing.lg },
+  trifuerzaResultText: { fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold, textAlign: 'center', lineHeight: 21 },
 
   // Steps
   stepsContainer: { paddingHorizontal: Spacing.lg, gap: Spacing.lg, marginBottom: Spacing.md },
   step: { flexDirection: 'row', gap: Spacing.md },
-  stepNum: { fontSize: 48, color: 'rgba(201,168,76,0.60)', fontWeight: '900', lineHeight: 54, minWidth: 56 },
+  stepNum: { fontFamily: Fonts.heading, fontSize: 48, color: 'rgba(212,175,85,0.50)', lineHeight: 54, minWidth: 56 },
   stepContent: { flex: 1, gap: 6 },
-  stepTitle: { fontSize: 16, color: Colors.textPrimary, fontWeight: '700' },
-  stepBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
+  stepTitle: { fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary },
+  stepBody: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
 
   // Screens
   screensScroll: { marginTop: 20 },
@@ -1120,43 +1120,40 @@ const s = StyleSheet.create({
   screenLabel: { fontSize: 14, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
   screenDesc: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', lineHeight: 18 },
 
-  // Testimonials
-  testimonialsSection: { backgroundColor: '#F7F6FF', paddingVertical: Spacing.xl, marginHorizontal: -0 },
-  h2White: { fontSize: 26, color: '#1A1830', fontWeight: '700', lineHeight: 34, marginBottom: Spacing.md, paddingHorizontal: Spacing.lg },
-  sectionTagLight: { alignSelf: 'flex-start', backgroundColor: 'rgba(201,168,76,0.15)', borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 12, marginHorizontal: Spacing.lg, borderWidth: 1, borderColor: 'rgba(201,168,76,0.4)' },
-  sectionTagLightText: { fontSize: 10, color: '#8A6A10', fontWeight: '700', letterSpacing: 1 },
+  // Testimonials — dark theme
+  testimonialsSection: { paddingVertical: Spacing.xl },
+  h2White: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.heading, lineHeight: 34, marginBottom: Spacing.md, paddingHorizontal: Spacing.lg },
+  sectionTagLight: { alignSelf: 'flex-start', backgroundColor: Colors.goldDim, borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 4, marginBottom: 12, marginHorizontal: Spacing.lg, borderWidth: 1, borderColor: Colors.borderGold },
+  sectionTagLightText: { fontFamily: Fonts.bodySemiBold, fontSize: 10, color: Colors.gold, letterSpacing: 1 },
   testimonialsScroll: { marginTop: 8 },
   testimonialsRow: { paddingHorizontal: Spacing.lg, gap: 14, paddingRight: Spacing.lg, paddingBottom: 8 },
   testimonialCard: {
     width: 240,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.cardBg,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     gap: Spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
   },
   testimonialTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   testimonialStars: { fontSize: 13, color: Colors.gold, letterSpacing: 1 },
-  testimonialQuoteIcon: { fontSize: 24, color: 'rgba(201,168,76,0.35)', fontWeight: '900' },
-  testimonialText: { fontSize: 13, color: '#4A4760', lineHeight: 20, fontStyle: 'italic' },
-  testimonialDivider: { borderTopWidth: 1, borderColor: '#EBEBF0' },
+  testimonialQuoteIcon: { fontSize: 24, color: Colors.goldDim },
+  testimonialText: { fontFamily: Fonts.headingItalic, fontSize: 14, color: Colors.textSecondary, lineHeight: 22 },
+  testimonialDivider: { borderTopWidth: 1, borderColor: Colors.border },
   testimonialAuthor: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   testimonialAvatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-  testimonialInitials: { fontSize: 13, fontWeight: '700' },
+  testimonialInitials: { fontFamily: Fonts.bodyBold, fontSize: 13 },
   testimonialInfo: { flex: 1 },
-  testimonialName: { fontSize: 13, color: '#1A1830', fontWeight: '700' },
-  testimonialArea: { fontSize: 10, color: '#8A87A0' },
+  testimonialName: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.textPrimary },
+  testimonialArea: { fontFamily: Fonts.body, fontSize: 10, color: Colors.textSecondary },
 
   // Features
   featGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Spacing.lg, gap: 10, marginBottom: Spacing.md },
-  featCard: { width: '47%', backgroundColor: Colors.card, borderRadius: Radius.md, padding: Spacing.md, gap: 4, borderWidth: 1, borderColor: Colors.border },
+  featCard: { width: '47%', backgroundColor: Colors.cardBg, borderRadius: Radius.md, padding: Spacing.md, gap: 4, borderWidth: 1, borderColor: Colors.border },
   featIcon: { fontSize: 22 },
-  featTitle: { fontSize: 13, color: Colors.textPrimary, fontWeight: '700' },
-  featDesc: { fontSize: 12, color: Colors.textSecondary, lineHeight: 17 },
+  featTitle: { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.textPrimary },
+  featDesc: { fontFamily: Fonts.body, fontSize: 12, color: Colors.textSecondary, lineHeight: 17 },
 
   // For whom
   forRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingHorizontal: Spacing.lg, marginBottom: Spacing.sm },
@@ -1172,18 +1169,18 @@ const s = StyleSheet.create({
 
   planCardsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: Spacing.lg, alignItems: 'flex-start', marginBottom: Spacing.sm },
 
-  planCard: { flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border, padding: 16, gap: 4 },
-  planCardAnnual: { borderColor: 'rgba(201,168,76,0.4)', backgroundColor: 'rgba(201,168,76,0.05)', borderWidth: 2 },
+  planCard: { flex: 1, backgroundColor: Colors.cardBg, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border, padding: 16, gap: 4 },
+  planCardAnnual: { borderColor: Colors.borderGold, backgroundColor: Colors.goldDim, borderWidth: 1 },
 
   planBadge: { backgroundColor: Colors.gold, borderRadius: Radius.full, paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 4 },
   planBadgeText: { fontSize: 10, color: Colors.background, fontWeight: '700' },
 
-  planCardName: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700' },
-  planCardTagline: { fontSize: 12, color: Colors.textSecondary, marginBottom: 6 },
+  planCardName: { fontFamily: Fonts.bodySemiBold, fontSize: 18, color: Colors.textPrimary },
+  planCardTagline: { fontFamily: Fonts.body, fontSize: 12, color: Colors.textSecondary, marginBottom: 6 },
 
   planPriceRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 4 },
-  planCurrency: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700', marginTop: 6 },
-  planAmount: { fontSize: 42, color: Colors.textPrimary, fontWeight: '700', lineHeight: 48 },
+  planCurrency: { fontFamily: Fonts.bodySemiBold, fontSize: 18, color: Colors.textPrimary, marginTop: 6 },
+  planAmount: { fontFamily: Fonts.heading, fontSize: 42, color: Colors.textPrimary, lineHeight: 48 },
   planPeriodLabel: { fontSize: 11, color: Colors.textSecondary, marginBottom: 8 },
 
   planDivider: { borderTopWidth: 1, borderColor: Colors.border, marginVertical: 10 },
@@ -1206,13 +1203,13 @@ const s = StyleSheet.create({
   // FAQ
   faqItem: { marginHorizontal: Spacing.lg, paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: 'rgba(201,168,76,0.12)' },
   faqRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
-  faqQ: { flex: 1, fontSize: 15, color: Colors.textPrimary, fontWeight: '600', lineHeight: 22 },
-  faqChevron: { fontSize: 20, color: Colors.gold, lineHeight: 24, minWidth: 20, textAlign: 'center' },
-  faqA: { fontSize: 14, color: Colors.textSecondary, lineHeight: 22, marginTop: Spacing.sm },
+  faqQ: { fontFamily: Fonts.bodySemiBold, flex: 1, fontSize: 15, color: Colors.textPrimary, lineHeight: 22 },
+  faqChevron: { fontFamily: Fonts.bodyBold, fontSize: 20, color: Colors.gold, lineHeight: 24, minWidth: 20, textAlign: 'center' },
+  faqA: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 22, marginTop: Spacing.sm },
 
   // Final CTA
   finalCta: { paddingHorizontal: Spacing.lg, alignItems: 'center', gap: Spacing.md },
   finalSymbol: { fontSize: 36, color: Colors.gold },
-  finalTitle: { fontSize: 28, color: Colors.textPrimary, fontWeight: '800', textAlign: 'center', lineHeight: 36 },
-  finalSub: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 23 },
+  finalTitle: { fontFamily: Fonts.heading, fontSize: 30, color: Colors.textPrimary, textAlign: 'center', lineHeight: 38 },
+  finalSub: { fontFamily: Fonts.body, fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 23 },
 })
