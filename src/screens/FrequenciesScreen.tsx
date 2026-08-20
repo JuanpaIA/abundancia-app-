@@ -183,7 +183,14 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
   const activeHz = playing ? playingHz : null
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#16102a', '#0e0b1e', '#0a0814']}
+      locations={[0, 0.4, 1]}
+      style={styles.container}
+    >
+      {/* @ts-ignore */}
+      <View style={styles.noiseBg} aria-hidden />
+      <View style={styles.orbPurple} aria-hidden />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* Header */}
@@ -310,15 +317,33 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
 
         <View style={{ height: Spacing.xxl }} />
       </ScrollView>
-    </View>
+    </LinearGradient>
   )
 }
 
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 
+const NOISE_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(#n)' opacity='1'/></svg>")}`
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
+
+  // Atmospheric layers
+  noiseBg: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.04,
+    // @ts-ignore
+    backgroundImage: `url("${NOISE_URI}")`,
+    backgroundRepeat: 'repeat',
+    pointerEvents: 'none',
+  },
+  orbPurple: {
+    position: 'absolute', width: 300, height: 300, top: -60, right: -80, borderRadius: 999,
+    // @ts-ignore
+    background: 'radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 65%)',
+    pointerEvents: 'none',
+  },
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
@@ -326,8 +351,8 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, color: Colors.textSecondary },
 
   infoCard: {
-    backgroundColor: 'rgba(201,168,76,0.06)', borderRadius: Radius.lg,
-    borderWidth: 1, borderColor: 'rgba(201,168,76,0.20)',
+    backgroundColor: Colors.goldDim, borderRadius: Radius.lg,
+    borderWidth: 1, borderColor: Colors.borderGold,
     padding: Spacing.md, marginBottom: Spacing.lg,
   },
   infoText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
@@ -336,20 +361,20 @@ const styles = StyleSheet.create({
   todayBadge: {
     alignSelf: 'flex-start', paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs, borderRadius: Radius.full,
-    backgroundColor: 'rgba(201,168,76,0.12)',
-    borderWidth: 1, borderColor: 'rgba(201,168,76,0.35)',
+    backgroundColor: Colors.purpleDim,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.30)',
   },
-  todayBadgeText: { fontSize: 12, color: Colors.gold, fontWeight: '700' },
+  todayBadgeText: { fontSize: 12, color: Colors.purpleAccent, fontFamily: Fonts.bodySemiBold },
 
   freqCard: {
-    backgroundColor: Colors.card, borderRadius: Radius.lg,
+    backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
     borderWidth: 1, borderColor: Colors.border,
     marginBottom: Spacing.sm, overflow: 'hidden', position: 'relative',
   },
   freqStripe: {
     position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
   },
-  freqCardToday: { borderColor: 'rgba(201,168,76,0.40)' },
+  freqCardToday: { borderColor: Colors.borderGold },
 
   freqHeader: {
     flexDirection: 'row', alignItems: 'center',
@@ -385,7 +410,7 @@ const styles = StyleSheet.create({
 
   freqBody: {
     paddingHorizontal: Spacing.md, paddingBottom: Spacing.md,
-    gap: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border,
+    gap: Spacing.md, borderTopWidth: 0.5, borderTopColor: Colors.border,
     paddingTop: Spacing.md,
   },
   freqPurpose: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
@@ -397,17 +422,17 @@ const styles = StyleSheet.create({
 
   freqSection: { gap: 6 },
   freqIntegration: {
-    backgroundColor: 'rgba(201,168,76,0.06)', borderRadius: Radius.md,
-    padding: Spacing.sm, borderWidth: 1, borderColor: 'rgba(201,168,76,0.15)',
+    backgroundColor: Colors.goldDim, borderRadius: Radius.md,
+    padding: Spacing.sm, borderWidth: 1, borderColor: Colors.borderGold,
   },
-  freqSectionLabel: { fontSize: 11, color: Colors.gold, fontWeight: '700' },
+  freqSectionLabel: { fontSize: 11, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
   freqSectionText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
 
   freqAreas: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
   freqAreaTag: {
     paddingHorizontal: Spacing.sm, paddingVertical: 3,
     borderRadius: Radius.full, borderWidth: 1,
-    borderColor: Colors.border, backgroundColor: Colors.input,
+    borderColor: Colors.border, backgroundColor: Colors.cardBg,
   },
   freqAreaText: { fontSize: 11, color: Colors.textSecondary },
 })
