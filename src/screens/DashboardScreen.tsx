@@ -26,6 +26,9 @@ import { JournalScreen } from './JournalScreen'
 import { VisionBoardScreen } from './VisionBoardScreen'
 import { BadgesScreen } from './BadgesScreen'
 import { FrequenciesScreen } from './FrequenciesScreen'
+import { FrequencyPlayerOverlay } from '../components/overlays/FrequencyPlayerOverlay'
+import { AffirmationReveal } from '../components/overlays/AffirmationReveal'
+import { TransformationCard } from '../components/overlays/TransformationCard'
 
 // ── Numerología ───────────────────────────────────────────────────────────────
 interface NumerologyInfo {
@@ -1099,6 +1102,9 @@ export function DashboardScreen() {
   const [dashTab, setDashTab] = useState<'manana' | 'tarde' | 'noche'>('manana')
   const [bannerDismissedAt, setBannerDismissedAt] = useState<number | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [showFreqOverlay, setShowFreqOverlay] = useState(false)
+  const [showAffirmOverlay, setShowAffirmOverlay] = useState(false)
+  const [showTransformCard, setShowTransformCard] = useState(false)
 
 
   // todayStr estable: se calcula una vez al montar el componente
@@ -2048,7 +2054,10 @@ export function DashboardScreen() {
             }
           </View>
           <Text style={styles.sectionSubtitle}>¿Qué declaro para mí hoy?</Text>
-          <Text style={styles.affirmationHero}>"{protocol.affirmation}"</Text>
+          <TouchableOpacity activeOpacity={0.75} onPress={() => setShowAffirmOverlay(true)}>
+            <Text style={styles.affirmationHero}>"{protocol.affirmation}"</Text>
+            <Text style={styles.affirmRevealHint}>✦ Toca para declarar</Text>
+          </TouchableOpacity>
           {(() => {
             const info = NUMEROLOGY_INFO[profile.numerology_number]
             if (!info) return null
@@ -2155,6 +2164,9 @@ export function DashboardScreen() {
               onPress={() => play(protocol.frequency.hz)}
             >
               <Text style={styles.playIcon}>{playing ? '■' : '▶'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.freqExpandBtn} onPress={() => setShowFreqOverlay(true)}>
+              <Text style={styles.freqExpandText}>Ver visualizador ↗</Text>
             </TouchableOpacity>
           </View>
           {(() => {
@@ -2483,6 +2495,9 @@ export function DashboardScreen() {
               ? `¡Hito alcanzado!`
               : `Próximo hito: día ${nextMilestone} · ${Math.round(streakProgress * 100)}% completado`}
           </Text>
+          <TouchableOpacity style={styles.shareProgressBtn} onPress={() => setShowTransformCard(true)}>
+            <Text style={styles.shareProgressText}>✦ Ver mi tarjeta de transformación</Text>
+          </TouchableOpacity>
         </View>
 
         {!planComplete && (() => {
@@ -2702,6 +2717,45 @@ export function DashboardScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* ── Overlay: Visualizador de frecuencia ── */}
+      {showFreqOverlay && (
+        <FrequencyPlayerOverlay
+          hz={protocol.frequency.hz}
+          name={protocol.frequency.name}
+          purpose={FREQUENCY_CONTEXT[protocol.frequency.hz]?.howTo}
+          playing={playing}
+          onToggle={() => play(protocol.frequency.hz)}
+          onClose={() => setShowFreqOverlay(false)}
+        />
+      )}
+
+      {/* ── Overlay: Afirmación del día ── */}
+      {showAffirmOverlay && (
+        <AffirmationReveal
+          affirmation={protocol.affirmation}
+          numerologyNumber={profile.numerology_number ?? undefined}
+          numerologyArchetype={profile.numerology_number ? NUMEROLOGY_INFO[profile.numerology_number]?.archetype : undefined}
+          onClose={() => setShowAffirmOverlay(false)}
+          onDone={() => { markSectionDone('affirmation_done'); setShowAffirmOverlay(false) }}
+          isDone={affirmationDone}
+        />
+      )}
+
+      {/* ── Overlay: Tarjeta de transformación ── */}
+      {showTransformCard && (
+        <TransformationCard
+          firstName={profile.full_name.split(' ')[0]}
+          manifestationArea={profile.manifestation_area ?? 'dinero'}
+          streak={streak}
+          planDay={Math.min(planDay, planDuration)}
+          planDuration={planDuration}
+          overallRate={overallRate}
+          todayCount={todayCount}
+          totalTasks={TOTAL_TASKS}
+          onClose={() => setShowTransformCard(false)}
+        />
+      )}
 
     </View>
   )
@@ -3133,6 +3187,7 @@ const styles = StyleSheet.create({
   sectionBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
   affirmation: { fontSize: 16, color: Colors.textPrimary, fontStyle: 'italic', lineHeight: 24 },
   affirmationHero: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.headingItalic, lineHeight: 32, marginTop: Spacing.xs },
+  affirmRevealHint: { fontFamily: Fonts.body, fontSize: 11, color: Colors.purpleAccent, opacity: 0.7, marginTop: 4 },
   affirmationCard: { borderRadius: Radius.lg, padding: Spacing.md, gap: Spacing.sm, marginBottom: Spacing.md },
   numerologyTag: { fontSize: 12, color: Colors.gold },
   numBox: {
@@ -3184,7 +3239,9 @@ const styles = StyleSheet.create({
   foodChipText:  { fontSize: 13, color: Colors.textPrimary, fontWeight: '500' },
   freqCard: { borderRadius: Radius.lg, padding: Spacing.md, marginBottom: Spacing.md, gap: Spacing.xs },
   freqCardLabel: { fontSize: 11, color: 'rgba(167,139,250,0.6)', fontWeight: '600', letterSpacing: 1, textTransform: 'uppercase' },
-  freqPlayRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.xs },
+  freqPlayRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.xs, gap: Spacing.md },
+  freqExpandBtn: { paddingVertical: Spacing.xs, paddingHorizontal: Spacing.sm },
+  freqExpandText: { fontFamily: Fonts.bodySemiBold, fontSize: 12, color: Colors.purpleAccent, opacity: 0.8 },
   frequencyBox: {
     backgroundColor: Colors.input,
     borderRadius: 12,
@@ -3397,6 +3454,18 @@ const styles = StyleSheet.create({
   },
   streakBarFill: { height: 4, borderRadius: 2 },
   streakMilestoneLabel: { fontSize: 11, color: Colors.textDisabled },
+  shareProgressBtn: {
+    marginTop: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    alignItems: 'center',
+  },
+  shareProgressText: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 12,
+    color: Colors.gold,
+    opacity: 0.75,
+    letterSpacing: 0.3,
+  },
 
   planCard: {
     backgroundColor: Colors.cardBg, borderRadius: Radius.lg,

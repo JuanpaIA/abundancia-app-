@@ -3,7 +3,8 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   Image, Modal, Dimensions, FlatList, ActivityIndicator,
 } from 'react-native'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { VISION_IMAGES, VisionImage } from '../content/visionBoardImages'
@@ -77,34 +78,69 @@ export function VisionBoardScreen({ onBack }: Props) {
     )
   }
 
-  // ── Pantalla de activación (slideshow fullscreen) ─────────────────────────
+  // ── Pantalla de activación (slideshow fullscreen — Stories premium) ─────────
   if (activating && selectedImages.length > 0) {
     const img = selectedImages[activeIndex]
+    const total = selectedImages.length
     return (
       <Modal visible transparent animationType="fade" statusBarTranslucent>
         <TouchableOpacity
           style={actStyles.overlay}
           activeOpacity={1}
           onPress={() => {
-            if (activeIndex < selectedImages.length - 1) setActiveIndex(i => i + 1)
+            if (activeIndex < total - 1) setActiveIndex(i => i + 1)
             else { setActivating(false); setActiveIndex(0) }
           }}
         >
+          {/* Full-bleed image */}
           <VisionTile image={img} size={SCREEN_W} />
-          <View style={actStyles.overlay2}>
-            <View style={actStyles.labelBox}>
-              <Text style={actStyles.label}>{img.label}</Text>
-              <Text style={actStyles.hint}>Toca para continuar</Text>
-            </View>
-            <View style={actStyles.dots}>
-              {selectedImages.map((_, i) => (
-                <View key={i} style={[actStyles.dot, i === activeIndex && actStyles.dotActive]} />
-              ))}
-            </View>
+
+          {/* Top gradient scrim */}
+          <LinearGradient
+            colors={['rgba(0,0,0,0.65)', 'transparent']}
+            style={actStyles.topScrim}
+            pointerEvents="none"
+          />
+
+          {/* Progress bars — Instagram-style */}
+          <View style={actStyles.progressBars} pointerEvents="none">
+            {selectedImages.map((_, i) => (
+              <View key={i} style={actStyles.progressTrack}>
+                <View style={[actStyles.progressFill, {
+                  backgroundColor: i < activeIndex
+                    ? Colors.gold
+                    : i === activeIndex
+                    ? Colors.purpleAccent
+                    : 'rgba(255,255,255,0.25)',
+                  width: i < activeIndex ? '100%' : i === activeIndex ? '60%' : '0%',
+                }]} />
+              </View>
+            ))}
           </View>
-          <TouchableOpacity style={actStyles.closeBtn} onPress={() => { setActivating(false); setActiveIndex(0) }}>
+
+          {/* Close */}
+          <TouchableOpacity
+            style={actStyles.closeBtn}
+            onPress={() => { setActivating(false); setActiveIndex(0) }}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
             <Text style={actStyles.closeText}>✕</Text>
           </TouchableOpacity>
+
+          {/* Bottom overlay */}
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.85)']}
+            style={actStyles.bottomScrim}
+            pointerEvents="none"
+          />
+          <View style={actStyles.labelBox} pointerEvents="none">
+            <Text style={actStyles.counter}>{activeIndex + 1} / {total}</Text>
+            <Text style={actStyles.label}>{img.label}</Text>
+            <View style={actStyles.manifestRow}>
+              <Text style={actStyles.manifestText}>✦ Visualiza · Cree · Manifiesta</Text>
+            </View>
+            <Text style={actStyles.hint}>Toca para continuar</Text>
+          </View>
         </TouchableOpacity>
       </Modal>
     )
@@ -274,18 +310,104 @@ const selectStyles = StyleSheet.create({
 })
 
 const actStyles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' },
-  overlay2: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'flex-end',
-    paddingBottom: 60,
+  overlay: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  labelBox: { alignItems: 'center', gap: 6, marginBottom: Spacing.lg },
-  label: { fontSize: 24, color: '#fff', fontWeight: '700', textShadowColor: 'rgba(0,0,0,0.8)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
-  hint: { fontSize: 12, color: 'rgba(255,255,255,0.5)' },
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: 6 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.3)' },
-  dotActive: { backgroundColor: Colors.gold, width: 18 },
-  closeBtn: { position: 'absolute', top: 54, right: 20, width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
-  closeText: { fontSize: 16, color: '#fff' },
+
+  topScrim: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: 140,
+    zIndex: 2,
+  },
+
+  progressBars: {
+    position: 'absolute',
+    top: 54,
+    left: Spacing.md,
+    right: Spacing.md,
+    flexDirection: 'row',
+    gap: 4,
+    zIndex: 3,
+  },
+  progressTrack: {
+    flex: 1,
+    height: 2.5,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%' as any,
+    borderRadius: 2,
+  },
+
+  closeBtn: {
+    position: 'absolute',
+    top: 72,
+    right: Spacing.md,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  closeText: { fontSize: 14, color: 'rgba(255,255,255,0.8)' },
+
+  bottomScrim: {
+    position: 'absolute',
+    bottom: 0, left: 0, right: 0,
+    height: 220,
+    zIndex: 2,
+  },
+
+  labelBox: {
+    position: 'absolute',
+    bottom: 56,
+    left: Spacing.lg,
+    right: Spacing.lg,
+    alignItems: 'center',
+    gap: 6,
+    zIndex: 3,
+  },
+  counter: {
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.5)',
+    letterSpacing: 1,
+  },
+  label: {
+    fontFamily: Fonts.headingSemiBold,
+    fontSize: 26,
+    color: '#fff',
+    textAlign: 'center',
+    lineHeight: 32,
+    textShadowColor: 'rgba(0,0,0,0.7)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
+  manifestRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  manifestText: {
+    fontFamily: Fonts.bodyMedium,
+    fontSize: 12,
+    color: Colors.gold,
+    opacity: 0.8,
+    letterSpacing: 0.5,
+  },
+  hint: {
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.4)',
+    marginTop: 2,
+  },
 })
