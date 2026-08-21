@@ -1106,6 +1106,14 @@ export function DashboardScreen() {
   const [showAffirmOverlay, setShowAffirmOverlay] = useState(false)
   const [showTransformCard, setShowTransformCard] = useState(false)
 
+  // Entrance animations — header, affirmation, streak
+  const anim0  = useRef(new Animated.Value(0)).current
+  const slide0 = useRef(new Animated.Value(20)).current
+  const anim1  = useRef(new Animated.Value(0)).current
+  const slide1 = useRef(new Animated.Value(20)).current
+  const anim2  = useRef(new Animated.Value(0)).current
+  const slide2 = useRef(new Animated.Value(20)).current
+
 
   // todayStr estable: se calcula una vez al montar el componente
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
@@ -1244,6 +1252,23 @@ export function DashboardScreen() {
     getStoredItem('pendingBannerDismissedAt').then(val => {
       if (val) setBannerDismissedAt(Number(val))
     })
+  }, [])
+
+  useEffect(() => {
+    Animated.stagger(120, [
+      Animated.parallel([
+        Animated.timing(anim0,  { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.spring(slide0, { toValue: 0, tension: 80, friction: 12, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(anim1,  { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.spring(slide1, { toValue: 0, tension: 80, friction: 12, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(anim2,  { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.spring(slide2, { toValue: 0, tension: 80, friction: 12, useNativeDriver: true }),
+      ]),
+    ]).start()
   }, [])
 
   // Dispara celebración cuando se completan las 9 tareas
@@ -1688,7 +1713,7 @@ export function DashboardScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* 1 — Header */}
-        <View style={styles.header}>
+        <Animated.View style={[styles.header, { opacity: anim0, transform: [{ translateY: slide0 }] }]}>
           {/* Nav compacta */}
           <View style={styles.navRow}>
             <View style={styles.navLeft}>
@@ -1746,7 +1771,7 @@ export function DashboardScreen() {
               <Text style={styles.featureSub}>Imágenes · Activación</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
         {/* Banner de error de sincronización */}
         {syncError && (
@@ -2039,6 +2064,7 @@ export function DashboardScreen() {
         </Card>
 
         {/* 💬 Afirmación del día */}
+        <Animated.View style={{ opacity: anim1, transform: [{ translateY: slide1 }] }}>
         <LinearGradient
           colors={['rgba(167,139,250,0.10)', 'rgba(212,175,85,0.05)']}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
@@ -2084,6 +2110,7 @@ export function DashboardScreen() {
             )
           })()}
         </LinearGradient>
+        </Animated.View>
 
         {/* 👗 Color del día */}
         <Card style={colorDone ? [styles.sectionCard, styles.cardDone] : styles.sectionCard}>
@@ -2470,7 +2497,7 @@ export function DashboardScreen() {
           <CircularProgress completed={todayCount} total={TOTAL_TASKS} />
         </Card>
 
-        <View style={[styles.streakCard, { borderColor: streak > 0 ? streakColor : Colors.border }]}>
+        <Animated.View style={[styles.streakCard, { borderColor: streak > 0 ? streakColor : Colors.border }, { opacity: anim2, transform: [{ translateY: slide2 }] }]}>
           <View style={styles.streakTop}>
             <View style={styles.streakLeft}>
               <Text style={styles.streakFlame}>🔥</Text>
@@ -2498,7 +2525,7 @@ export function DashboardScreen() {
           <TouchableOpacity style={styles.shareProgressBtn} onPress={() => setShowTransformCard(true)}>
             <Text style={styles.shareProgressText}>✦ Ver mi tarjeta de transformación</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {!planComplete && (() => {
           const planPct    = Math.min(Math.round(((planDay - 1) / planDuration) * 100), 100)
