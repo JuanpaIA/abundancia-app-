@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
-import { Colors, Spacing, Radius } from '../constants/theme'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { Card } from '../components/ui/Card'
 import { useAuth } from '../hooks/useAuth'
 import { getPortalForDate } from '../utils/energeticPortals'
@@ -244,6 +245,16 @@ export function NotificationsScreen({ onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#1a1030', '#0e0b1e', '#0a0814']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+      {/* @ts-ignore */}
+      <View style={styles.orbGold} aria-hidden />
+      {/* @ts-ignore */}
+      <View style={styles.orbPurple} aria-hidden />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>
@@ -356,19 +367,31 @@ export function NotificationsScreen({ onBack }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  orbGold: {
+    position: 'absolute', width: 360, height: 360, bottom: -60, left: -110, borderRadius: 999,
+    // @ts-ignore
+    background: 'radial-gradient(circle, rgba(212,175,85,0.10) 0%, transparent 60%)',
+    pointerEvents: 'none',
+  },
+  orbPurple: {
+    position: 'absolute', width: 300, height: 300, top: 30, right: -90, borderRadius: 999,
+    // @ts-ignore
+    background: 'radial-gradient(circle, rgba(123,63,212,0.16) 0%, transparent 60%)',
+    pointerEvents: 'none',
+  },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
 
   header: { marginBottom: Spacing.xl, gap: Spacing.xs },
-  back:   { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
-  title:  { fontSize: 24, color: Colors.textPrimary, fontWeight: '700' },
-  subtitle: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
+  back:   { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm, fontFamily: Fonts.body },
+  title:  { fontSize: 24, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
+  subtitle: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, fontFamily: Fonts.body },
 
   groupLabel: {
-    fontSize: 11, color: Colors.textSecondary, fontWeight: '700',
+    fontSize: 11, color: Colors.textSecondary, fontFamily: Fonts.bodySemiBold,
     letterSpacing: 1, marginBottom: Spacing.xs, marginTop: Spacing.md,
   },
   dayHeader: {
-    fontSize: 12, color: Colors.gold, fontWeight: '700',
+    fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold,
     letterSpacing: 0.5, marginBottom: Spacing.xs, marginTop: Spacing.sm,
     textTransform: 'uppercase',
   },
@@ -381,44 +404,45 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderRadius: 20,
     paddingHorizontal: 10, paddingVertical: 3,
   },
-  categoryText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.4 },
+  categoryText: { fontSize: 10, fontFamily: Fonts.bodySemiBold, letterSpacing: 0.4 },
 
   repeatBadge: {
-    fontSize: 10, color: '#4CAF82', fontWeight: '600',
+    fontSize: 10, color: '#4CAF82', fontFamily: Fonts.bodySemiBold,
     backgroundColor: 'rgba(76,175,130,0.12)',
     paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10,
   },
   sentBadge: {
-    fontSize: 10, color: Colors.textSecondary, fontWeight: '600',
+    fontSize: 10, color: Colors.textSecondary, fontFamily: Fonts.bodySemiBold,
     backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10,
   },
 
-  notifTitle:     { fontSize: 14, color: Colors.textPrimary, fontWeight: '700', lineHeight: 20 },
+  notifTitle:     { fontSize: 14, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold, lineHeight: 20 },
   notifTitlePast: { color: Colors.textSecondary },
-  notifBody:      { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
+  notifBody:      { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, fontFamily: Fonts.body },
 
   timeRow:      { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
   timeIcon:     { fontSize: 11 },
-  timeText:     { fontSize: 12, color: Colors.gold, fontWeight: '600' },
+  timeText:     { fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
   timeTextPast: { color: Colors.textSecondary },
 
   emptyCard:  { gap: Spacing.sm, marginTop: Spacing.xl },
-  emptyTitle: { fontSize: 16, color: Colors.textPrimary, fontWeight: '700' },
-  emptyBody:  { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
+  emptyTitle: { fontSize: 16, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
+  emptyBody:  { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, fontFamily: Fonts.body },
 
-  moreText: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm },
+  moreText: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm, fontFamily: Fonts.body },
 
   firstDayCard: { gap: Spacing.sm, marginTop: Spacing.sm, alignItems: 'center', paddingVertical: Spacing.xl },
   firstDayEmoji: { fontSize: 40 },
-  firstDayTitle: { fontSize: 18, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
-  firstDayBody: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+  firstDayTitle: { fontSize: 18, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textAlign: 'center' },
+  firstDayBody: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20, fontFamily: Fonts.body },
   firstDaySchedule: {
     gap: 6, width: '100%',
-    backgroundColor: 'rgba(201,168,76,0.08)',
+    backgroundColor: Colors.goldDim,
     borderRadius: 10, padding: Spacing.md,
+    borderWidth: 1, borderColor: Colors.borderGold,
     marginVertical: Spacing.xs,
   },
-  firstDayHour:   { fontSize: 13, color: Colors.gold, fontWeight: '600' },
-  firstDayFooter: { fontSize: 12, color: Colors.textDisabled, textAlign: 'center', lineHeight: 18 },
+  firstDayHour:   { fontSize: 13, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  firstDayFooter: { fontSize: 12, color: Colors.textDisabled, textAlign: 'center', lineHeight: 18, fontFamily: Fonts.body },
 })
