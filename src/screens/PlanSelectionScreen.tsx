@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { Colors, Spacing, Radius } from '../constants/theme'
-import { PlanType } from '../types'
+import { PlanType } from '@lumina/core'
 
 interface Props {
   onSelectPlan: (plan: PlanType) => void

@@ -3,8 +3,7 @@ import { useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
-import { calculateNumerology, getZodiacSign, getBaseFrequency } from '../utils/calculations'
-import { ManifestationArea, OnboardingData } from '../types'
+import { calculateNumerology, getZodiacSign, getBaseFrequency, ManifestationArea, OnboardingData } from '@lumina/core'
 
 const AREA_COLORS: Record<ManifestationArea, string> = {
   dinero: '#C9A84C',

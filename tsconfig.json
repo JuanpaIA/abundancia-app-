@@ -5,6 +5,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@lumina/core": [
+        "./packages/core/src/index.ts"
+      ],
+      "@lumina/core/*": [
+        "./packages/core/src/*"
       ]
     }
   },

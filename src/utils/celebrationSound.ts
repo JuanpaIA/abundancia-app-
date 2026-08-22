@@ -2,7 +2,7 @@ import { Platform } from 'react-native'
 import { Audio } from 'expo-av'
 import * as FileSystem from 'expo-file-system/legacy'
 import * as Haptics from 'expo-haptics'
-import { ManifestationArea } from '../types'
+import { ManifestationArea } from '@lumina/core'
 
 const DINERO_ASSET = require('../../assets/sounds/dinero.mp3')
 

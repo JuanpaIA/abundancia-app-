@@ -6,7 +6,7 @@ import {
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { DailyLog } from '../types'
+import { DailyLog } from '@lumina/core'
 
 // ─── Definición de insignias ──────────────────────────────────────────────────
 

@@ -7,12 +7,7 @@ import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { Card } from '../components/ui/Card'
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
-import { getLunarPhase, getLunarPhaseEmoji, getLunarPhaseLabel } from '../utils/calculations'
-import { getPortalForDate, getPortalPowerColor, getPortalPowerLabel } from '../utils/energeticPortals'
-import { LUNAR_PHASE_CONTENT } from '../utils/lunarPhaseContent'
-import { generateDailyProtocol } from '../content/dailyProtocol'
-import { generateDailyObjective } from '../content/dailyObjective'
-import { ZodiacSign, LunarPhase, DailyLog } from '../types'
+import { getLunarPhase, getLunarPhaseEmoji, getLunarPhaseLabel, getPortalForDate, getPortalPowerColor, getPortalPowerLabel, LUNAR_PHASE_CONTENT, generateDailyProtocol, generateDailyObjective, ZodiacSign, LunarPhase, DailyLog } from '@lumina/core'
 
 // ── Resumen semanal ───────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { OnboardingData } from '../types'
+import { OnboardingData } from '@lumina/core'
 
 interface Props {
   data: OnboardingData

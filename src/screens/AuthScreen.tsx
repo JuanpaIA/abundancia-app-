@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
-import { PlanType } from '../types'
+import { PlanType } from '@lumina/core'
 
 interface Props {
   selectedPlan: PlanType

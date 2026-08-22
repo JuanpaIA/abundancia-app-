@@ -5,9 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { Card } from '../components/ui/Card'
 import { useAuth } from '../hooks/useAuth'
-import { getPortalForDate } from '../utils/energeticPortals'
-import { getLunarPhase } from '../utils/calculations'
-import { LUNAR_PHASE_CONTENT } from '../utils/lunarPhaseContent'
+import { getPortalForDate, getLunarPhase, LUNAR_PHASE_CONTENT } from '@lumina/core'
 import { buildMorningMessage, MorningProfile } from '../utils/notifications'
 
 interface Props { onBack: () => void }

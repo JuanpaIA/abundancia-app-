@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { supabase } from '../services/supabase'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
-import { PlanType } from '../types'
+import { PlanType } from '@lumina/core'
 
 const PRICE_IDS: Record<PlanType, string> = {
   monthly: 'price_1TSSJMP1zGvRRWhKGykXARXa',

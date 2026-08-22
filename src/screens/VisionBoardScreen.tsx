@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
-import { VISION_IMAGES, VisionImage } from '../content/visionBoardImages'
+import { VISION_IMAGES, VisionImage } from '@lumina/core'
 
 const { width: SCREEN_W } = Dimensions.get('window')
 

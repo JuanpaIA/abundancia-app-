@@ -4,10 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
-import { calculateNumerology, getZodiacSign, getBaseFrequency } from '../utils/calculations'
-import { ManifestationArea, UserProfile, GoalDetails } from '../types'
+import { calculateNumerology, getZodiacSign, getBaseFrequency, ManifestationArea, UserProfile, GoalDetails, NUMEROLOGY_PROFILES } from '@lumina/core'
 import { ManifestationIntakeScreen } from './ManifestationIntakeScreen'
-import { NUMEROLOGY_PROFILES } from '../content/numerologyContent'
 
 // ─── Labels y mapas ───────────────────────────────────────────────────────────
 

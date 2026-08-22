@@ -6,7 +6,7 @@ import {
 } from 'react-native'
 import { supabase } from '../services/supabase'
 import { Colors, Spacing, Radius } from '../constants/theme'
-import { ManifestationArea } from '../types'
+import { ManifestationArea } from '@lumina/core'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 

@@ -1,9 +1,6 @@
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
-import { getPortalForDate } from './energeticPortals'
-import { getLunarPhase } from './calculations'
-import { LUNAR_PHASE_CONTENT } from './lunarPhaseContent'
-import { ManifestationArea } from '../types'
+import { getPortalForDate, getLunarPhase, LUNAR_PHASE_CONTENT, ManifestationArea } from '@lumina/core'
 
 // ── Mapeos de contexto ────────────────────────────────────────────────────────
 

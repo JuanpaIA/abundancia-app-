@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
-import { ManifestationArea, GoalDetails } from '../types'
+import { ManifestationArea, GoalDetails } from '@lumina/core'
 
 interface Question {
   key: keyof GoalDetails

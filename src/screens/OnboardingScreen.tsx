@@ -4,9 +4,7 @@ import { Colors, Spacing, Radius } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
 import { Card } from '../components/ui/Card'
 import { supabase } from '../services/supabase'
-import { calculateNumerology, getZodiacSign, getBaseFrequency } from '../utils/calculations'
-import { ManifestationArea } from '../types'
-import { NUMEROLOGY_PROFILES } from '../content/numerologyContent'
+import { calculateNumerology, getZodiacSign, getBaseFrequency, ManifestationArea, NUMEROLOGY_PROFILES } from '@lumina/core'
 
 const ZODIAC_LABELS: Record<string, string> = {
   aries: 'Aries ♈', tauro: 'Tauro ♉', geminis: 'Géminis ♊',

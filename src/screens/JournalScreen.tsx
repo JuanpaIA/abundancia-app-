@@ -7,7 +7,7 @@ import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { getLunarPhase, getLunarPhaseEmoji, getLunarPhaseLabel } from '../utils/calculations'
+import { getLunarPhase, getLunarPhaseEmoji, getLunarPhaseLabel } from '@lumina/core'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 

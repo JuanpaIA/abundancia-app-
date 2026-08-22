@@ -12,7 +12,7 @@ import { PaymentScreen } from '../src/screens/PaymentScreen'
 import { ProtocolPreviewScreen } from '../src/screens/ProtocolPreviewScreen'
 import { ResetPasswordScreen } from '../src/screens/ResetPasswordScreen'
 import { Colors } from '../src/constants/theme'
-import { OnboardingData, PlanType } from '../src/types'
+import { OnboardingData, PlanType } from '@lumina/core'
 
 type FlowStep = 'landing' | 'quick-onboarding' | 'intake' | 'preview' | 'register' | 'login'
 
@@ -88,7 +88,7 @@ export default function Index() {
         <ManifestationIntakeScreen
           area={onboardingData.manifestationArea}
           onComplete={(goalDetails) => {
-            setOnboardingData(prev => prev ? { ...prev, goalDetails } : null)
+            setOnboardingData((prev: OnboardingData | null) => prev ? { ...prev, goalDetails } : null)
             setFlowStep('preview')
           }}
           onBack={() => setFlowStep('quick-onboarding')}

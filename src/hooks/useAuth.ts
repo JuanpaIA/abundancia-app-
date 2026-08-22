@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabase'
-import { UserProfile } from '../types'
+import { UserProfile } from '@lumina/core'
 import { Session } from '@supabase/supabase-js'
 
 export function useAuth() {

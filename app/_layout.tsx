@@ -7,6 +7,8 @@ import * as Notifications from 'expo-notifications';
 import { useFonts } from 'expo-font';
 import {
   Cormorant_500Medium,
+  Cormorant_500Medium_Italic,
+  Cormorant_600SemiBold,
   Cormorant_700Bold,
 } from '@expo-google-fonts/cormorant';
 import {
@@ -39,6 +41,8 @@ export default function RootLayout() {
 
   const [fontsLoaded] = useFonts({
     Cormorant_500Medium,
+    Cormorant_500Medium_Italic,
+    Cormorant_600SemiBold,
     Cormorant_700Bold,
     DMSans_400Regular,
     DMSans_500Medium,
