@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
 import { LinearGradient } from 'expo-linear-gradient'
 import Svg, { Polyline, Line, Circle, Text as SvgText } from 'react-native-svg'
 import { useAuth } from '../hooks/useAuth'
+import { useStats, buildWeeklySummary, countTasksFromLog } from '../hooks/useStats'
+import type { WeeklySummaryData, ChartPoint, WeekDay, ProgressDay } from '../hooks/useStats'
 import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Card } from '../components/ui/Card'
@@ -183,7 +185,7 @@ function fmtDate(dateStr: string): string {
   return `${d.getDate()} ${MONTHS_ES[d.getMonth()]}`
 }
 
-interface ChartPoint { day: number; count: number; isToday: boolean; dateStr: string }
+
 
 function MultiLineChart({ data }: { data: ChartPoint[] }) {
   const [chartW, setChartW] = useState(300)
@@ -380,8 +382,6 @@ function levelColor(level: number | null): string {
   return '#4CAF82'
 }
 
-interface WeekDay { level: number | null; isToday: boolean; label: string; date: number }
-
 function WeeklyEnergyRing({ days }: { days: WeekDay[] }) {
   const filled = days.filter(d => d.level !== null)
   const avg    = filled.length > 0
@@ -463,8 +463,6 @@ const weStyles = StyleSheet.create({
   meta: { fontSize: 10, color: 'rgba(255,255,255,0.25)' },
 })
 // ── Weekly progress ring ──────────────────────────────────────────────────────
-interface ProgressDay { count: number | null; isToday: boolean; label: string; date: number }
-
 function progressColor(count: number | null): string {
   if (count === null || count === 0) return 'rgba(255,255,255,0.10)'
   const pct = count / 9
@@ -616,61 +614,6 @@ function getMondayKey(): string {
   return d.toISOString().split('T')[0]
 }
 
-interface WeeklySummaryData {
-  weekLabel: string
-  totalTasks: number
-  daysActive: number
-  pct: number
-  bestDayLabel: string
-  bestDayCount: number
-  streak: number
-}
-
-const DAYS_ES_LONG  = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-const MONTHS_SHORT  = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
-
-function buildWeeklySummary(logs: DailyLog[], currentStreak: number): WeeklySummaryData | null {
-  const monday = new Date(); monday.setHours(0,0,0,0)
-  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
-  const lastMonday = new Date(monday); lastMonday.setDate(lastMonday.getDate() - 7)
-  const lastSunday = new Date(monday); lastSunday.setDate(lastSunday.getDate() - 1)
-
-  const weekDates: string[] = []
-  const d = new Date(lastMonday)
-  while (d <= lastSunday) { weekDates.push(d.toISOString().split('T')[0]); d.setDate(d.getDate() + 1) }
-
-  const weekLogs = logs.filter(l => weekDates.includes(l.date))
-  if (weekLogs.length === 0) return null
-
-  function countLog(l: DailyLog): number {
-    const hc: string[] = (l as any).habits_completed || []
-    return [
-      l.daily_objective_done || hc.includes('daily_objective_done'),
-      l.morning_done || hc.includes('morning_done'),
-      l.afternoon_done || hc.includes('afternoon_done'),
-      l.night_done || hc.includes('night_done'),
-      (l as any).ritual_done || hc.includes('ritual_done'),
-      (l as any).affirmation_done || hc.includes('affirmation_done'),
-      (l as any).color_done || hc.includes('color_done'),
-      (l as any).foods_done || hc.includes('foods_done'),
-      (l as any).biohack_done || hc.includes('biohack_done'),
-    ].filter(Boolean).length
-  }
-
-  const logMap = Object.fromEntries(weekLogs.map(l => [l.date, countLog(l)]))
-  const totalTasks = weekDates.reduce((s, date) => s + (logMap[date] ?? 0), 0)
-  const daysActive = weekDates.filter(date => (logMap[date] ?? 0) > 0).length
-  const pct = Math.round((totalTasks / (7 * 9)) * 100)
-
-  let bestDate = weekDates[0], bestCount = 0
-  weekDates.forEach(date => { if ((logMap[date] ?? 0) > bestCount) { bestCount = logMap[date] ?? 0; bestDate = date } })
-  const bestDayLabel = DAYS_ES_LONG[new Date(bestDate + 'T12:00:00').getDay()]
-
-  const lm = lastMonday, ls = lastSunday
-  const weekLabel = `${lm.getDate()} ${MONTHS_SHORT[lm.getMonth()]} — ${ls.getDate()} ${MONTHS_SHORT[ls.getMonth()]}`
-
-  return { weekLabel, totalTasks, daysActive, pct, bestDayLabel, bestDayCount: bestCount, streak: currentStreak }
-}
 
 function WeeklySummaryModal({ data, firstName, onClose }: { data: WeeklySummaryData; firstName: string; onClose: () => void }) {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -1115,6 +1058,11 @@ export function DashboardScreen() {
   // todayStr estable: se calcula una vez al montar el componente
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
   const today    = useMemo(() => new Date(todayStr + 'T12:00:00'), [todayStr])
+  const todayCount = useMemo(
+    () => [objectiveDone, morningDone, afternoonDone, nightDone, ritualDone, affirmationDone, colorDone, foodsDone, biohackDone].filter(Boolean).length,
+    [objectiveDone, morningDone, afternoonDone, nightDone, ritualDone, affirmationDone, colorDone, foodsDone, biohackDone]
+  )
+  const stats = useStats(allLogs, profile, todayStr, todayCount, energyLevel)
 
   // ── Carga de datos del día ──────────────────────────────────────────────────
   const loadTodayData = useCallback(async () => {
@@ -1361,50 +1309,7 @@ export function DashboardScreen() {
     )
   }
 
-  // ── Chart computation ────────────────────────────────────────────────────
-  const activationDate = profile.created_at
-  const logMap: Record<string, DailyLog> = Object.fromEntries(allLogs.map(l => [l.date, l]))
-
-  function countTasksFromLog(l: DailyLog): number {
-    const hc: string[] = (l as any).habits_completed || []
-    return [
-      l.daily_objective_done || hc.includes('daily_objective_done'),
-      l.morning_done         || hc.includes('morning_done'),
-      l.afternoon_done       || hc.includes('afternoon_done'),
-      l.night_done           || hc.includes('night_done'),
-      (l as any).ritual_done      || hc.includes('ritual_done'),
-      (l as any).affirmation_done || hc.includes('affirmation_done'),
-      (l as any).color_done       || hc.includes('color_done'),
-      (l as any).foods_done       || hc.includes('foods_done'),
-      (l as any).biohack_done     || hc.includes('biohack_done'),
-    ].filter(Boolean).length
-  }
-
-  function getPlanDaysAsc(): string[] {
-    const start = new Date(activationDate)
-    start.setHours(0, 0, 0, 0)
-    const end = new Date(); end.setHours(0, 0, 0, 0)
-    const days: string[] = []
-    const d = new Date(start)
-    while (d <= end) { days.push(d.toISOString().split('T')[0]); d.setDate(d.getDate() + 1) }
-    return days
-  }
-
-  const chartData = getPlanDaysAsc().map((dateStr, i) => {
-    const isToday = dateStr === todayStr
-    const count = isToday
-      ? [objectiveDone, morningDone, afternoonDone, nightDone, ritualDone, affirmationDone, colorDone, foodsDone, biohackDone].filter(Boolean).length
-      : (() => { const l = logMap[dateStr]; return l ? countTasksFromLog(l) : 0 })()
-    return { dateStr, count, isToday, day: i + 1 }
-  })
-
-  const overallRate = chartData.length > 0
-    ? Math.round(chartData.reduce((s, d) => s + d.count, 0) / (chartData.length * 9) * 100) : 0
-  const perfectDays = chartData.filter(d => d.count === 9).length
-  let streak = 0
-  const lastIdx = chartData.length - 1
-  const startIdx = (chartData[lastIdx]?.count === 0 && chartData[lastIdx]?.isToday) ? lastIdx - 1 : lastIdx
-  for (let i = startIdx; i >= 0; i--) { if (chartData[i].count > 0) streak++; else break }
+  const { planDay, planDaysLeft, planComplete, streak, overallRate, perfectDays, chartData, weeklyEnergyDays, weeklyProgressDays } = stats!
 
   const STREAK_MILESTONES = [3, 7, 14, 21, 33, 66, 90]
   const nextMilestone = STREAK_MILESTONES.find(m => m > streak) ?? 90
@@ -1423,34 +1328,6 @@ export function DashboardScreen() {
     : '¡Racha legendaria! Eres constancia en estado puro.'
 
   const TOTAL_TASKS = 9
-  const todayCount = [objectiveDone, morningDone, afternoonDone, nightDone, ritualDone, affirmationDone, colorDone, foodsDone, biohackDone].filter(Boolean).length
-
-  // Weekly ring data (last 7 days, oldest → newest)
-  const DAYS_ES = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá']
-  const weeklyEnergyDays: WeekDay[] = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today)
-    d.setDate(d.getDate() - (6 - i))
-    const dateStr = d.toISOString().split('T')[0]
-    const isToday = dateStr === todayStr
-    return {
-      label: DAYS_ES[d.getDay()],
-      date: d.getDate(),
-      isToday,
-      level: isToday ? energyLevel : (logMap[dateStr]?.energy_level ?? null),
-    }
-  })
-
-  const weeklyProgressDays: ProgressDay[] = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today)
-    d.setDate(d.getDate() - (6 - i))
-    const dateStr = d.toISOString().split('T')[0]
-    const isToday = dateStr === todayStr
-    const log = logMap[dateStr]
-    const count = isToday
-      ? todayCount
-      : (log ? countTasksFromLog(log) : null)
-    return { label: DAYS_ES[d.getDay()], date: d.getDate(), isToday, count }
-  })
 
   // ── Patrones débiles de la semana (últimos 7 días sin contar hoy) ──────────
   const weakHabits: Array<HabitDetail & { completions: number }> = (() => {
@@ -1511,13 +1388,8 @@ export function DashboardScreen() {
   })()
 
   // ── Plan de manifestación ─────────────────────────────────────────────────
-  const planDuration   = profile.plan_duration ?? 30
-  const planStartDate  = profile.plan_start_date ?? profile.created_at.split('T')[0]
-  const planStart      = new Date(planStartDate + 'T12:00:00')
-  const planDay        = Math.floor((today.getTime() - planStart.getTime()) / 86400000) + 1
-  const planDaysLeft   = planDuration - planDay + 1
-  const planComplete   = planDay > planDuration
-  const phaseInfo      = getPhaseInfo(Math.min(planDay, planDuration), planDuration)
+  const planDuration = profile.plan_duration ?? 30
+  const phaseInfo    = getPhaseInfo(Math.min(planDay, planDuration), planDuration)
   const objective      = generateDailyObjective(
     profile.manifestation_area,
     profile.goal_details || {},

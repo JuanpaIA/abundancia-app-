@@ -1,36 +1,39 @@
+// Web implementation — uses localStorage.
+// Metro resolves supabase.native.ts on iOS/Android instead of this file.
+
 import { createClient } from '@supabase/supabase-js'
-import * as SecureStore from 'expo-secure-store'
-import { Platform } from 'react-native'
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
 
-const webStorage = {
-  getItem: async (key: string) => {
+// Injecting a StorageAdapter instead of hard-coding storage means swapping the
+// backend (localStorage → IndexedDB, SecureStore → MMKV) is one-file change.
+export type StorageAdapter = {
+  getItem: (key: string) => Promise<string | null>
+  setItem: (key: string, value: string) => Promise<void>
+  removeItem: (key: string) => Promise<void>
+}
+
+const webStorage: StorageAdapter = {
+  getItem: async (key) => {
     if (typeof window === 'undefined') return null
     return window.localStorage.getItem(key)
   },
-  setItem: async (key: string, value: string) => {
+  setItem: async (key, value) => {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(key, value)
   },
-  removeItem: async (key: string) => {
+  removeItem: async (key) => {
     if (typeof window === 'undefined') return
     window.localStorage.removeItem(key)
   },
 }
 
-const nativeStorage = {
-  getItem: (key: string) => SecureStore.getItemAsync(key),
-  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
-}
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: Platform.OS === 'web' ? webStorage : nativeStorage,
+    storage: webStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: Platform.OS === 'web',
+    detectSessionInUrl: true,
   },
 })
