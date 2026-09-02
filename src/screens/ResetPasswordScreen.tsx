@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text, StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native'
 import { Colors, Spacing, Radius } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
 
@@ -45,6 +46,7 @@ export function ResetPasswordScreen({ onComplete }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <ScreenBackground />
       <View style={styles.content}>
         <Text style={styles.icon}>🔐</Text>
         <Text style={styles.title}>Nueva contraseña</Text>

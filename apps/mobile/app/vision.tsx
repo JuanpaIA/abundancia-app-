@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { useAuth } from '../../../src/hooks/useAuth'
 import { VisionBoardScreen } from '../../../src/screens/VisionBoardScreen'
 import { BottomNav } from '../../../src/components/ui/BottomNav'
+import { MiniPlayer } from '../../../src/components/ui/MiniPlayer'
 import { Colors } from '../../../src/constants/theme'
 import type { NavTab } from '../../../src/components/ui/BottomNav.types'
 
@@ -32,6 +33,7 @@ export default function VisionRoute() {
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <VisionBoardScreen onBack={() => router.back()} />
+      <MiniPlayer />
       <BottomNav activeTab="vision" onTabPress={handleNav} />
     </View>
   )

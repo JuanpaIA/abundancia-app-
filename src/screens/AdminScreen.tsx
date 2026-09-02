@@ -6,6 +6,7 @@ import {
 } from 'react-native'
 import { supabase } from '../services/supabase'
 import { Colors, Spacing, Radius } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { ManifestationArea } from '@lumina/core'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -259,6 +260,7 @@ export function AdminScreen({ onBack, onPreviewWeeklySummary }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}

@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { Colors, Spacing, Radius } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { PlanType } from '@lumina/core'
 
 interface Props {
@@ -27,6 +28,7 @@ const plans: { type: PlanType; trial: number; price: string; period: string; rec
 export function PlanSelectionScreen({ onSelectPlan }: Props) {
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <Text style={styles.title}>Empieza gratis hoy</Text>

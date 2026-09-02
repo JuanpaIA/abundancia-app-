@@ -16,6 +16,7 @@ import type { WeeklySummaryData, ChartPoint, WeekDay, ProgressDay } from '../hoo
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Card } from '../components/ui/Card'
 import { AlignmentMoon } from '../components/ui/AlignmentMoon'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { useTheme } from '../contexts/ThemeContext'
 import { getLunarPhase, getLunarPhaseLabel, getLunarPhaseEmoji, LUNAR_PHASE_CONTENT, getNextKeyPhase, getPortalForDate, getNextPortal, getPortalPowerColor, getPortalPowerLabel, calculateAlignment, calculateSignal } from '@lumina/core'
@@ -1316,6 +1317,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── Hero band — mauve rose ── */}
@@ -2716,10 +2718,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: Colors.border,
     borderStyle: 'dashed',
     padding: Spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: Colors.cardBg,
     flexDirection: 'row',
     gap: Spacing.sm,
     alignItems: 'flex-start',
@@ -2727,13 +2729,13 @@ const styles = StyleSheet.create({
   lunarInactiveLeft: { paddingTop: 2 },
   lunarInactiveEmoji: { fontSize: 22, opacity: 0.4 },
   lunarInactiveBody: { flex: 1, gap: Spacing.xs },
-  lunarInactiveTitle: { fontSize: 13, color: 'rgba(255,255,255,0.30)', fontWeight: '600', letterSpacing: 0.5 },
-  lunarInactiveEnergy: { fontSize: 11, color: 'rgba(255,255,255,0.22)', fontStyle: 'italic' },
-  lunarInactiveDesc: { fontSize: 12, color: 'rgba(255,255,255,0.22)', lineHeight: 18 },
-  lunarNextRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs, paddingTop: Spacing.xs, borderTopWidth: 0.5, borderTopColor: 'rgba(255,255,255,0.08)' },
+  lunarInactiveTitle: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
+  lunarInactiveEnergy: { fontSize: 11, color: Colors.textDim, fontStyle: 'italic' },
+  lunarInactiveDesc: { fontSize: 12, color: Colors.textSecondary, lineHeight: 18 },
+  lunarNextRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs, paddingTop: Spacing.xs, borderTopWidth: 0.5, borderTopColor: Colors.border },
   lunarNextEmoji: { fontSize: 22 },
-  lunarNextLabel: { fontSize: 10, color: 'rgba(255,255,255,0.30)', letterSpacing: 0.5 },
-  lunarNextName: { fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: '600' },
+  lunarNextLabel: { fontSize: 10, color: Colors.textDim, letterSpacing: 0.5 },
+  lunarNextName: { fontSize: 12, color: Colors.textPrimary, fontWeight: '600' },
   lunarNextDays: { fontSize: 11, color: Colors.gold, fontWeight: '600' },
   circleCard: { marginBottom: Spacing.lg, gap: Spacing.md },
   sectionCard: { marginBottom: Spacing.lg, gap: Spacing.md },
@@ -3032,10 +3034,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: Colors.border,
     borderStyle: 'dashed',
     padding: Spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: Colors.cardBg,
     flexDirection: 'row',
     gap: Spacing.sm,
     alignItems: 'flex-start',
@@ -3043,12 +3045,12 @@ const styles = StyleSheet.create({
   portalInactiveLeft: { paddingTop: 2 },
   portalInactiveLock: { fontSize: 22, opacity: 0.35 },
   portalInactiveBody: { flex: 1, gap: Spacing.xs },
-  portalInactiveTitle: { fontSize: 13, color: 'rgba(255,255,255,0.30)', fontWeight: '600', letterSpacing: 0.5 },
-  portalInactiveDesc: { fontSize: 12, color: 'rgba(255,255,255,0.22)', lineHeight: 18 },
-  portalNextRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs, paddingTop: Spacing.xs, borderTopWidth: 0.5, borderTopColor: 'rgba(255,255,255,0.08)' },
+  portalInactiveTitle: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
+  portalInactiveDesc: { fontSize: 12, color: Colors.textSecondary, lineHeight: 18 },
+  portalNextRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs, paddingTop: Spacing.xs, borderTopWidth: 0.5, borderTopColor: Colors.border },
   portalNextEmoji: { fontSize: 22 },
-  portalNextLabel: { fontSize: 10, color: 'rgba(255,255,255,0.30)', letterSpacing: 0.5 },
-  portalNextName: { fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: '600' },
+  portalNextLabel: { fontSize: 10, color: Colors.textDim, letterSpacing: 0.5 },
+  portalNextName: { fontSize: 12, color: Colors.textPrimary, fontWeight: '600' },
   portalNextDays: { fontSize: 11, color: Colors.gold, fontWeight: '600' },
   progressCard: { marginBottom: Spacing.md, gap: Spacing.sm },
   progressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

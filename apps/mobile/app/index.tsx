@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { View, ActivityIndicator, Platform } from 'react-native'
 import { useRouter } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { supabase } from '../../../src/services/supabase'
 import { useAuth } from '../../../src/hooks/useAuth'
 import { AuthScreen } from '../../../src/screens/AuthScreen'
-import { QuickOnboardingScreen } from '../../../src/screens/QuickOnboardingScreen'
 import { ManifestationIntakeScreen } from '../../../src/screens/ManifestationIntakeScreen'
 import { OnboardingScreen } from '../../../src/screens/OnboardingScreen'
 import { DashboardScreen } from '../../../src/screens/DashboardScreen'
 import { ProtocolPreviewScreen } from '../../../src/screens/ProtocolPreviewScreen'
 import { ResetPasswordScreen } from '../../../src/screens/ResetPasswordScreen'
 import { BottomNav } from '../../../src/components/ui/BottomNav'
+import { MiniPlayer } from '../../../src/components/ui/MiniPlayer'
 import { Ensamblaje } from '../../../src/components/Ensamblaje'
 import { Colors } from '../../../src/constants/theme'
+import { useFrequencyPlayerContext } from '../../../src/contexts/FrequencyPlayerContext'
 import { CREATOR_MODE } from '../../../src/constants/creatorMode'
 import { OnboardingData } from '@lumina/core'
 
@@ -40,16 +41,30 @@ function storedSet(key: string, value: string): void {
 
 const NAV_HEIGHT = 64
 
-type FlowStep = 'quick-onboarding' | 'intake' | 'ensamblaje' | 'preview' | 'register' | 'login'
+type FlowStep = 'onboarding' | 'intake' | 'ensamblaje' | 'preview' | 'register' | 'login'
 
 export default function Index() {
   const { session, profile, loading, refreshProfile, resetPasswordMode, clearResetMode } = useAuth()
+  const { playing, miniPlayerHeight } = useFrequencyPlayerContext()
   const router = useRouter()
 
-  const [flowStep,             setFlowStep]             = useState<FlowStep>('quick-onboarding')
+  const [flowStep,             setFlowStep]             = useState<FlowStep>('onboarding')
   const [onboardingData,       setOnboardingData]       = useState<OnboardingData | null>(null)
   const [savingProfile,        setSavingProfile]        = useState(false)
   const [showDailyEnsamblaje,  setShowDailyEnsamblaje]  = useState(false)
+
+  const wasSignedIn = useRef(false)
+
+  // Reset to login screen when user explicitly signs out
+  useEffect(() => {
+    if (session) {
+      wasSignedIn.current = true
+    } else if (wasSignedIn.current) {
+      wasSignedIn.current = false
+      setFlowStep('login')
+      setOnboardingData(null)
+    }
+  }, [session])
 
   // Show Ensamblaje once per day (works on both native and web)
   useEffect(() => {
@@ -94,10 +109,14 @@ export default function Index() {
 
   if (!session) {
     if (flowStep === 'login') {
-      return <AuthScreen selectedPlan="monthly" onAuthSuccess={() => setFlowStep('quick-onboarding')} loginOnly />
+      return <AuthScreen selectedPlan="monthly" onAuthSuccess={() => setFlowStep('onboarding')} loginOnly />
     }
-    if (flowStep === 'quick-onboarding') {
-      return <QuickOnboardingScreen onComplete={(data) => { setOnboardingData(data); setFlowStep('intake') }} />
+    if (flowStep === 'onboarding') {
+      return (
+        <OnboardingScreen
+          onComplete={(data) => { if (data) { setOnboardingData(data); setFlowStep('intake') } }}
+        />
+      )
     }
     if (flowStep === 'intake' && onboardingData) {
       return (
@@ -107,7 +126,7 @@ export default function Index() {
             setOnboardingData((prev: OnboardingData | null) => prev ? { ...prev, goalDetails } : null)
             setFlowStep('ensamblaje')
           }}
-          onBack={() => setFlowStep('quick-onboarding')}
+          onBack={() => setFlowStep('onboarding')}
         />
       )
     }
@@ -129,12 +148,25 @@ export default function Index() {
       return <ProtocolPreviewScreen data={onboardingData} onUnlock={() => setFlowStep('register')} />
     }
     if (flowStep === 'register') {
-      return <AuthScreen selectedPlan="monthly" onAuthSuccess={() => setFlowStep('quick-onboarding')} registerOnly />
+      return <AuthScreen selectedPlan="monthly" onAuthSuccess={() => setFlowStep('onboarding')} registerOnly />
     }
-    return <QuickOnboardingScreen onComplete={(data) => { setOnboardingData(data); setFlowStep('intake') }} />
+    return (
+      <OnboardingScreen
+        onComplete={(data) => { if (data) { setOnboardingData(data); setFlowStep('intake') } }}
+      />
+    )
   }
 
   if (!profile?.full_name) {
+    // onboardingData present → save is in progress, never show questions again
+    if (onboardingData) {
+      return (
+        <View style={{ flex: 1, backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator color={Colors.gold} size="large" />
+        </View>
+      )
+    }
+    // Genuine fallback: re-installer or edge case with session but no profile
     return (
       <OnboardingScreen
         userId={session.user.id}
@@ -151,7 +183,8 @@ export default function Index() {
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
-      <DashboardScreen bottomInset={NAV_HEIGHT} creatorMode={CREATOR_MODE} />
+      <DashboardScreen bottomInset={NAV_HEIGHT + (playing ? miniPlayerHeight : 0)} creatorMode={CREATOR_MODE} />
+      <MiniPlayer />
       <BottomNav activeTab="hoy" onTabPress={handleNavTab} />
       {showDailyEnsamblaje && (
         <Ensamblaje

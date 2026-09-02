@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { Card } from '../components/ui/Card'
 import { useAuth } from '../hooks/useAuth'
 import { getPortalForDate, getLunarPhase, LUNAR_PHASE_CONTENT } from '@lumina/core'
@@ -242,6 +243,7 @@ export function NotificationsScreen({ onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Animated }
 import Svg, { Circle, Polyline, Line, Text as SvgText } from 'react-native-svg'
 import { useState, useEffect } from 'react'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { Card } from '../components/ui/Card'
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
@@ -647,6 +648,7 @@ export function HistoryScreen({ onBack }: Props) {
   // ── Vista lista ────────────────────────────────────────────────────────────
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack}>

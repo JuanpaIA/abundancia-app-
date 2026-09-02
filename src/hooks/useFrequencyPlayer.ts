@@ -13,12 +13,13 @@ export type FrequencyPlayerHook = {
 
 export function useFrequencyPlayer(): FrequencyPlayerHook {
   const [playing, setPlaying] = useState(false)
-  const ctxRef  = useRef<AudioContext | null>(null)
-  const oscRef  = useRef<OscillatorNode | null>(null)
-  const gainRef = useRef<GainNode | null>(null)
+  const ctxRef     = useRef<AudioContext | null>(null)
+  const oscRef     = useRef<OscillatorNode | null>(null)
+  const gainRef    = useRef<GainNode | null>(null)
+  const playingRef = useRef(false)
 
   async function play(hz: number): Promise<void> {
-    if (playing) { await stop(); return }
+    if (playingRef.current) { await stop(); return }
     const Ctx = window.AudioContext || (window as any).webkitAudioContext
     const ctx: AudioContext = new Ctx()
     const osc  = ctx.createOscillator()
@@ -32,10 +33,12 @@ export function useFrequencyPlayer(): FrequencyPlayerHook {
     ctxRef.current  = ctx
     oscRef.current  = osc
     gainRef.current = gain
+    playingRef.current = true
     setPlaying(true)
   }
 
   async function stop(): Promise<void> {
+    playingRef.current = false
     if (!gainRef.current || !ctxRef.current) return
     gainRef.current.gain.linearRampToValueAtTime(0, ctxRef.current.currentTime + 1)
     setTimeout(() => {

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import { useState } from 'react'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
 import { PlanType } from '@lumina/core'
@@ -99,12 +99,7 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly, registerOnl
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <LinearGradient
-        colors={['#16102a', '#0e0b1e', '#0a0814']}
-        locations={[0, 0.4, 1]}
-        style={StyleSheet.absoluteFillObject}
-        pointerEvents="none"
-      />
+      <ScreenBackground />
       <View style={styles.content}>
         <Text style={styles.title}>
           {mode === 'register' ? 'Crea tu cuenta' : 'Inicia sesión'}

@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { GradientButton } from '../components/ui/GradientButton'
 import { ManifestationArea, GoalDetails } from '@lumina/core'
 
@@ -221,12 +222,7 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#16102a', '#0e0b1e', '#0a0814']}
-        locations={[0, 0.5, 1]}
-        style={StyleSheet.absoluteFillObject}
-        pointerEvents="none"
-      />
+      <ScreenBackground />
       {/* @ts-ignore */}
       <View style={styles.orbGold} aria-hidden />
 
@@ -314,7 +310,7 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingTop: 64, gap: Spacing.lg },
 
   progressBar: {
-    height: 3, backgroundColor: 'rgba(255,255,255,0.08)',
+    height: 3, backgroundColor: Colors.border,
     borderRadius: 2, overflow: 'hidden',
   },
   progressFill: { height: '100%', borderRadius: 2 },

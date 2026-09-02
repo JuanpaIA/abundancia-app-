@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { useAuth } from '../../../src/hooks/useAuth'
 import { FrequenciesScreen } from '../../../src/screens/FrequenciesScreen'
 import { BottomNav } from '../../../src/components/ui/BottomNav'
+import { MiniPlayer } from '../../../src/components/ui/MiniPlayer'
 import { Colors } from '../../../src/constants/theme'
 import { getLunarPhase, generateDailyProtocol } from '@lumina/core'
 import type { ZodiacSign } from '@lumina/core'
@@ -44,6 +45,7 @@ export default function SonidoRoute() {
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <FrequenciesScreen onBack={() => router.back()} todayHz={protocol.frequency.hz} />
+      <MiniPlayer />
       <BottomNav activeTab="sonido" onTabPress={handleNav} />
     </View>
   )

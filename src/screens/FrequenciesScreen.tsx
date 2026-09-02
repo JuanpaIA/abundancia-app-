@@ -4,7 +4,8 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
+import { useFrequencyPlayerContext } from '../contexts/FrequencyPlayerContext'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { FrequencyPlayerOverlay } from '../components/overlays/FrequencyPlayerOverlay'
 
@@ -159,32 +160,22 @@ interface Props {
 }
 
 export function FrequenciesScreen({ onBack, todayHz }: Props) {
-  const { playing, play } = useFrequencyPlayer()
+  const { playing, activeHz, toggle } = useFrequencyPlayerContext()
   const { reportError } = useErrorReporter('frequencies')
-  const [playingHz, setPlayingHz] = useState<number | null>(null)
   const [expanded, setExpanded] = useState<number | null>(todayHz ?? null)
   const [overlayFreq, setOverlayFreq] = useState<{ hz: number; name: string; purpose: string } | null>(null)
 
-  async function handlePlay(hz: number) {
+  async function handlePlay(hz: number, label: string) {
     try {
-      if (playingHz === hz) {
-        await play(hz)
-        setPlayingHz(null)
-      } else {
-        if (playingHz !== null) await play(playingHz)
-        await play(hz)
-        setPlayingHz(playing ? null : hz)
-      }
+      await toggle(hz, label)
     } catch (e) {
       reportError(e, { hz, action: 'play_frequency' })
     }
   }
 
-  // Determinar Hz activo basado en estado del player
-  const activeHz = playing ? playingHz : null
-
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* Header */}
@@ -242,7 +233,7 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
                 </View>
                 <TouchableOpacity
                   style={[styles.playBtn, { borderColor: freq.color + '88' }, isPlaying && { backgroundColor: freq.color }]}
-                  onPress={() => handlePlay(freq.hz)}
+                  onPress={() => handlePlay(freq.hz, freq.name)}
                 >
                   <Text style={[styles.playIcon, isPlaying && { color: Colors.background }]}>
                     {isPlaying ? '■' : '▶'}
@@ -320,8 +311,8 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
           hz={overlayFreq.hz}
           name={overlayFreq.name}
           purpose={overlayFreq.purpose}
-          playing={playingHz === overlayFreq.hz}
-          onToggle={() => handlePlay(overlayFreq.hz)}
+          playing={activeHz === overlayFreq.hz}
+          onToggle={() => handlePlay(overlayFreq.hz, overlayFreq.name)}
           onClose={() => setOverlayFreq(null)}
         />
       )}

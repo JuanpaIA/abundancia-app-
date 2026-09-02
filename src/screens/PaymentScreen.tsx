@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, Alert, TouchableOpacity, Platform, ScrollView } from 'react-native'
 import { useState, useEffect } from 'react'
 import * as WebBrowser from 'expo-web-browser'
-import { LinearGradient } from 'expo-linear-gradient'
 import { supabase } from '../services/supabase'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { GradientButton } from '../components/ui/GradientButton'
 import { PlanType } from '@lumina/core'
 
@@ -120,12 +120,7 @@ export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPay
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#16102a', '#0e0b1e', '#0a0814']}
-        locations={[0, 0.4, 1]}
-        style={StyleSheet.absoluteFillObject}
-        pointerEvents="none"
-      />
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.emoji}>✦</Text>
         <Text style={styles.title}>Elige tu plan</Text>

@@ -2,7 +2,7 @@ export const Colors = {
   // Fondos
   background: '#F0E8EC',                      // blush-base — fondo general
   card: '#FBF6F8',                            // superficie blanca cálida
-  cardBg: 'rgba(139,90,110,0.06)',            // card muy sutil
+  cardBg: 'rgba(255,255,255,0.55)',            // glassmorphism sobre gradiente
   surface2: 'rgba(139,90,110,0.08)',          // hover / interactive
   input: '#F5EDF1',                           // campo de texto
 

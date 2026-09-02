@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { useAuth } from '../../../src/hooks/useAuth'
 import { ProfileScreen } from '../../../src/screens/ProfileScreen'
 import { BottomNav } from '../../../src/components/ui/BottomNav'
+import { MiniPlayer } from '../../../src/components/ui/MiniPlayer'
 import { Colors } from '../../../src/constants/theme'
 import type { NavTab } from '../../../src/components/ui/BottomNav.types'
 
@@ -34,6 +35,7 @@ export default function PerfilRoute() {
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <ProfileScreen bottomInset={NAV_HEIGHT} />
+      <MiniPlayer />
       <BottomNav activeTab="perfil" onTabPress={handleNav} />
     </View>
   )

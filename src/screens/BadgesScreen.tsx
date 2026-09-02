@@ -6,6 +6,7 @@ import {
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { DailyLog } from '@lumina/core'
 
 // ─── Definición de insignias ──────────────────────────────────────────────────
@@ -270,6 +271,7 @@ export function BadgesScreen({ onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* Header */}

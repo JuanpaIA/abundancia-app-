@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native'
 import { useState } from 'react'
 import { Colors, Spacing, Radius } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { GradientButton } from '../components/ui/GradientButton'
 import { Card } from '../components/ui/Card'
 import { supabase } from '../services/supabase'
-import { calculateNumerology, getZodiacSign, getBaseFrequency, ManifestationArea, NUMEROLOGY_PROFILES } from '@lumina/core'
+import { calculateNumerology, getZodiacSign, getBaseFrequency, ManifestationArea, NUMEROLOGY_PROFILES, OnboardingData } from '@lumina/core'
 
 const ZODIAC_LABELS: Record<string, string> = {
   aries: 'Aries ♈', tauro: 'Tauro ♉', geminis: 'Géminis ♊',
@@ -22,9 +23,9 @@ const AREAS: { key: ManifestationArea; label: string; emoji: string; description
 ]
 
 interface Props {
-  userId: string
-  onComplete: () => void
-  onSignOut: () => void
+  userId?: string
+  onComplete: (data?: OnboardingData) => void
+  onSignOut?: () => void
 }
 
 export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
@@ -126,7 +127,7 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
         }
       })
 
-      onComplete()
+      onComplete(undefined)
     } catch (e: any) {
       setLoading(false)
       void supabase.from('error_reports').insert({
@@ -143,9 +144,12 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.signOutBtn} onPress={onSignOut}>
-        <Text style={styles.signOutText}>Cerrar sesión</Text>
-      </TouchableOpacity>
+      <ScreenBackground />
+      {onSignOut && (
+        <TouchableOpacity style={styles.signOutBtn} onPress={onSignOut}>
+          <Text style={styles.signOutText}>Cerrar sesión</Text>
+        </TouchableOpacity>
+      )}
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {step > 1 && (
@@ -298,8 +302,18 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
               </View>
 
               <GradientButton
-                title="Ver mi protocolo de hoy"
-                onPress={handleSave}
+                title={userId ? 'Ver mi protocolo de hoy' : 'Continuar'}
+                onPress={userId ? handleSave : () => {
+                  if (!calculated || !manifestationArea) return
+                  onComplete({
+                    name: name.trim(),
+                    birthDate,
+                    zodiac: calculated.zodiac,
+                    numerology: calculated.numerology,
+                    frequency: calculated.frequency,
+                    manifestationArea,
+                  })
+                }}
                 loading={loading}
               />
             </View>

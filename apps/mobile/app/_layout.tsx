@@ -21,6 +21,7 @@ import { Colors } from '../../../src/constants/theme'
 import { AppThemeProvider } from '../../../src/contexts/ThemeContext'
 import { ErrorBoundary } from '../../../src/components/ErrorBoundary'
 import { OfflineBanner } from '../../../src/components/OfflineBanner'
+import { FrequencyPlayerProvider } from '../../../src/contexts/FrequencyPlayerContext'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -55,6 +56,7 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <AppThemeProvider>
+        <FrequencyPlayerProvider>
         <Stack
           screenOptions={{
             headerShown: false,
@@ -65,6 +67,7 @@ export default function RootLayout() {
         />
         <StatusBar style="light" />
         <OfflineBanner />
+        </FrequencyPlayerProvider>
       </AppThemeProvider>
     </ErrorBoundary>
   )

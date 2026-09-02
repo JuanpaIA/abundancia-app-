@@ -7,6 +7,7 @@ import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { getLunarPhase, getLunarPhaseEmoji, getLunarPhaseLabel } from '@lumina/core'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -147,6 +148,7 @@ export function JournalScreen({ onBack }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <ScreenBackground />
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}

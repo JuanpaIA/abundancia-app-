@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { useAuth } from '../../../src/hooks/useAuth'
 import { JournalScreen } from '../../../src/screens/JournalScreen'
 import { BottomNav } from '../../../src/components/ui/BottomNav'
+import { MiniPlayer } from '../../../src/components/ui/MiniPlayer'
 import { Colors } from '../../../src/constants/theme'
 import type { NavTab } from '../../../src/components/ui/BottomNav.types'
 
@@ -32,6 +33,7 @@ export default function DiarioRoute() {
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <JournalScreen onBack={() => router.back()} />
+      <MiniPlayer />
       <BottomNav activeTab="diario" onTabPress={handleNav} />
     </View>
   )

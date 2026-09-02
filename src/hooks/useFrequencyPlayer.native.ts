@@ -48,10 +48,11 @@ function toBase64(bytes: Uint8Array): string {
 
 export function useFrequencyPlayer(): FrequencyPlayerHook {
   const [playing, setPlaying] = useState(false)
-  const soundRef = useRef<Audio.Sound | null>(null)
+  const soundRef   = useRef<Audio.Sound | null>(null)
+  const playingRef = useRef(false)
 
   async function play(hz: number): Promise<void> {
-    if (playing) { await stop(); return }
+    if (playingRef.current) { await stop(); return }
     try {
       await Audio.setAudioModeAsync({
         staysActiveInBackground: true,
@@ -69,6 +70,7 @@ export function useFrequencyPlayer(): FrequencyPlayerHook {
         { shouldPlay: true, isLooping: true, volume: 0.7 }
       )
       soundRef.current = sound
+      playingRef.current = true
       setPlaying(true)
     } catch (e: any) {
       Alert.alert('Error frecuencia', String(e?.message ?? e))
@@ -76,6 +78,7 @@ export function useFrequencyPlayer(): FrequencyPlayerHook {
   }
 
   async function stop(): Promise<void> {
+    playingRef.current = false
     if (!soundRef.current) return
     await soundRef.current.stopAsync()
     await soundRef.current.unloadAsync()

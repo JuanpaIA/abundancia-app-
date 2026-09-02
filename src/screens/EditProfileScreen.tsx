@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native'
 import { useState } from 'react'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { GradientButton } from '../components/ui/GradientButton'
 import { supabase } from '../services/supabase'
 import { calculateNumerology, getZodiacSign, getBaseFrequency, ManifestationArea, UserProfile, GoalDetails, NUMEROLOGY_PROFILES } from '@lumina/core'
@@ -140,6 +141,7 @@ export function EditProfileScreen({ profile, onSave, onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>

@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { OnboardingData } from '@lumina/core'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 
 interface Props {
   data: OnboardingData
@@ -46,9 +47,10 @@ export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* Gradiente ambiental del área */}
+      <ScreenBackground />
+      {/* Gradiente ambiental del área — se superpone al fondo base */}
       <LinearGradient
-        colors={[areaColor + '28', Colors.background]}
+        colors={[areaColor + '28', 'transparent']}
         start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.45 }}
         style={StyleSheet.absoluteFillObject}
         pointerEvents="none"
@@ -171,8 +173,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
   },
   lockEmoji: { fontSize: 32 },
-  lockText: { fontFamily: Fonts.headingSemiBold, fontSize: 18, color: Colors.textPrimary },
-  lockSub: { fontFamily: Fonts.body, fontSize: 13, color: Colors.textSecondary },
+  lockText: { fontFamily: Fonts.headingSemiBold, fontSize: 18, color: '#FFFFFF' },
+  lockSub: { fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.75)' },
 
   previewSection: { gap: 8 },
   sectionLabel: {

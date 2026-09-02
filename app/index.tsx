@@ -5,7 +5,6 @@ import { supabase } from '../src/services/supabase'
 import { useAuth } from '../src/hooks/useAuth'
 import { LandingScreen } from '../src/screens/LandingScreen'
 import { AuthScreen } from '../src/screens/AuthScreen'
-import { QuickOnboardingScreen } from '../src/screens/QuickOnboardingScreen'
 import { ManifestationIntakeScreen } from '../src/screens/ManifestationIntakeScreen'
 import { OnboardingScreen } from '../src/screens/OnboardingScreen'
 import { DashboardScreen } from '../src/screens/DashboardScreen'
@@ -55,7 +54,7 @@ function storedRemove(key: string): void {
 
 export const NAV_HEIGHT = 64
 
-type FlowStep = 'landing' | 'quick-onboarding' | 'intake' | 'preview' | 'register' | 'login'
+type FlowStep = 'landing' | 'onboarding' | 'intake' | 'preview' | 'register' | 'login'
 
 export default function Index() {
   const { session, profile, loading, refreshProfile, resetPasswordMode, clearResetMode } = useAuth()
@@ -130,10 +129,10 @@ export default function Index() {
         />
       )
     }
-    if (flowStep === 'quick-onboarding') {
+    if (flowStep === 'onboarding') {
       return (
-        <QuickOnboardingScreen
-          onComplete={(data) => { setOnboardingData(data); setFlowStep('intake') }}
+        <OnboardingScreen
+          onComplete={(data) => { if (data) { setOnboardingData(data); setFlowStep('intake') } }}
         />
       )
     }
@@ -145,7 +144,7 @@ export default function Index() {
             setOnboardingData((prev: OnboardingData | null) => prev ? { ...prev, goalDetails } : null)
             setFlowStep('preview')
           }}
-          onBack={() => setFlowStep('quick-onboarding')}
+          onBack={() => setFlowStep('onboarding')}
         />
       )
     }
@@ -168,7 +167,7 @@ export default function Index() {
     }
     return (
       <LandingScreen
-        onGetStarted={() => setFlowStep('quick-onboarding')}
+        onGetStarted={() => setFlowStep('onboarding')}
         onLogin={() => setFlowStep('login')}
       />
     )
@@ -177,6 +176,13 @@ export default function Index() {
   // ── Incomplete profile ───────────────────────────────────────────────────────
 
   if (!profile?.full_name) {
+    if (onboardingData) {
+      return (
+        <View style={{ flex: 1, backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator color={Colors.gold} size="large" />
+        </View>
+      )
+    }
     return (
       <OnboardingScreen
         userId={session.user.id}

@@ -9,6 +9,7 @@ import { useStats, countTasksFromLog } from '../hooks/useStats'
 import type { ProgressDay } from '../hooks/useStats'
 import { Card } from '../components/ui/Card'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { useTheme, PALETTES } from '../contexts/ThemeContext'
 import type { AppPalette } from '../contexts/ThemeContext'
 import { supabase } from '../services/supabase'
@@ -344,13 +345,23 @@ export function ProfileScreen({ bottomInset = 0 }: { bottomInset?: number }) {
       await signOut()
     } catch (e: any) {
       setDeleting(false)
-      setDeleteError(e?.message ?? 'Error inesperado. Intenta de nuevo.')
+      const raw = String(e?.message ?? '')
+      let msg = 'Error al eliminar la cuenta. Intenta de nuevo.'
+      if (raw.includes('non-2xx') || raw.includes('fetch') || raw.includes('network')) {
+        msg = 'No se pudo conectar con el servidor. Verifica tu conexión e intenta de nuevo.'
+      } else if (raw.includes('401') || raw.includes('Sesión') || raw.includes('auth')) {
+        msg = 'Tu sesión expiró. Cierra sesión, vuelve a entrar y repite el proceso.'
+      } else if (raw.includes('500') || raw.includes('eliminar')) {
+        msg = 'Error interno al eliminar la cuenta. Si el problema persiste, contacta soporte.'
+      }
+      setDeleteError(msg)
     }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}

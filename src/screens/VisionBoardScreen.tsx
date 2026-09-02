@@ -6,6 +6,7 @@ import {
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
+import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { supabase } from '../services/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { useVisionUploads, MAX_USER_UPLOADS } from '../hooks/useVisionUploads'
@@ -288,6 +289,7 @@ export function VisionBoardScreen({ onBack }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenBackground />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>
