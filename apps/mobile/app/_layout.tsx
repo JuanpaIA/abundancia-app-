@@ -18,6 +18,9 @@ import {
 } from '@expo-google-fonts/dm-sans'
 
 import { Colors } from '../../../src/constants/theme'
+import { AppThemeProvider } from '../../../src/contexts/ThemeContext'
+import { ErrorBoundary } from '../../../src/components/ErrorBoundary'
+import { OfflineBanner } from '../../../src/components/OfflineBanner'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -50,9 +53,19 @@ export default function RootLayout() {
   }
 
   return (
-    <>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="light" />
-    </>
+    <ErrorBoundary>
+      <AppThemeProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            gestureEnabled: true,
+            animation: 'slide_from_right',
+            contentStyle: { backgroundColor: Colors.background },
+          }}
+        />
+        <StatusBar style="light" />
+        <OfflineBanner />
+      </AppThemeProvider>
+    </ErrorBoundary>
   )
 }

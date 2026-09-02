@@ -44,3 +44,9 @@ export {
 
 export type { LunarPhaseContent, NextKeyPhaseInfo } from './utils/lunarPhaseContent'
 export { LUNAR_PHASE_CONTENT, getNextKeyPhase } from './utils/lunarPhaseContent'
+
+export type { AlignmentTier, AlignmentResult, AlignmentInput } from './utils/alignmentIndex'
+export { calculateAlignment } from './utils/alignmentIndex'
+
+export type { SignalInput, SignalResult } from './utils/dailySignal'
+export { calculateSignal } from './utils/dailySignal'

@@ -2,14 +2,14 @@
 // Swap trigger types or add categories here; callers never change.
 
 import * as Notifications from 'expo-notifications'
-import { Platform } from 'react-native'
+import { Platform, Alert, Linking } from 'react-native'
 import { getPortalForDate, getLunarPhase, LUNAR_PHASE_CONTENT } from '@lumina/core'
 import {
   MorningProfile,
   buildMorningMessage,
   AREA_MORNING,
   AREA_RESCUE,
-} from './notifications'
+} from './notifications.shared'
 
 // ── Private constants ─────────────────────────────────────────────────────────
 
@@ -51,8 +51,23 @@ async function ensureAndroidChannel() {
 // ── Exported functions ────────────────────────────────────────────────────────
 
 export async function requestNotificationPermissions(): Promise<boolean> {
+  const { status: existing } = await Notifications.getPermissionsAsync()
+  if (existing === 'granted') return true
+
   const { status } = await Notifications.requestPermissionsAsync()
-  return status === 'granted'
+  if (status === 'granted') return true
+
+  if (status === 'denied') {
+    Alert.alert(
+      'Notificaciones desactivadas',
+      'Para recibir recordatorios de tu protocolo y alertas de portales, activa las notificaciones de Lumina en Ajustes.',
+      [
+        { text: 'Ahora no', style: 'cancel' },
+        { text: 'Abrir Ajustes', onPress: () => Linking.openSettings() },
+      ]
+    )
+  }
+  return false
 }
 
 export async function scheduleAbundanciaNotifications(profile?: MorningProfile): Promise<void> {

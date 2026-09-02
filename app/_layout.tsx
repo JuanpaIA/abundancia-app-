@@ -20,6 +20,8 @@ import {
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '../src/constants/theme';
+import { AppThemeProvider } from '../src/contexts/ThemeContext';
+import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
 // Show notifications when the app is open in the foreground
 Notifications.setNotificationHandler({
@@ -59,13 +61,21 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="light" />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <AppThemeProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="index"   options={{ headerShown: false }} />
+            <Stack.Screen name="diario"  options={{ headerShown: false }} />
+            <Stack.Screen name="vision"  options={{ headerShown: false }} />
+            <Stack.Screen name="sonido"  options={{ headerShown: false }} />
+            <Stack.Screen name="perfil"  options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
+            <Stack.Screen name="modal"   options={{ presentation: 'modal', title: 'Modal' }} />
+          </Stack>
+          <StatusBar style="light" />
+        </ThemeProvider>
+      </AppThemeProvider>
+    </ErrorBoundary>
   );
 }

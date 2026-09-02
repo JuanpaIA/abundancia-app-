@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, Fragment } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, AppState, Modal, KeyboardAvoidingView, Platform, Animated } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, AppState, Modal, KeyboardAvoidingView, Platform, Animated, Pressable } from 'react-native'
+import Reanimated, {
+  FadeInDown, FadeIn,
+  useSharedValue, useAnimatedStyle, withTiming,
+  Easing as REasing, ReduceMotion,
+} from 'react-native-reanimated'
+
+const EASE_OUT  = REasing.bezier(0.23, 1, 0.32, 1)
+const EASE_SHEET = REasing.bezier(0.32, 0.72, 0, 1)
 import { LinearGradient } from 'expo-linear-gradient'
-import Svg, { Polyline, Line, Circle, Text as SvgText } from 'react-native-svg'
+import Svg, { Polyline, Line, Circle, Text as SvgText, Path, Rect } from 'react-native-svg'
 import { useAuth } from '../hooks/useAuth'
 import { useStats, buildWeeklySummary, countTasksFromLog } from '../hooks/useStats'
 import type { WeeklySummaryData, ChartPoint, WeekDay, ProgressDay } from '../hooks/useStats'
-import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
 import { Card } from '../components/ui/Card'
+import { AlignmentMoon } from '../components/ui/AlignmentMoon'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { getLunarPhase, getLunarPhaseLabel, getLunarPhaseEmoji, LUNAR_PHASE_CONTENT, getNextKeyPhase, getPortalForDate, getNextPortal, getPortalPowerColor, getPortalPowerLabel } from '@lumina/core'
+import { useTheme } from '../contexts/ThemeContext'
+import { getLunarPhase, getLunarPhaseLabel, getLunarPhaseEmoji, LUNAR_PHASE_CONTENT, getNextKeyPhase, getPortalForDate, getNextPortal, getPortalPowerColor, getPortalPowerLabel, calculateAlignment, calculateSignal } from '@lumina/core'
 import { scheduleAbundanciaNotifications, scheduleWeeklyPatternNotification } from '../utils/notifications'
 import * as Notifications from 'expo-notifications'
 import * as SecureStore from 'expo-secure-store'
@@ -17,17 +26,13 @@ import { generateDailyProtocol, generateDailyObjective, getPhaseInfo } from '@lu
 import { playCelebrationSound } from '../utils/celebrationSound'
 import { ZodiacSign, LunarPhase, DailyLog } from '@lumina/core'
 import { supabase } from '../services/supabase'
-import { EditProfileScreen } from './EditProfileScreen'
-import { HistoryScreen } from './HistoryScreen'
 import { NotificationsScreen } from './NotificationsScreen'
 import { AdminScreen } from './AdminScreen'
-import { JournalScreen } from './JournalScreen'
-import { VisionBoardScreen } from './VisionBoardScreen'
-import { BadgesScreen } from './BadgesScreen'
-import { FrequenciesScreen } from './FrequenciesScreen'
-import { FrequencyPlayerOverlay } from '../components/overlays/FrequencyPlayerOverlay'
 import { AffirmationReveal } from '../components/overlays/AffirmationReveal'
-import { TransformationCard } from '../components/overlays/TransformationCard'
+import { SignalReveal } from '../components/ui/SignalReveal'
+import { useSignalCounter } from '../hooks/useSignalCounter'
+import { appendSignalHistory } from '../hooks/useSignalHistory'
+import type { SignalResult } from '@lumina/core'
 
 // ── Numerología ───────────────────────────────────────────────────────────────
 interface NumerologyInfo {
@@ -112,64 +117,6 @@ const NUMEROLOGY_INFO: Record<number, NumerologyInfo> = {
   },
 }
 
-// ── Contexto de frecuencias ───────────────────────────────────────────────────
-interface FrequencyContext {
-  when: string        // momento del día recomendado
-  howTo: string       // qué hacer mientras escuchas
-  integration: string // cómo conecta con el plan diario
-  duration: string    // duración sugerida
-}
-
-const FREQUENCY_CONTEXT: Record<number, FrequencyContext> = {
-  396: {
-    when: '☀️ Mañana · antes de iniciar el día',
-    howTo: 'Siéntate en silencio, cierra los ojos y respira profundo. Visualiza que una ola de luz dorada disuelve todo miedo, culpa o tensión acumulada. No fuerces nada — deja que la frecuencia haga el trabajo.',
-    integration: 'Combínala con tu ritual del día para potenciar la liberación energética antes de declarar tus intenciones.',
-    duration: '10–15 min',
-  },
-  417: {
-    when: '🌤️ Tarde · en un momento de pausa',
-    howTo: 'Ponla de fondo mientras revisas tu objetivo del día. Escribe en un papel lo que deseas cambiar o destrabar. Permite que la frecuencia abra caminos donde antes veías obstáculos.',
-    integration: 'Escúchala justo antes de ejecutar tu objetivo diario para desbloquear la energía y entrar en acción con mayor fluidez.',
-    duration: '10–20 min',
-  },
-  432: {
-    when: '🕐 Cualquier momento del día',
-    howTo: 'Ponla como fondo de trabajo o estudio. No necesitas concentrarte en ella — actúa en silencio sobre tu sistema nervioso, mejorando concentración y calma natural.',
-    integration: 'Ideal durante tu protocolo de tarde o mientras completas tu objetivo del día. Su efecto es acumulativo.',
-    duration: '20–45 min',
-  },
-  528: {
-    when: '☀️ Mañana · durante tu ritual',
-    howTo: 'Ponla de fondo mientras lees tu afirmación del día en voz alta. Repítela tres veces con convicción. Visualiza que cada célula de tu cuerpo vibra en la frecuencia del amor y la transformación.',
-    integration: 'La combinación de tu afirmación del día + 528 Hz crea uno de los campos de manifestación más potentes del protocolo. No te saltes este momento.',
-    duration: '10–15 min',
-  },
-  639: {
-    when: '🌙 Noche · como cierre del día',
-    howTo: 'Escúchala tumbado/a o sentado/a. Visualiza las personas y relaciones que deseas fortalecer. Siente amor genuino fluyendo desde tu corazón hacia ellas sin condición.',
-    integration: 'Combínala con tu protocolo de noche. Cerrar el día en esta frecuencia programa tu mente inconsciente para atraer conexiones auténticas mientras duermes.',
-    duration: '15–20 min',
-  },
-  741: {
-    when: '☀️ Mañana · durante la meditación',
-    howTo: 'Escúchala con los ojos cerrados. Plantéate una pregunta relacionada con tu objetivo y deja fluir ideas sin juzgarlas. Anota todo lo que llegue al final.',
-    integration: 'Úsala antes de leer tu objetivo del día para activar tu capacidad de encontrar soluciones creativas. La claridad que genera potencia cada acción que tomes después.',
-    duration: '10–15 min',
-  },
-  852: {
-    when: '🌤️ Tarde · pausa de 10 minutos',
-    howTo: 'Detente. Cierra los ojos. Pregúntate en silencio: ¿Qué señal del universo he ignorado hoy? Escucha sin forzar respuestas. La intuición habla en susurros.',
-    integration: 'Combínala con tu afirmación del día: léela primero, luego escucha la frecuencia 10 minutos con esa intención activa en la mente. Refuerza la conexión entre tu lógica e intuición.',
-    duration: '10–15 min',
-  },
-  963: {
-    when: '🌙 Noche · última actividad antes de dormir',
-    howTo: 'Recuéstate, cierra los ojos y visualiza tu conciencia expandiéndose más allá del cuerpo. Siente que eres parte de algo mucho más grande que tú mismo. Deja ir el día con gratitud total.',
-    integration: 'Es el cierre perfecto de tu protocolo nocturno. Entrar al sueño en esta frecuencia programa tu subconsciente para recibir orientación y consolidar lo manifestado durante el día.',
-    duration: '15–20 min',
-  },
-}
 // ── Multi-line chart ──────────────────────────────────────────────────────────
 const CHART_H = 180
 const PAD_L = 24   // eje Y
@@ -295,78 +242,6 @@ function MultiLineChart({ data }: { data: ChartPoint[] }) {
     </View>
   )
 }
-// ── Circular progress ─────────────────────────────────────────────────────────
-const CP_SIZE = 128
-const CP_SW   = 11
-const CP_R    = (CP_SIZE - CP_SW) / 2
-const CP_C    = 2 * Math.PI * CP_R
-
-function CircularProgress({ completed, total }: { completed: number; total: number }) {
-  const pct     = total > 0 ? completed / total : 0
-  const offset  = CP_C * (1 - pct)
-  const allDone = completed === total && total > 0
-  const arcColor = allDone ? '#4CAF82' : '#C9A84C'
-  const cx = CP_SIZE / 2
-  const cy = CP_SIZE / 2
-
-  return (
-    <View style={cpStyles.root}>
-      <Svg width={CP_SIZE} height={CP_SIZE}>
-        {/* Track */}
-        <Circle cx={cx} cy={cy} r={CP_R} fill="none"
-          stroke="rgba(255,255,255,0.08)" strokeWidth={CP_SW} />
-        {/* Arc */}
-        {completed > 0 && (
-          <Circle cx={cx} cy={cy} r={CP_R} fill="none"
-            stroke={arcColor} strokeWidth={CP_SW}
-            strokeDasharray={`${CP_C} ${CP_C}`}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            transform={`rotate(-90, ${cx}, ${cy})`}
-          />
-        )}
-        {/* Number */}
-        <SvgText x={cx} y={cy - 7} textAnchor="middle"
-          fontSize={30} fontWeight="700" fill={arcColor}
-        >{completed}</SvgText>
-        <SvgText x={cx} y={cy + 13} textAnchor="middle"
-          fontSize={10} fill="rgba(255,255,255,0.35)"
-        >de {total} tareas</SvgText>
-      </Svg>
-
-      <View style={cpStyles.info}>
-        <Text style={[cpStyles.pct, { color: arcColor }]}>
-          {Math.round(pct * 100)}%
-        </Text>
-        <Text style={cpStyles.pctLabel}>completado hoy</Text>
-        <View style={cpStyles.divider} />
-        <View style={cpStyles.stat}>
-          <View style={[cpStyles.dot, { backgroundColor: arcColor }]} />
-          <Text style={cpStyles.statText}>{completed} realizadas</Text>
-        </View>
-        <View style={cpStyles.stat}>
-          <View style={[cpStyles.dot, { backgroundColor: '#E05555' }]} />
-          <Text style={cpStyles.statText}>{total - completed} pendientes</Text>
-        </View>
-      </View>
-    </View>
-  )
-}
-
-const cpStyles = StyleSheet.create({
-  root: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.lg,
-  },
-  info: { flex: 1, gap: 5 },
-  pct: { fontSize: 32, fontWeight: '800' },
-  pctLabel: { fontSize: 12, color: Colors.textSecondary, marginTop: -4 },
-  divider: { height: 0.5, backgroundColor: 'rgba(201,168,76,0.15)', marginVertical: 4 },
-  stat: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  statText: { fontSize: 13, color: Colors.textSecondary },
-})
 // ── Weekly energy ring ────────────────────────────────────────────────────────
 const WE_SIZE = 100
 const WE_SW   = 9
@@ -462,119 +337,6 @@ const weStyles = StyleSheet.create({
   dayLevel: { fontSize: 9, fontWeight: '700' },
   meta: { fontSize: 10, color: 'rgba(255,255,255,0.25)' },
 })
-// ── Weekly progress ring ──────────────────────────────────────────────────────
-function progressColor(count: number | null): string {
-  if (count === null || count === 0) return 'rgba(255,255,255,0.10)'
-  const pct = count / 9
-  if (pct <= 0.33) return '#E05555'
-  if (pct <= 0.55) return '#E09A55'
-  if (pct <= 0.77) return '#E0C955'
-  if (pct < 1)     return '#7FD47F'
-  return '#4CAF82'
-}
-
-function WeeklyProgressRing({ days }: { days: ProgressDay[] }) {
-  const filled  = days.filter(d => d.count !== null)
-  const avgPct  = filled.length > 0
-    ? filled.reduce((s, d) => s + d.count! / 9, 0) / filled.length
-    : 0
-  const offset  = WE_C * (1 - avgPct)
-  const arcColor = avgPct > 0 ? progressColor(Math.round(avgPct * 9)) : 'rgba(255,255,255,0.15)'
-  const cx = WE_SIZE / 2, cy = WE_SIZE / 2
-
-  return (
-    <View style={weStyles.root}>
-      <Svg width={WE_SIZE} height={WE_SIZE}>
-        <Circle cx={cx} cy={cy} r={WE_R} fill="none"
-          stroke="rgba(255,255,255,0.08)" strokeWidth={WE_SW} />
-        {avgPct > 0 && (
-          <Circle cx={cx} cy={cy} r={WE_R} fill="none"
-            stroke={arcColor} strokeWidth={WE_SW}
-            strokeDasharray={`${WE_C} ${WE_C}`}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            transform={`rotate(-90, ${cx}, ${cy})`}
-          />
-        )}
-        <SvgText x={cx} y={cy - 5} textAnchor="middle"
-          fontSize={20} fontWeight="700"
-          fill={avgPct > 0 ? arcColor : 'rgba(255,255,255,0.25)'}
-        >{avgPct > 0 ? `${Math.round(avgPct * 100)}%` : '–'}</SvgText>
-        <SvgText x={cx} y={cy + 12} textAnchor="middle"
-          fontSize={9} fill="rgba(255,255,255,0.35)"
-        >promedio</SvgText>
-      </Svg>
-
-      <View style={weStyles.right}>
-        <Text style={weStyles.header}>Progreso últimos 7 días</Text>
-        <View style={weStyles.daysRow}>
-          {days.map((d, i) => (
-            <View key={i} style={weStyles.dayCol}>
-              <View style={[
-                weStyles.dayDot,
-                { backgroundColor: progressColor(d.count) },
-                d.isToday && weStyles.dayDotToday,
-              ]} />
-              <Text style={[weStyles.dayLabel, d.isToday && weStyles.dayLabelToday]}>
-                {d.label}
-              </Text>
-              <Text style={[weStyles.dayDate, d.isToday && weStyles.dayLabelToday]}>
-                {d.date}
-              </Text>
-              {d.count !== null && d.count > 0 && (
-                <Text style={[weStyles.dayLevel, { color: progressColor(d.count) }]}>
-                  {d.count}
-                </Text>
-              )}
-            </View>
-          ))}
-        </View>
-        <Text style={weStyles.meta}>{filled.length}/7 días con actividad</Text>
-      </View>
-    </View>
-  )
-}
-// ── Patrón semanal de hábitos ─────────────────────────────────────────────────
-interface HabitDetail { name: string; emoji: string; tip: string }
-
-const HABIT_DETAILS: Record<string, HabitDetail> = {
-  daily_objective_done: {
-    name: 'Objetivo del día', emoji: '🎯',
-    tip: 'Léelo en voz alta cada mañana. Activar la intención conscientemente es el primer paso para materializarla.',
-  },
-  morning_done: {
-    name: 'Protocolo de mañana', emoji: '☀️',
-    tip: 'Hazlo antes de revisar el teléfono. Los primeros 5 minutos condicionan la energía de todo el día.',
-  },
-  afternoon_done: {
-    name: 'Protocolo de tarde', emoji: '🌤️',
-    tip: 'Ponlo como recordatorio a mediodía. Una pausa consciente de 5 minutos sostiene tu vibración.',
-  },
-  night_done: {
-    name: 'Protocolo de noche', emoji: '🌙',
-    tip: 'Intégralo a tu rutina de sueño. Tu mente procesa durante la noche lo que siembras al dormir.',
-  },
-  ritual_done: {
-    name: 'Ritual del día', emoji: '🔮',
-    tip: 'Aunque sea en versión corta: 3 respiraciones + tu intención. La consistencia supera la duración.',
-  },
-  affirmation_done: {
-    name: 'Afirmación del día', emoji: '💬',
-    tip: 'Dila frente al espejo mirándote a los ojos. La voz y el reflejo amplifican el impacto neurológico.',
-  },
-  color_done: {
-    name: 'Color del día', emoji: '👗',
-    tip: 'Es el hábito más rápido del plan. El color que usas envía una señal vibracional constante.',
-  },
-  foods_done: {
-    name: 'Alimentos del día', emoji: '🍽️',
-    tip: 'Incorpora aunque sea uno de los sugeridos. Tu estado físico y tu capacidad de manifestar están conectados.',
-  },
-  biohack_done: {
-    name: 'Estrategia Biohack', emoji: '⚡',
-    tip: 'Pon la frecuencia mientras te preparas o desayunas. No requiere tiempo extra, solo intención.',
-  },
-}
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── Helpers de almacenamiento (SecureStore en móvil, localStorage en web) ────
@@ -989,9 +751,17 @@ function CelebrationOverlay({ streak, firstName, onClose }: { streak: number; fi
   )
 }
 
-export function DashboardScreen() {
-  const { profile, signOut, refreshProfile } = useAuth()
-  const { playing, play } = useFrequencyPlayer()
+type DashSegment = 'manana' | 'tarde' | 'noche'
+
+function getSegmentForHour(h: number): DashSegment {
+  if (h >= 5 && h < 12) return 'manana'
+  if (h >= 12 && h < 18) return 'tarde'
+  return 'noche'
+}
+
+export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterRefreshKey = 0, segmentOverride }: { bottomInset?: number; creatorMode?: boolean; counterRefreshKey?: number; segmentOverride?: DashSegment }) {
+  const { palette } = useTheme()
+  const { profile, refreshProfile } = useAuth()
   const { reportError: reportDashboardError } = useErrorReporter('dashboard')
   const [energyLevel, setEnergyLevel] = useState<number | null>(null)
   const [objectiveDone, setObjectiveDone] = useState(false)
@@ -1016,14 +786,8 @@ export function DashboardScreen() {
   const [foodsDone, setFoodsDone] = useState(false)
   const [biohackDone, setBiohackDone] = useState(false)
   const [allLogs, setAllLogs] = useState<DailyLog[]>([])
-  const [editingProfile, setEditingProfile] = useState(false)
-  const [viewingHistory, setViewingHistory] = useState(false)
   const [viewingNotifications, setViewingNotifications] = useState(false)
   const [viewingAdmin, setViewingAdmin] = useState(false)
-  const [viewingJournal, setViewingJournal] = useState(false)
-  const [viewingVisionBoard, setViewingVisionBoard] = useState(false)
-  const [viewingBadges, setViewingBadges] = useState(false)
-  const [viewingFrequencies, setViewingFrequencies] = useState(false)
   const [syncError, setSyncError] = useState<string | null>(null)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
@@ -1039,12 +803,16 @@ export function DashboardScreen() {
     return start.getTime() === today.getTime() && !profile.goal_details?.welcome_seen
   })
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null)
-  const [dashTab, setDashTab] = useState<'manana' | 'tarde' | 'noche'>('manana')
   const [bannerDismissedAt, setBannerDismissedAt] = useState<number | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
-  const [showFreqOverlay, setShowFreqOverlay] = useState(false)
   const [showAffirmOverlay, setShowAffirmOverlay] = useState(false)
-  const [showTransformCard, setShowTransformCard] = useState(false)
+  const [checkInOpen, setCheckInOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState(() => new Date())
+  const [showFullDay, setShowFullDay] = useState(false)
+  const [objectiveExpanded, setObjectiveExpanded] = useState(false)
+  const [signalResult, setSignalResult] = useState<SignalResult | null>(null)
+  const [signalVisible, setSignalVisible] = useState(false)
+  const signalCounter = useSignalCounter(counterRefreshKey)
 
   // Entrance animations — header, affirmation, streak
   const anim0  = useRef(new Animated.Value(0)).current
@@ -1054,6 +822,23 @@ export function DashboardScreen() {
   const anim2  = useRef(new Animated.Value(0)).current
   const slide2 = useRef(new Animated.Value(20)).current
 
+
+  // Active segment — live-updated every minute and on background→active transition
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60_000)
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') setCurrentTime(new Date())
+    })
+    return () => { clearInterval(timer); sub.remove() }
+  }, [])
+
+  const activeSegment: DashSegment = segmentOverride ?? getSegmentForHour(currentTime.getHours())
+
+  // Signal button scale — press feedback (Reanimated, UI thread)
+  const signalScale = useSharedValue(1)
+  const signalAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: signalScale.value }],
+  }))
 
   // todayStr estable: se calcula una vez al montar el componente
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
@@ -1246,10 +1031,6 @@ export function DashboardScreen() {
 
   if (!profile) return null
 
-  if (viewingHistory) {
-    return <HistoryScreen onBack={() => setViewingHistory(false)} />
-  }
-
   if (viewingNotifications) {
     return <NotificationsScreen onBack={() => setViewingNotifications(false)} />
   }
@@ -1276,80 +1057,9 @@ export function DashboardScreen() {
     )
   }
 
-  if (viewingJournal) {
-    return <JournalScreen onBack={() => setViewingJournal(false)} />
-  }
-
-  if (viewingVisionBoard) {
-    return <VisionBoardScreen onBack={() => setViewingVisionBoard(false)} />
-  }
-
-  if (viewingBadges) {
-    return <BadgesScreen onBack={() => setViewingBadges(false)} />
-  }
-
-  if (viewingFrequencies) {
-    const todayHz = generateDailyProtocol(
-      getLunarPhase(new Date()),
-      profile.zodiac_sign as ZodiacSign,
-      profile.numerology_number,
-      profile.base_frequency,
-      profile.manifestation_area
-    ).frequency.hz
-    return <FrequenciesScreen onBack={() => setViewingFrequencies(false)} todayHz={todayHz} />
-  }
-
-  if (editingProfile) {
-    return (
-      <EditProfileScreen
-        profile={profile}
-        onSave={() => { refreshProfile(); setEditingProfile(false) }}
-        onBack={() => setEditingProfile(false)}
-      />
-    )
-  }
-
-  const { planDay, planDaysLeft, planComplete, streak, overallRate, perfectDays, chartData, weeklyEnergyDays, weeklyProgressDays } = stats!
-
-  const STREAK_MILESTONES = [3, 7, 14, 21, 33, 66, 90]
-  const nextMilestone = STREAK_MILESTONES.find(m => m > streak) ?? 90
-  const prevMilestone = [...STREAK_MILESTONES].reverse().find(m => m <= streak) ?? 0
-  const streakProgress = nextMilestone > prevMilestone
-    ? (streak - prevMilestone) / (nextMilestone - prevMilestone) : 1
-  const streakColor = streak >= 21 ? Colors.gold : streak >= 7 ? '#4CAF82' : Colors.textSecondary
-  const streakMessage = streak === 0
-    ? 'Comienza hoy — cada gran racha empieza con un paso.'
-    : streak < 3  ? 'Buen comienzo. No rompas la cadena.'
-    : streak < 7  ? `${streak} días seguidos. Estás construyendo algo real.`
-    : streak < 14 ? '¡Primera semana completa! La disciplina ya es tuya.'
-    : streak < 21 ? 'Dos semanas de constancia. El hábito se está grabando.'
-    : streak < 33 ? 'Hábito formado. Ya no es esfuerzo — es quien eres.'
-    : streak < 66 ? 'Un mes de poder. Pocos llegan hasta aquí.'
-    : '¡Racha legendaria! Eres constancia en estado puro.'
+  const { planDay, planDaysLeft, planComplete, overallRate, perfectDays, chartData, weeklyEnergyDays, streak } = stats!
 
   const TOTAL_TASKS = 9
-
-  // ── Patrones débiles de la semana (últimos 7 días sin contar hoy) ──────────
-  const weakHabits: Array<HabitDetail & { completions: number }> = (() => {
-    const last7Dates = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(today)
-      d.setDate(d.getDate() - (i + 1))
-      return d.toISOString().split('T')[0]
-    })
-    const weekLogs = allLogs.filter(l => last7Dates.includes(l.date))
-    if (weekLogs.length < 3) return []   // datos insuficientes
-
-    return Object.entries(HABIT_DETAILS)
-      .map(([field, detail]) => ({
-        ...detail,
-        completions: weekLogs.filter(l => {
-          const hc: string[] = (l as any).habits_completed || []
-          return !!(l as any)[field] || hc.includes(field)
-        }).length,
-      }))
-      .filter(h => h.completions < 4)
-      .sort((a, b) => a.completions - b.completions)
-  })()
   // ─────────────────────────────────────────────────────────────────────────
 
   const lunarPhase: LunarPhase = getLunarPhase(today)
@@ -1357,6 +1067,21 @@ export function DashboardScreen() {
   const nextKeyPhase = lunarContent.isKeyPhase ? null : getNextKeyPhase(today)
   const todayPortal = getPortalForDate(today)
   const nextPortal = todayPortal ? null : getNextPortal(today)
+
+  const alignment = calculateAlignment({
+    fullName:          profile.full_name,
+    birthDate:         profile.birth_date,
+    zodiacSign:        profile.zodiac_sign,
+    lunarPhase,
+    manifestationArea: profile.manifestation_area,
+    date:              today,
+  })
+  const ALIGNMENT_COLOR: Record<string, string> = {
+    action:    '#eccb7a',
+    building:  '#c4aff7',
+    reception: '#c8d6ec',
+  }
+
   const protocol = generateDailyProtocol(
     lunarPhase,
     profile.zodiac_sign as ZodiacSign,
@@ -1379,7 +1104,7 @@ export function DashboardScreen() {
       return map[g.relationship_type] ?? null
     }
     if (area === 'salud') {
-      const map: Record<string, string> = { energia: 'para ganar más energía', peso: 'para transformar tu cuerpo', mental: 'para sanar tu salud mental', especifica: 'para sanar tu condición' }
+      const map: Record<string, string> = { energia: 'para ganar más energía', peso: 'para transformar tu cuerpo', mental: 'para cultivar tu bienestar mental', especifica: 'para atender tu bienestar' }
       return map[g.health_focus] ?? null
     }
     if (area === 'proposito' && g.desired_impact)   return `para ${g.desired_impact}`
@@ -1397,6 +1122,33 @@ export function DashboardScreen() {
     planDuration
   )
 
+  // ── Señal del día ──────────────────────────────────────────────────────────
+  async function handleRequestSignal() {
+    if (!signalCounter.canRequest || !profile) return
+    const now = new Date()
+    const phase = getLunarPhase(now)
+    const result = calculateSignal({
+      fullName:          profile.full_name,
+      birthDate:         profile.birth_date,
+      zodiacSign:        profile.zodiac_sign,
+      lunarPhase:        phase,
+      manifestationArea: profile.manifestation_area,
+      date:              now,
+      requestIndex:      signalCounter.requestIndex,
+    })
+    setSignalResult(result)
+    setSignalVisible(true)
+    await Promise.all([
+      signalCounter.increment(),
+      appendSignalHistory({
+        date:    now.toISOString().split('T')[0],
+        number:  result.number,
+        area:    profile.manifestation_area,
+        reading: result.reading,
+      }),
+    ])
+  }
+
   // ── Pantalla de cierre de ciclo ───────────────────────────────────────────
   async function handleRenewPlan(days: number) {
     const today2 = new Date().toISOString().split('T')[0]
@@ -1412,7 +1164,7 @@ export function DashboardScreen() {
 
     return (
       <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scroll, bottomInset > 0 && { paddingBottom: Spacing.lg + bottomInset }]} showsVerticalScrollIndicator={false}>
           <Text style={styles.cycleEmoji}>🌕</Text>
           <Text style={styles.cycleTitle}>¡Ciclo completado!</Text>
           <Text style={styles.cycleSubtitle}>
@@ -1564,83 +1316,86 @@ export function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#16102A', '#0e0b1e', Colors.background]}
-        start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.55 }}
-        style={StyleSheet.absoluteFillObject}
-        pointerEvents="none"
-      />
-      {/* Noise texture — web-only grain para acabado premium */}
-      <View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFillObject, styles.noiseBg]}
-      />
-      {/* Glow orb morado — esquina superior derecha */}
-      <View pointerEvents="none" style={styles.orbPurple} />
-      {/* Glow orb dorado — esquina inferior izquierda */}
-      <View pointerEvents="none" style={styles.orbGold} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* 1 — Header */}
-        <Animated.View style={[styles.header, { opacity: anim0, transform: [{ translateY: slide0 }] }]}>
-          {/* Nav compacta */}
-          <View style={styles.navRow}>
-            <View style={styles.navLeft}>
-              <TouchableOpacity onPress={() => { setViewingNotifications(true); setUnreadCount(0) }}>
-                <Text style={[styles.navLink, unreadCount > 0 && styles.navLinkActive]}>
-                  🔔{unreadCount > 0 ? ` ${unreadCount}` : ''}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setViewingHistory(true)}>
-                <Text style={styles.navLink}>📅</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setViewingFrequencies(true)}>
-                <Text style={styles.navLink}>🎵</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setViewingBadges(true)}>
-                <Text style={styles.navLink}>🏅</Text>
-              </TouchableOpacity>
-              {profile.is_admin && (
-                <TouchableOpacity onPress={() => setViewingAdmin(true)}>
-                  <Text style={styles.navLink}>⚙</Text>
+        {/* ── Hero band — mauve rose ── */}
+        <Reanimated.View
+          style={[styles.heroSection, { backgroundColor: palette.hero }]}
+          entering={FadeInDown.duration(400).easing(EASE_OUT).reduceMotion(ReduceMotion.System)}
+        >
+
+          {/* 1 — Header (3 lines) */}
+          <Animated.View style={[styles.header, { opacity: anim0, transform: [{ translateY: slide0 }] }]}>
+            {/* L1: wordmark + notif */}
+            <View style={styles.navRow}>
+              <Text style={styles.wordmark}>lumina</Text>
+              {unreadCount > 0 && (
+                <TouchableOpacity onPress={() => { setViewingNotifications(true); setUnreadCount(0) }} style={styles.navNotifBtn}>
+                  <Text style={styles.navNotifText}>{unreadCount}</Text>
                 </TouchableOpacity>
               )}
             </View>
-            <View style={styles.navRight}>
-              <TouchableOpacity onPress={() => setEditingProfile(true)}>
-                <Text style={styles.navLinkText}>Perfil</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={signOut}>
-                <Text style={styles.navLinkDim}>Salir</Text>
-              </TouchableOpacity>
+
+            {/* L2: name */}
+            <Text style={styles.greeting}>{profile.full_name.split(' ')[0]}.</Text>
+
+            {/* L3: date · lunar phase */}
+            <Text style={styles.headerMeta}>
+              {dateLabel} · ☽ {getLunarPhaseLabel(lunarPhase)}
+            </Text>
+
+            {/* Alignment moon */}
+            <View style={styles.alignmentCompact}>
+              <AlignmentMoon score={alignment.score} tier={alignment.tier} size={88} />
+              <View style={styles.alignmentRight}>
+                <Text style={[styles.alignmentLabel, { color: ALIGNMENT_COLOR[alignment.tier] }]}>
+                  {alignment.label}
+                </Text>
+                <Text style={[styles.alignmentScore, { color: ALIGNMENT_COLOR[alignment.tier] }]}>
+                  {alignment.score} pts
+                </Text>
+              </View>
             </View>
-          </View>
+          </Animated.View>
 
-          {/* Saludo */}
-          <Text style={styles.greeting}>Hola, {profile.full_name.split(' ')[0]}</Text>
-          <Text style={styles.date}>{dateLabel} · Día {Math.min(planDay, planDuration)} de {planDuration}</Text>
-          <View style={styles.lunarBadge}>
-            <Text style={styles.lunarBadgeText}>🌙 {getLunarPhaseLabel(lunarPhase)} · {lunarContent.energy.split(' · ')[0]}</Text>
-          </View>
+          {/* ── Pide una señal — en el hero para darle jerarquía ── */}
+          {signalCounter.canRequest ? (
+            <Pressable
+              onPressIn={() => {
+                signalScale.value = withTiming(0.97, { duration: 100, easing: EASE_OUT, reduceMotion: ReduceMotion.System })
+              }}
+              onPressOut={() => {
+                signalScale.value = withTiming(1, { duration: 150, easing: EASE_OUT, reduceMotion: ReduceMotion.System })
+              }}
+              onPress={handleRequestSignal}
+            >
+              <Reanimated.View style={[styles.signalBtnWrap, signalAnimStyle]}>
+                <LinearGradient
+                  colors={['#eccb7a', '#c9a84c', '#a07828']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                  style={styles.signalBtn}
+                >
+                  <Text style={[styles.signalBtnLabel, { color: '#1A1A2E' }]}>Pide una señal</Text>
+                  <Text style={[styles.signalBtnCounter, { color: 'rgba(26,26,46,0.65)' }]}>
+                    {signalCounter.remaining === 1 ? '1 disponible hoy' : `${signalCounter.remaining} disponibles hoy`}
+                  </Text>
+                </LinearGradient>
+              </Reanimated.View>
+            </Pressable>
+          ) : (
+            <View style={styles.signalBtnDisabled}>
+              <Text style={styles.signalBtnLabel}>Pide una señal</Text>
+              <Text style={styles.signalBtnCounter}>Vuelve mañana</Text>
+            </View>
+          )}
 
-          {/* Cards de acceso rápido: Diario + Visión */}
-          <View style={styles.featureGrid}>
-            <TouchableOpacity style={styles.featureCard} onPress={() => setViewingJournal(true)} activeOpacity={0.8}>
-              <View style={[styles.featureIconWrap, styles.featureIconGold]}>
-                <Text style={styles.featureIcon}>📖</Text>
-              </View>
-              <Text style={styles.featureTitle}>Diario</Text>
-              <Text style={styles.featureSub}>Intención · Gratitud</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.featureCard} onPress={() => setViewingVisionBoard(true)} activeOpacity={0.8}>
-              <View style={[styles.featureIconWrap, styles.featureIconPurple]}>
-                <Text style={styles.featureIcon}>🖼️</Text>
-              </View>
-              <Text style={styles.featureTitle}>Visión</Text>
-              <Text style={styles.featureSub}>Imágenes · Activación</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
+        </Reanimated.View>{/* /heroSection */}
+
+        {/* ── Cards surface — panel blanco que emerge del hero ── */}
+        <Reanimated.View
+          style={[styles.cardsSurface, bottomInset > 0 && { paddingBottom: Spacing.lg + bottomInset }]}
+          entering={FadeIn.delay(180).duration(320).reduceMotion(ReduceMotion.System)}
+        >
 
         {/* Banner de error de sincronización */}
         {syncError && (
@@ -1672,200 +1427,158 @@ export function DashboardScreen() {
           </View>
         )}
 
-        {/* ── Briefing: por qué tu protocolo es único hoy ── */}
+        {/* ── Segment header — time-detected, no manual tab ── */}
         {(() => {
-          const ZODIAC_LABELS: Record<string, { emoji: string; label: string }> = {
-            aries:       { emoji: '♈', label: 'Aries' },
-            tauro:       { emoji: '♉', label: 'Tauro' },
-            geminis:     { emoji: '♊', label: 'Géminis' },
-            cancer:      { emoji: '♋', label: 'Cáncer' },
-            leo:         { emoji: '♌', label: 'Leo' },
-            virgo:       { emoji: '♍', label: 'Virgo' },
-            libra:       { emoji: '♎', label: 'Libra' },
-            escorpio:    { emoji: '♏', label: 'Escorpio' },
-            sagitario:   { emoji: '♐', label: 'Sagitario' },
-            capricornio: { emoji: '♑', label: 'Capricornio' },
-            acuario:     { emoji: '♒', label: 'Acuario' },
-            piscis:      { emoji: '♓', label: 'Piscis' },
+          const SEG_LABEL: Record<DashSegment, string> = { manana: 'MAÑANA', tarde: 'TARDE', noche: 'NOCHE' }
+          const pendingForSeg: Record<DashSegment, number> = {
+            manana: [!energyLevel, !objectiveDone, !morningDone, !affirmationDone, !colorDone, !foodsDone, !biohackDone].filter(Boolean).length,
+            tarde:  [!afternoonDone].filter(Boolean).length,
+            noche:  [!nightDone, !ritualDone].filter(Boolean).length,
           }
-          const AREA_LABELS: Record<string, { emoji: string; label: string }> = {
-            dinero:    { emoji: '💰', label: 'Abundancia' },
-            amor:      { emoji: '💕', label: 'Amor' },
-            salud:     { emoji: '✨', label: 'Salud' },
-            proposito: { emoji: '🎯', label: 'Propósito' },
-            felicidad: { emoji: '🌟', label: 'Felicidad' },
-          }
-          const zodiac = ZODIAC_LABELS[profile.zodiac_sign] ?? { emoji: '⭐', label: profile.zodiac_sign }
-          const area   = AREA_LABELS[profile.manifestation_area] ?? { emoji: '✦', label: profile.manifestation_area }
-          const chips = [
-            { emoji: '🔢', label: `Número ${profile.numerology_number}` },
-            { emoji: zodiac.emoji, label: zodiac.label },
-            { emoji: getLunarPhaseEmoji(lunarPhase), label: getLunarPhaseLabel(lunarPhase) },
-            { emoji: area.emoji, label: area.label },
-          ]
+          const pending = pendingForSeg[activeSegment]
           return (
-            <View style={styles.briefingCard}>
-              <Text style={styles.briefingTitle}>Tu protocolo de hoy es único</Text>
-              <Text style={styles.briefingSubtitle}>4 sistemas se combinaron para crearlo</Text>
-              <View style={styles.briefingChips}>
-                {chips.map((c, i) => (
-                  <View key={i} style={styles.briefingChip}>
-                    <Text style={styles.briefingChipEmoji}>{c.emoji}</Text>
-                    <Text style={styles.briefingChipLabel}>{c.label}</Text>
-                  </View>
-                ))}
-              </View>
+            <View style={styles.segmentHeader}>
+              <Text style={styles.segmentLabel}>
+                {SEG_LABEL[activeSegment]}{pending > 0 ? ` · ${pending} ${pending === 1 ? 'pendiente' : 'pendientes'}` : ' · Todo listo ✦'}
+              </Text>
             </View>
           )
         })()}
 
-        {/* ── Tab bar ── */}
-        {(() => {
-          const manañaPending = (!energyLevel ? 1 : 0) + (!objectiveDone ? 1 : 0) + (!morningDone ? 1 : 0) + (!affirmationDone ? 1 : 0) + (!colorDone ? 1 : 0) + (!foodsDone ? 1 : 0) + (!biohackDone ? 1 : 0)
-          const tardePending  = (!afternoonDone ? 1 : 0)
-          const nochePending  = (!nightDone ? 1 : 0) + (!ritualDone ? 1 : 0)
-          const tabs: { key: 'manana' | 'tarde' | 'noche'; label: string; emoji: string; pending: number }[] = [
-            { key: 'manana', label: 'Mañana', emoji: '🌅', pending: manañaPending },
-            { key: 'tarde',  label: 'Tarde',  emoji: '☀️', pending: tardePending  },
-            { key: 'noche',  label: 'Noche',  emoji: '🌙', pending: nochePending  },
-          ]
-          return (
-            <View style={styles.dayTabBar}>
-              {tabs.map(t => (
+        {/* ══════════════ MAÑANA ══════════════ */}
+        {(activeSegment === 'manana' || showFullDay) && (<>
+
+        {/* ⚡ ¿Cómo amaneciste hoy? — collapsible */}
+        <TouchableOpacity
+          style={styles.checkInRow}
+          onPress={() => setCheckInOpen(o => !o)}
+          activeOpacity={0.75}
+        >
+          <Text style={styles.checkInRowLabel}>
+            ⚡ ¿Cómo amaneciste hoy?{energyLevel ? `  ${energyLevel}/5 ✦` : ''}
+          </Text>
+          <Text style={styles.checkInChevron}>{checkInOpen ? '▾' : '›'}</Text>
+        </TouchableOpacity>
+        {checkInOpen && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.energyRow}>
+              {[1, 2, 3, 4, 5].map(n => (
                 <TouchableOpacity
-                  key={t.key}
-                  style={[styles.dayTab, dashTab === t.key && styles.dayTabActive]}
-                  onPress={() => setDashTab(t.key)}
-                  activeOpacity={0.7}
+                  key={n}
+                  style={[styles.energyDot, energyLevel === n && styles.energyDotActive]}
+                  onPress={() => handleEnergySelect(n)}
                 >
-                  <Text style={styles.dayTabEmoji}>{t.emoji}</Text>
-                  <Text style={[styles.dayTabLabel, dashTab === t.key && styles.dayTabLabelActive]}>{t.label}</Text>
-                  {t.pending > 0 && (
-                    <View style={styles.dayTabBadge}>
-                      <Text style={styles.dayTabBadgeText}>{t.pending}</Text>
-                    </View>
-                  )}
+                  <Text style={[styles.energyNumber, energyLevel === n && styles.energyNumberActive]}>
+                    {n}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
-          )
-        })()}
-
-        {/* ══════════════ TAB: MAÑANA ══════════════ */}
-        {dashTab === 'manana' && (<>
-
-        {/* ⚡ ¿Cómo amaneciste hoy? */}
-        <Card style={styles.sectionCard}>
-          <Text style={styles.sectionLabel}>⚡ ¿Cómo amaneciste hoy?</Text>
-          <Text style={styles.sectionSubtitle}>¿Cómo está mi vibración hoy?</Text>
-          <View style={styles.energyRow}>
-            {[1, 2, 3, 4, 5].map(n => (
-              <TouchableOpacity
-                key={n}
-                style={[styles.energyDot, energyLevel === n && styles.energyDotActive]}
-                onPress={() => handleEnergySelect(n)}
-              >
-                <Text style={[styles.energyNumber, energyLevel === n && styles.energyNumberActive]}>
-                  {n}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {energyLevel && (
-            <Text style={styles.energySaved}>Registrado ✦</Text>
-          )}
-          <View style={styles.divider} />
-          <WeeklyEnergyRing days={weeklyEnergyDays} />
-        </Card>
+            {energyLevel && <Text style={styles.energySaved}>Registrado ✦</Text>}
+            <View style={styles.divider} />
+            <WeeklyEnergyRing days={weeklyEnergyDays} />
+          </Card>
+        )}
 
         {/* 7 — Tu objetivo de hoy */}
-        <Card goldBorder style={styles.sectionCard}>
-          <View style={styles.objectiveHeader}>
-            <Text style={styles.sectionLabel}>🎯 Tu objetivo de hoy</Text>
-            <View style={styles.phasePill}>
-              <Text style={styles.phaseEmoji}>{phaseInfo.emoji}</Text>
-              <Text style={styles.phaseLabel}>{phaseInfo.label}</Text>
-            </View>
-          </View>
-          <Text style={styles.sectionSubtitle}>¿Cuál es mi misión hoy?</Text>
-          {planDay === 1 && !objectiveDone && (
-            <View style={styles.firstStepBadge}>
-              <Text style={styles.firstStepBadgeText}>⭐ Tu primer paso →</Text>
-            </View>
-          )}
-          <Text style={styles.sectionTitle}>{objective.title}</Text>
-          <Text style={styles.sectionBody}>{objective.action}</Text>
-          <Text style={styles.objectiveMeasurable}>✓ {objective.measurable}</Text>
-          <View style={styles.objectiveFooter}>
-            <Text style={styles.objectiveDuration}>⏱ {objective.duration}</Text>
-            {!objectiveDone ? (
-              <TouchableOpacity
-                style={[styles.objectiveBtn, !savedNote && styles.objectiveBtnLocked]}
-                onPress={savedNote ? handleObjectiveDone : () => setEditingNote(true)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.objectiveBtnText, !savedNote && { color: Colors.textSecondary }]}>
-                  {savedNote ? 'Marcar como hecho ✦' : '📝 Escribe cómo lo hiciste'}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <Text style={styles.objectiveDone}>✦ Completado hoy</Text>
-            )}
-          </View>
-          <View style={styles.noteDivider} />
-          {!editingNote && !savedNote && (
-            <TouchableOpacity style={styles.noteAddBtn} onPress={() => setEditingNote(true)}>
-              <Text style={styles.noteAddText}>📝 Agregar anotación para completar</Text>
-            </TouchableOpacity>
-          )}
-          {!editingNote && savedNote ? (
-            <View style={styles.noteSaved}>
-              <View style={styles.noteSavedHeader}>
-                <Text style={styles.noteSavedLabel}>📝 Tu anotación</Text>
-                <TouchableOpacity onPress={() => setEditingNote(true)}>
-                  <Text style={styles.noteEditLink}>Editar</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.noteSavedText}>{savedNote}</Text>
-            </View>
-          ) : null}
-          {editingNote && (
-            <View style={styles.noteEditor}>
-              <Text style={styles.noteRule}>✦ Mínimo 100 caracteres — describe qué hiciste, cómo te sentiste y qué aprendiste.</Text>
-              <TextInput
-                style={styles.noteInput}
-                value={objectiveNote}
-                onChangeText={setObjectiveNote}
-                placeholder="Escribe lo que lograste, cómo te sentiste, qué aprendiste..."
-                placeholderTextColor={Colors.textDisabled}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-                autoFocus
-              />
-              <View style={styles.noteCharRow}>
-                <Text style={[styles.noteCharCount, objectiveNote.trim().length >= 100 && styles.noteCharCountOk]}>
-                  {objectiveNote.trim().length} / 100
-                </Text>
-                {objectiveNote.trim().length >= 100 && (
-                  <Text style={styles.noteCharReady}>✓ Listo para guardar</Text>
-                )}
-              </View>
-              <View style={styles.noteActions}>
-                <TouchableOpacity onPress={() => { setEditingNote(false); setObjectiveNote(savedNote) }}>
-                  <Text style={styles.noteCancelBtn}>Cancelar</Text>
-                </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.95} onPress={() => setObjectiveExpanded(e => !e)}>
+          <Card goldBorder style={styles.sectionCard} entering={FadeInDown.delay(60).duration(340).easing(EASE_OUT).reduceMotion(ReduceMotion.System)}>
+            {/* Visible: phase label */}
+            <Text style={styles.sectionLabel}>
+              {phaseInfo.emoji} {phaseInfo.label}
+              {planDay === 1 && !objectiveDone && '  ·  Tu primer paso'}
+            </Text>
+
+            {/* Visible: title 24px */}
+            <Text style={styles.sectionTitle}>{objective.title}</Text>
+
+            {/* Visible: one-line action preview */}
+            <Text style={styles.sectionBody} numberOfLines={objectiveExpanded ? undefined : 2}>
+              {objective.action}
+            </Text>
+
+            {/* Visible: duration + action button */}
+            <View style={styles.objectiveFooter}>
+              <Text style={styles.objectiveDuration}>⏱ {objective.duration}</Text>
+              {!objectiveDone ? (
                 <TouchableOpacity
-                  style={[styles.noteSaveBtn, objectiveNote.trim().length < 100 && styles.noteSaveBtnDisabled]}
-                  onPress={handleNoteSave}
-                  disabled={objectiveNote.trim().length < 100}
+                  style={[styles.objectiveBtn, !savedNote && styles.objectiveBtnLocked]}
+                  onPress={e => {
+                    e.stopPropagation?.()
+                    savedNote ? handleObjectiveDone() : setEditingNote(true)
+                  }}
+                  activeOpacity={0.8}
                 >
-                  <Text style={styles.noteSaveBtnText}>Guardar nota ✦</Text>
+                  <Text style={[styles.objectiveBtnText, !savedNote && { color: Colors.textSecondary }]}>
+                    {savedNote ? 'Marcar como hecho ✦' : 'Agregar nota'}
+                  </Text>
                 </TouchableOpacity>
-              </View>
+              ) : (
+                <Text style={styles.objectiveDone}>✦ Completado</Text>
+              )}
             </View>
-          )}
-        </Card>
+
+            {/* Expandable detail */}
+            {objectiveExpanded && (
+              <>
+                <Text style={styles.objectiveMeasurable}>✓ {objective.measurable}</Text>
+                <View style={styles.noteDivider} />
+                {!editingNote && !savedNote && (
+                  <TouchableOpacity style={styles.noteAddBtn} onPress={() => setEditingNote(true)}>
+                    <Text style={styles.noteAddText}>📝 Agregar anotación para completar</Text>
+                  </TouchableOpacity>
+                )}
+                {!editingNote && savedNote ? (
+                  <View style={styles.noteSaved}>
+                    <View style={styles.noteSavedHeader}>
+                      <Text style={styles.noteSavedLabel}>📝 Tu anotación</Text>
+                      <TouchableOpacity onPress={() => setEditingNote(true)}>
+                        <Text style={styles.noteEditLink}>Editar</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.noteSavedText}>{savedNote}</Text>
+                  </View>
+                ) : null}
+                {editingNote && (
+                  <View style={styles.noteEditor}>
+                    <Text style={styles.noteRule}>✦ Mínimo 100 caracteres — describe qué hiciste, cómo te sentiste y qué aprendiste.</Text>
+                    <TextInput
+                      style={styles.noteInput}
+                      value={objectiveNote}
+                      onChangeText={setObjectiveNote}
+                      placeholder="Escribe lo que lograste, cómo te sentiste, qué aprendiste..."
+                      placeholderTextColor={Colors.textDisabled}
+                      multiline
+                      numberOfLines={4}
+                      textAlignVertical="top"
+                      autoFocus
+                    />
+                    <View style={styles.noteCharRow}>
+                      <Text style={[styles.noteCharCount, objectiveNote.trim().length >= 100 && styles.noteCharCountOk]}>
+                        {objectiveNote.trim().length} / 100
+                      </Text>
+                      {objectiveNote.trim().length >= 100 && (
+                        <Text style={styles.noteCharReady}>✓ Listo para guardar</Text>
+                      )}
+                    </View>
+                    <View style={styles.noteActions}>
+                      <TouchableOpacity onPress={() => { setEditingNote(false); setObjectiveNote(savedNote) }}>
+                        <Text style={styles.noteCancelBtn}>Cancelar</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.noteSaveBtn, objectiveNote.trim().length < 100 && styles.noteSaveBtnDisabled]}
+                        onPress={handleNoteSave}
+                        disabled={objectiveNote.trim().length < 100}
+                      >
+                        <Text style={styles.noteSaveBtnText}>Guardar nota ✦</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </>
+            )}
+          </Card>
+        </TouchableOpacity>
 
         {/* 🌅 Protocolo de mañana */}
         <Card style={morningDone ? [styles.sectionCard, styles.cardDone] : styles.sectionCard}>
@@ -1953,31 +1666,6 @@ export function DashboardScreen() {
             <Text style={styles.affirmationHero}>"{protocol.affirmation}"</Text>
             <Text style={styles.affirmRevealHint}>✦ Toca para declarar</Text>
           </TouchableOpacity>
-          {(() => {
-            const info = NUMEROLOGY_INFO[profile.numerology_number]
-            if (!info) return null
-            return (
-              <View style={styles.numBox}>
-                <View style={styles.numHeader}>
-                  <View style={styles.numBadge}>
-                    <Text style={styles.numBadgeNum}>{profile.numerology_number}</Text>
-                  </View>
-                  <View style={styles.numTitles}>
-                    <Text style={styles.numArchetype}>{info.archetype}</Text>
-                    <View style={styles.numKeywords}>
-                      {info.keywords.map(k => (
-                        <View key={k} style={styles.numKeywordPill}>
-                          <Text style={styles.numKeywordText}>{k}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                </View>
-                <Text style={styles.numEnergy}>{info.energy}</Text>
-                <Text style={styles.numShadow}>⚠ {info.shadow}</Text>
-              </View>
-            )
-          })()}
         </LinearGradient>
         </Animated.View>
 
@@ -2045,55 +1733,11 @@ export function DashboardScreen() {
           <Text style={styles.sectionBody}>{protocol.biohack.activity}</Text>
         </Card>
 
-        {/* 🎵 Frecuencia del día — standalone card */}
-        <LinearGradient
-          colors={['rgba(167,139,250,0.13)', 'rgba(123,97,220,0.04)']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={styles.freqCard}
-        >
-          <Text style={styles.freqCardLabel}>Frecuencia del día</Text>
-          <Text style={styles.frequencyHz}>{protocol.frequency.hz} Hz</Text>
-          <Text style={styles.frequencyName}>{protocol.frequency.name}</Text>
-          <View style={styles.freqPlayRow}>
-            <TouchableOpacity
-              style={[styles.playButton, playing && styles.playButtonActive]}
-              onPress={() => play(protocol.frequency.hz)}
-            >
-              <Text style={styles.playIcon}>{playing ? '■' : '▶'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.freqExpandBtn} onPress={() => setShowFreqOverlay(true)}>
-              <Text style={styles.freqExpandText}>Ver visualizador ↗</Text>
-            </TouchableOpacity>
-          </View>
-          {(() => {
-            const ctx = FREQUENCY_CONTEXT[protocol.frequency.hz]
-            if (!ctx) return null
-            return (
-              <View style={styles.freqGuide}>
-                <View style={styles.freqGuideHeader}>
-                  <Text style={styles.freqGuideTitle}>🎧 Cómo usarla hoy</Text>
-                  <View style={styles.freqDurationPill}>
-                    <Text style={styles.freqDurationText}>⏱ {ctx.duration}</Text>
-                  </View>
-                </View>
-                <View style={styles.freqWhenRow}>
-                  <Text style={styles.freqWhenText}>{ctx.when}</Text>
-                </View>
-                <Text style={styles.freqHowTo}>{ctx.howTo}</Text>
-                <View style={styles.freqIntegrationBox}>
-                  <Text style={styles.freqIntegrationLabel}>✦ Integración con tu plan</Text>
-                  <Text style={styles.freqIntegrationText}>{ctx.integration}</Text>
-                </View>
-              </View>
-            )
-          })()}
-        </LinearGradient>
-
         </>)}
-        {/* ══════════════ FIN TAB MAÑANA ══════════════ */}
+        {/* ══════════════ FIN MAÑANA ══════════════ */}
 
-        {/* ══════════════ TAB: TARDE ══════════════ */}
-        {dashTab === 'tarde' && (<>
+        {/* ══════════════ TARDE ══════════════ */}
+        {(activeSegment === 'tarde' || showFullDay) && (<>
 
         {/* 5 — Portal energético */}
         <Text style={styles.sectionContextLabel}>¿Qué energía potencia mi día?</Text>
@@ -2213,10 +1857,21 @@ export function DashboardScreen() {
         </Card>
 
         </>)}
-        {/* ══════════════ FIN TAB TARDE ══════════════ */}
+        {/* ══════════════ FIN TARDE ══════════════ */}
 
-        {/* ══════════════ TAB: NOCHE ══════════════ */}
-        {dashTab === 'noche' && (<>
+        {/* Arrastradas: morning tasks shown in tarde when not done */}
+        {activeSegment === 'tarde' && !showFullDay && (
+          [!objectiveDone, !morningDone, !affirmationDone].some(Boolean)
+        ) && (
+          <>
+            <View style={styles.draggedDivider}>
+              <View style={styles.draggedLine} /><Text style={styles.draggedLabel}>de esta mañana</Text><View style={styles.draggedLine} />
+            </View>
+          </>
+        )}
+
+        {/* ══════════════ NOCHE ══════════════ */}
+        {(activeSegment === 'noche' || showFullDay) && (<>
 
         {/* 🌙 Protocolo de noche */}
         <Card style={nightDone ? [styles.sectionCard, styles.cardDone] : styles.sectionCard}>
@@ -2349,169 +2004,43 @@ export function DashboardScreen() {
         )}
 
         </>)}
-        {/* ══════════════ FIN TAB NOCHE ══════════════ */}
+        {/* ══════════════ FIN NOCHE ══════════════ */}
 
-        {/* ── Separador visual ── */}
-        <View style={styles.alwaysDivider}>
-          <View style={styles.alwaysDividerLine} />
-          <Text style={styles.alwaysDividerLabel}>TU PROGRESO</Text>
-          <View style={styles.alwaysDividerLine} />
-        </View>
-
-        {/* ⭕ Progreso · Racha · Plan · Mapa (siempre visibles) */}
-        <View style={styles.alwaysBlock}>
-        <Card style={styles.circleCard}>
-          <Text style={styles.sectionLabel}>⭕ Progreso de hoy</Text>
-          <Text style={styles.sectionSubtitle}>Tu avance diario de hábitos</Text>
-          <CircularProgress completed={todayCount} total={TOTAL_TASKS} />
-        </Card>
-
-        <Animated.View style={[styles.streakCard, { borderColor: streak > 0 ? streakColor : Colors.border }, { opacity: anim2, transform: [{ translateY: slide2 }] }]}>
-          <View style={styles.streakTop}>
-            <View style={styles.streakLeft}>
-              <Text style={styles.streakFlame}>🔥</Text>
-              <View>
-                <Text style={[styles.streakCount, { color: streakColor }]}>
-                  {streak} {streak === 1 ? 'día' : 'días'} seguidos
-                </Text>
-                <Text style={styles.streakMessage}>{streakMessage}</Text>
+        {/* Arrastradas: afternoon tasks shown in noche when not done */}
+        {activeSegment === 'noche' && !showFullDay && !afternoonDone && (
+          <>
+            <View style={styles.draggedDivider}>
+              <View style={styles.draggedLine} /><Text style={styles.draggedLabel}>de esta tarde</Text><View style={styles.draggedLine} />
+            </View>
+            <Card style={styles.sectionCard}>
+              <View style={styles.cardTopRow}>
+                <Text style={styles.sectionLabel}>☀️ Protocolo de tarde</Text>
+                <TouchableOpacity style={styles.doneBtn} onPress={() => handleProtocolDone('afternoon')}>
+                  <Text style={styles.doneBtnText}>Marcar hecho</Text>
+                </TouchableOpacity>
               </View>
-            </View>
-            <View style={styles.streakBadge}>
-              <Text style={[styles.streakBadgeText, { color: streakColor }]}>
-                {streak >= 66 ? '👑' : streak >= 21 ? '⭐' : streak >= 7 ? '✦' : '○'}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.streakBarTrack}>
-            <View style={[styles.streakBarFill, { width: `${Math.round(streakProgress * 100)}%` as any, backgroundColor: streakColor }]} />
-          </View>
-          <Text style={styles.streakMilestoneLabel}>
-            {streak >= nextMilestone
-              ? `¡Hito alcanzado!`
-              : `Próximo hito: día ${nextMilestone} · ${Math.round(streakProgress * 100)}% completado`}
+              <Text style={styles.protocolAction}>{protocol.protocol.afternoon}</Text>
+            </Card>
+          </>
+        )}
+
+        {/* Ver el día completo / Ver menos */}
+        <TouchableOpacity style={styles.fullDayLink} onPress={() => setShowFullDay(f => !f)}>
+          <Text style={styles.fullDayLinkText}>
+            {showFullDay ? 'Ver menos ↑' : 'Ver el día completo →'}
           </Text>
-          <TouchableOpacity style={styles.shareProgressBtn} onPress={() => setShowTransformCard(true)}>
-            <Text style={styles.shareProgressText}>✦ Ver mi tarjeta de transformación</Text>
-          </TouchableOpacity>
-        </Animated.View>
+        </TouchableOpacity>
 
-        {!planComplete && (() => {
-          const planPct    = Math.min(Math.round(((planDay - 1) / planDuration) * 100), 100)
-          const PHASES = [
-            { pct: 0,   label: 'Fundación',  emoji: '🌱' },
-            { pct: 25,  label: 'Activación', emoji: '⚡' },
-            { pct: 50,  label: 'Momentum',   emoji: '🔥' },
-            { pct: 75,  label: 'Integración',emoji: '🌕' },
-          ]
-          const currentPhase = [...PHASES].reverse().find(p => planPct >= p.pct) ?? PHASES[0]
-          const nextPhase = PHASES.find(p => p.pct > planPct)
-          const phaseMsg = planPct < 25
-            ? 'Estás sentando las bases. Cada día suma vibración.'
-            : planPct < 50 ? 'El campo de atracción se está activando.'
-            : planPct < 75 ? 'Estás en el momento de mayor impulso del plan.'
-            : 'La etapa final — consolida y cosecha lo que sembraste.'
-          return (
-            <View style={styles.planCard}>
-              <View style={styles.planTop}>
-                <View style={styles.planPhaseLeft}>
-                  <Text style={styles.planPhaseEmoji}>{currentPhase.emoji}</Text>
-                  <View>
-                    <Text style={styles.planPhaseEyebrow}>FASE ACTUAL</Text>
-                    <Text style={styles.planPhaseName}>{currentPhase.label}</Text>
-                  </View>
-                </View>
-                <Text style={styles.planPct}>{planPct}%</Text>
-              </View>
-              <View style={styles.planBarWrapper}>
-                <View style={styles.planBarTrack}>
-                  <View style={[styles.planBarFill, { width: `${planPct}%` as any }]} />
-                  {[25, 50, 75].map(mark => (
-                    <View key={mark} style={[styles.planMarker, { left: `${mark}%` as any }, planPct >= mark && styles.planMarkerPassed]} />
-                  ))}
-                </View>
-              </View>
-              <View style={styles.planPhaseLabels}>
-                {PHASES.map((p, i) => (
-                  <Text key={i} style={[styles.planPhaseLabel, planPct >= p.pct && styles.planPhaseLabelActive]} numberOfLines={1}>
-                    {p.emoji}
-                  </Text>
-                ))}
-              </View>
-              <View style={styles.planStats}>
-                <View style={styles.planStat}>
-                  <Text style={styles.planStatValue}>Día {Math.min(planDay, planDuration)}</Text>
-                  <Text style={styles.planStatLabel}>actual</Text>
-                </View>
-                <View style={styles.planStatSep} />
-                <View style={styles.planStat}>
-                  <Text style={styles.planStatValue}>{Math.max(planDaysLeft, 0)}</Text>
-                  <Text style={styles.planStatLabel}>días restantes</Text>
-                </View>
-                <View style={styles.planStatSep} />
-                <View style={styles.planStat}>
-                  <Text style={styles.planStatValue}>{planDuration}</Text>
-                  <Text style={styles.planStatLabel}>días totales</Text>
-                </View>
-              </View>
-              <Text style={styles.planMsg}>{phaseMsg}</Text>
-              {nextPhase && (
-                <Text style={styles.planNext}>
-                  Próxima fase: {nextPhase.emoji} {nextPhase.label} · día {Math.round(nextPhase.pct / 100 * planDuration) + 1}
-                </Text>
-              )}
-            </View>
-          )
-        })()}
-
-        <Card style={styles.sectionCard}>
-          <Text style={styles.sectionLabel}>📊 Mapa de Progreso · Semanal</Text>
-          <Text style={styles.sectionSubtitle}>Tu constancia de los últimos 7 días</Text>
-          <WeeklyProgressRing days={weeklyProgressDays} />
-        </Card>
-
-        {allLogs.length === 0 && (
-          <Card style={styles.progressCard}>
-            <View style={styles.progressHeader}>
-              <View style={styles.skeletonLine} />
-              <View style={[styles.skeletonLine, { width: 60 }]} />
-            </View>
-            <View style={styles.skeletonChart} />
-            <View style={styles.skeletonStatsRow}>
-              {[0,1,2].map(i => <View key={i} style={styles.skeletonStat} />)}
-            </View>
-          </Card>
-        )}
-
-        {weakHabits.length > 0 && (
-          <Card style={styles.patternCard}>
-            <View style={styles.patternHeader}>
-              <Text style={styles.patternTitle}>🔍 Patrón detectado esta semana</Text>
-              <Text style={styles.patternSubtitle}>
-                {weakHabits.length === 1
-                  ? 'Este hábito necesita más consistencia esta semana'
-                  : `Estos ${weakHabits.length} hábitos necesitan más consistencia esta semana`}
-              </Text>
-            </View>
-            {weakHabits.map((h, i) => (
-              <View key={i} style={styles.patternItem}>
-                <View style={styles.patternItemHeader}>
-                  <Text style={styles.patternEmoji}>{h.emoji}</Text>
-                  <Text style={styles.patternHabitName}>{h.name}</Text>
-                  <View style={[styles.patternZeroBadge, h.completions > 0 && { backgroundColor: 'rgba(255,165,0,0.15)', borderColor: 'rgba(255,165,0,0.4)' }]}>
-                    <Text style={[styles.patternZeroText, h.completions > 0 && { color: '#FFA500' }]}>{h.completions}/7</Text>
-                  </View>
-                </View>
-                <View style={styles.patternTipBox}>
-                  <Text style={styles.patternTipLabel}>💡 Cómo retomarlo</Text>
-                  <Text style={styles.patternTip}>{h.tip}</Text>
-                </View>
-              </View>
-            ))}
-          </Card>
-        )}
-
+        {/* ── X de 9 completadas hoy ── */}
+        <View style={styles.progressCounter}>
+          <Text style={styles.progressCounterText}>
+            {todayCount} de {TOTAL_TASKS} completadas hoy
+          </Text>
+          <View style={styles.progressCounterBar}>
+            <View style={[styles.progressCounterFill, { width: `${Math.round(todayCount / TOTAL_TASKS * 100)}%` as any }]} />
+          </View>
         </View>
+
         {/* ── Sugerencias y Legal (siempre visibles) ── */}
         <TouchableOpacity onPress={() => setFeedbackOpen(true)} style={styles.feedbackBtn}>
           <Text style={styles.feedbackText}>💬 ¿Tienes una sugerencia para Lúmina?</Text>
@@ -2529,6 +2058,8 @@ export function DashboardScreen() {
         </View>
 
         <View style={{ height: Spacing.xxl }} />
+
+        </Reanimated.View>{/* /cardsSurface */}
       </ScrollView>
 
       {/* ── Modal de bienvenida Día 1 ── */}
@@ -2614,18 +2145,6 @@ export function DashboardScreen() {
         </View>
       </Modal>
 
-      {/* ── Overlay: Visualizador de frecuencia ── */}
-      {showFreqOverlay && (
-        <FrequencyPlayerOverlay
-          hz={protocol.frequency.hz}
-          name={protocol.frequency.name}
-          purpose={FREQUENCY_CONTEXT[protocol.frequency.hz]?.howTo}
-          playing={playing}
-          onToggle={() => play(protocol.frequency.hz)}
-          onClose={() => setShowFreqOverlay(false)}
-        />
-      )}
-
       {/* ── Overlay: Afirmación del día ── */}
       {showAffirmOverlay && (
         <AffirmationReveal
@@ -2638,20 +2157,25 @@ export function DashboardScreen() {
         />
       )}
 
-      {/* ── Overlay: Tarjeta de transformación ── */}
-      {showTransformCard && (
-        <TransformationCard
-          firstName={profile.full_name.split(' ')[0]}
-          manifestationArea={profile.manifestation_area ?? 'dinero'}
-          streak={streak}
-          planDay={Math.min(planDay, planDuration)}
-          planDuration={planDuration}
-          overallRate={overallRate}
-          todayCount={todayCount}
-          totalTasks={TOTAL_TASKS}
-          onClose={() => setShowTransformCard(false)}
-        />
-      )}
+      {/* ── Overlay: Señal del día ── */}
+      <Modal
+        visible={signalVisible}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={() => setSignalVisible(false)}
+      >
+        {signalResult && (
+          <SignalReveal
+            signal={signalResult}
+            alignmentScore={alignment.score}
+            alignmentTier={alignment.tier}
+            visible={signalVisible}
+            onDismiss={() => setSignalVisible(false)}
+            creatorMode={creatorMode}
+          />
+        )}
+      </Modal>
 
     </View>
   )
@@ -2732,41 +2256,224 @@ const legalContentStyles = StyleSheet.create({
 })
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60 },
-  // Atmospheric background layers
-  noiseBg: {
-    // @ts-ignore — web-only CSS passthrough
-    backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-    backgroundRepeat: 'repeat',
-    opacity: 0.04,
+  container: { flex: 1, backgroundColor: Colors.card },
+  scroll: { flexGrow: 1 },
+  // Legacy stubs
+  noiseBg: {},
+  orbPurple: {},
+  orbGold: {},
+
+  // ── Hero band — sobre fondo rose/mauve ──
+  heroSection: {
+    backgroundColor: Colors.roseHero,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: 72,
+    paddingBottom: 44,
   },
-  orbPurple: {
-    position: 'absolute', width: 320, height: 320, top: -80, right: -80, borderRadius: 160,
-    // @ts-ignore — web-only
-    background: 'radial-gradient(circle, rgba(167,139,250,0.18) 0%, transparent 65%)',
+
+  // ── Panel blanco que emerge del hero ──
+  cardsSurface: {
+    backgroundColor: Colors.card,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xl,
+    minHeight: 400,
   },
-  orbGold: {
-    position: 'absolute', width: 260, height: 260, bottom: 200, left: -80, borderRadius: 130,
-    // @ts-ignore — web-only
-    background: 'radial-gradient(circle, rgba(201,168,76,0.10) 0%, transparent 65%)',
-  },
+
   header: { flexDirection: 'column', marginBottom: Spacing.lg, gap: 4 },
-  greeting: { fontSize: 30, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
-  date: { fontSize: 14, color: 'rgba(240,238,248,0.5)', marginTop: 2, textTransform: 'capitalize' },
-  planCounter: { fontSize: 12, color: Colors.gold, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
+
+  // Wordmark — sobre fondo rose, texto blanco translúcido
+  wordmark: {
+    fontFamily: Fonts.headingItalic,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.55)',
+    letterSpacing: 4,
+    textTransform: 'uppercase',
+  },
+
+  // Nav row
+  navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
+  navLeft: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
+  navRight: { flexDirection: 'row', gap: 12, alignItems: 'center' },
+  navNotifBtn: {
+    backgroundColor: 'rgba(255,255,255,0.30)',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    paddingHorizontal: 4,
+  },
+  navNotifText: { fontSize: 9, color: Colors.roseHero, fontWeight: '800' as const },
+  navPill: { fontSize: 9 },
+  navExit: { fontSize: 9 },
+  navLink: { fontSize: 20, color: Colors.heroTextMuted },
+  navLinkActive: { color: Colors.heroText },
+  navLinkText: { fontSize: 9, color: Colors.heroTextMuted, fontFamily: Fonts.bodyMedium },
+  navLinkDim: { fontSize: 9, color: 'rgba(255,255,255,0.35)' },
+
+  // Hero greeting — texto blanco sobre rose
+  greetingEyebrow: {
+    fontSize: 9,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+    color: Colors.heroTextMuted,
+    fontFamily: Fonts.bodySemiBold,
+    marginBottom: 4,
+  },
+  greeting: {
+    fontSize: 52,
+    color: Colors.heroText,
+    fontFamily: Fonts.headingItalic,
+    lineHeight: 56,
+    letterSpacing: -1,
+  },
+  // Fused date · lunar — sobre fondo hero
+  headerMeta: {
+    fontSize: 11,
+    color: Colors.heroTextMuted,
+    marginTop: 4,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase' as const,
+    fontFamily: Fonts.body,
+  },
+  date: {
+    fontSize: 10,
+    color: Colors.heroTextMuted,
+    marginTop: 6,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+    fontFamily: Fonts.body,
+  },
+  planCounter: { fontSize: 12, color: Colors.textSecondary, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
   goalLabel:   { fontSize: 13, color: Colors.textSecondary, marginTop: 4, fontStyle: 'italic' },
 
-  // Nav compacta
-  navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
-  navLeft: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
-  navRight: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
-  navLink: { fontSize: 20, color: Colors.textSecondary },
-  navLinkActive: { color: Colors.gold },
-  navLinkText: { fontSize: 13, color: Colors.textSecondary, fontFamily: Fonts.bodyMedium },
-  navLinkDim: { fontSize: 13, color: Colors.textDisabled },
+  // Segment header — replaces segmented control
+  segmentHeader: {
+    marginTop: 0,
+    marginBottom: 20,
+  },
+  segmentLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase' as const,
+    fontFamily: Fonts.bodySemiBold,
+  },
 
-  // Lunar badge
+  // Dragged-tasks divider
+  draggedDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 28,
+    marginBottom: 16,
+  },
+  draggedLine: { flex: 1, height: 1, backgroundColor: Colors.border },
+  draggedLabel: {
+    fontSize: 10,
+    color: Colors.textDisabled,
+    letterSpacing: 1.2,
+    fontFamily: Fonts.body,
+    textTransform: 'lowercase',
+  },
+
+  // Full-day link
+  fullDayLink: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    marginTop: 4,
+  },
+  fullDayLinkText: {
+    fontSize: 12,
+    color: Colors.textDisabled,
+    letterSpacing: 0.5,
+    fontFamily: Fonts.body,
+  },
+
+  // Lunar tag (kept for any remaining refs)
+  lunarTag: {
+    fontSize: 12,
+    color: Colors.textDisabled,
+    letterSpacing: 0.3,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  // Compact alignment moon + label layout
+  alignmentCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 24,
+    marginBottom: 0,
+  },
+  alignmentRight: {
+    flex: 1,
+    gap: 3,
+  },
+  // Collapsible check-in row
+  checkInRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+  },
+  checkInRowLabel: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    flex: 1,
+  },
+  checkInChevron: {
+    fontSize: 16,
+    color: Colors.textDisabled,
+    marginLeft: 8,
+  },
+  // Progress counter before footer
+  progressCounter: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 12,
+    gap: 6,
+  },
+  progressCounterText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    letterSpacing: 0.3,
+    textAlign: 'center',
+  },
+  progressCounterBar: {
+    height: 3,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressCounterFill: {
+    height: 3,
+    backgroundColor: Colors.gold,
+    borderRadius: 2,
+    opacity: 0.7,
+  },
+  alignmentRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+    marginBottom: Spacing.md,
+  },
+  alignmentScore: {
+    fontSize: 22,
+    fontFamily: Fonts.heading,
+    fontWeight: '700',
+    opacity: 0.9,
+  },
+  alignmentLabel: {
+    fontSize: 11,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    fontFamily: Fonts.bodySemiBold,
+  },
+  // legados
   lunarBadge: {
     alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center',
     backgroundColor: 'rgba(167,139,250,0.10)', borderWidth: 1, borderColor: 'rgba(167,139,250,0.20)',
@@ -2775,21 +2482,32 @@ const styles = StyleSheet.create({
   },
   lunarBadgeText: { fontSize: 12, color: '#a78bfa', fontWeight: '600' },
 
-  // Feature grid (Diario + Visión)
-  featureGrid: { flexDirection: 'row', gap: 10, marginTop: Spacing.sm },
+  // Feature grid (Diario + Visión) — horizontal cards como en el mockup
+  featureGrid: { flexDirection: 'column', gap: 10, marginTop: Spacing.sm },
   featureCard: {
-    flex: 1, backgroundColor: 'rgba(255,255,255,0.04)',
-    borderRadius: Radius.lg, padding: Spacing.md, gap: 4, overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    backgroundColor: Colors.card,
+    borderRadius: Radius.lg,
+    padding: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.border,
   },
   featureIconWrap: {
-    width: 40, height: 40, borderRadius: 12,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 4,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
+  featureTextBlock: { flex: 1, gap: 2 },
   featureIconGold: { backgroundColor: Colors.goldDim },
   featureIconPurple: { backgroundColor: Colors.purpleDim },
-  featureIcon: { fontSize: 20 },
-  featureTitle: { fontSize: 17, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
-  featureSub: { fontSize: 11, color: Colors.textDisabled },
+  featureIcon: { fontSize: 0 },
+  featureTitle: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodyBold },
+  featureSub: { fontSize: 12, color: Colors.textDisabled, lineHeight: 17 },
 
   // Legados (no se usan pero evitan errores si algo los referencia)
   headerActions: { flexDirection: 'column', gap: Spacing.sm },
@@ -2804,17 +2522,26 @@ const styles = StyleSheet.create({
   briefingCard: {
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
-    backgroundColor: Colors.goldDim,
+    backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: Colors.borderGold,
     borderRadius: Radius.lg,
     padding: Spacing.md,
   },
-  briefingTitle: {
-    fontFamily: Fonts.heading,
-    fontSize: 16,
+  briefingEyebrow: {
+    fontSize: 9,
+    letterSpacing: 2.5,
+    textTransform: 'uppercase',
     color: Colors.gold,
-    marginBottom: 2,
+    opacity: 0.6,
+    fontFamily: Fonts.bodySemiBold,
+    marginBottom: 4,
+  },
+  briefingTitle: {
+    fontFamily: Fonts.headingItalic,
+    fontSize: 17,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   briefingSubtitle: {
     fontSize: 11,
@@ -2825,74 +2552,97 @@ const styles = StyleSheet.create({
   briefingChips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.xs,
+    gap: 6,
   },
   briefingChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.goldDim,
+    backgroundColor: 'transparent',
     borderRadius: Radius.full,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: Colors.borderGold,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(212,168,67,0.4)',
   },
-  briefingChipEmoji: { fontSize: 12 },
   briefingChipLabel: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    fontFamily: Fonts.bodyMedium,
+    fontSize: 11,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: Colors.gold,
+    fontFamily: Fonts.bodySemiBold,
+    opacity: 0.85,
   },
   firstStepBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(201,168,76,0.15)',
-    borderRadius: Radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.40)',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 3,
     marginBottom: Spacing.xs,
   },
-  firstStepBadgeText: { fontSize: 12, color: Colors.gold, fontWeight: '700' },
+  firstStepBadgeText: { fontSize: 12, color: Colors.textSecondary },
   alwaysDivider: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     marginTop: Spacing.lg, marginBottom: Spacing.sm,
   },
-  alwaysDividerLine: { flex: 1, height: 1, backgroundColor: Colors.gold, opacity: 0.35 },
+  alwaysDividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.10)' },
   alwaysDividerLabel: {
-    fontSize: 10, color: Colors.gold, fontWeight: '800',
-    letterSpacing: 1.5, opacity: 0.8,
+    fontSize: 10, color: Colors.textSecondary, fontWeight: '600',
+    letterSpacing: 1.5,
   },
   alwaysBlock: {
-    backgroundColor: Colors.goldDim,
+    backgroundColor: Colors.plumDim,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: Colors.borderGold,
+    borderColor: Colors.borderPurple,
     padding: Spacing.sm,
     gap: Spacing.sm,
     marginBottom: Spacing.sm,
   },
 
-  dayTabBar: {
-    flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.04)',
-    borderRadius: 16, padding: 4, marginBottom: Spacing.md,
+  // Segmented control — valores exactos del mockup (.segmented / .seg-item)
+  segmented: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 22,
+    marginBottom: 18,
   },
-  dayTab: {
-    flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 12,
-    gap: 2, position: 'relative',
+  segItem: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.045)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    position: 'relative',
+    overflow: 'hidden',
   },
-  dayTabActive: { backgroundColor: Colors.purpleDim },
-  dayTabEmoji:  { fontSize: 16 },
-  dayTabLabel:  { fontSize: 11, color: Colors.textSecondary, fontWeight: '600' },
-  dayTabLabelActive: { color: '#a78bfa' },
-  dayTabBadge: {
-    position: 'absolute', top: 4, right: 8,
-    backgroundColor: Colors.gold, borderRadius: 8,
-    minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: 4,
+  segItemActive: {
+    borderColor: 'rgba(212,168,67,0.35)',
   },
-  dayTabBadgeText: { fontSize: 9, color: Colors.background, fontWeight: '800' },
+  segLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: Fonts.bodySemiBold,
+    color: '#b3b2c9',
+  },
+  segLabelActive: {
+    color: Colors.goldLight,
+  },
+  segBadge: {
+    position: 'absolute', top: 6, right: 10,
+    backgroundColor: Colors.gold,
+    width: 16, height: 16, borderRadius: 8,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  segBadgeText: { fontSize: 9, fontWeight: '800', color: '#241a05' },
+  // legacy (kept to avoid TS errors in any remaining refs)
+  dayTabBar: { flexDirection: 'row' },
+  dayTab: { flex: 1, alignItems: 'center' },
+  dayTabActive: {},
+  dayTabEmoji: { fontSize: 0, height: 0 },
+  dayTabLabel: { fontSize: 11 },
+  dayTabLabelActive: {},
+  dayTabBadge: { position: 'absolute' },
+  dayTabBadgeText: { fontSize: 9 },
 
   feedbackBtn: { alignItems: 'center', paddingVertical: Spacing.lg, marginTop: Spacing.md },
   feedbackText: { fontSize: 13, color: Colors.textDisabled },
@@ -2985,10 +2735,46 @@ const styles = StyleSheet.create({
   lunarNextLabel: { fontSize: 10, color: 'rgba(255,255,255,0.30)', letterSpacing: 0.5 },
   lunarNextName: { fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: '600' },
   lunarNextDays: { fontSize: 11, color: Colors.gold, fontWeight: '600' },
-  circleCard: { marginBottom: Spacing.md, gap: Spacing.md },
-  sectionCard: { marginBottom: Spacing.md, gap: Spacing.sm },
+  circleCard: { marginBottom: Spacing.lg, gap: Spacing.md },
+  sectionCard: { marginBottom: Spacing.lg, gap: Spacing.md },
 
   // Sync error banner
+  signalBtnWrap: {
+    borderRadius: Radius.xl,
+    overflow: 'hidden',
+  },
+  signalBtn: {
+    paddingVertical: 18,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: Radius.xl,
+  },
+  signalBtnDisabled: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    borderRadius: Radius.xl,
+    paddingVertical: 18,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    gap: 4,
+    opacity: 0.7,
+  },
+  signalBtnLabel: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 16,
+    color: Colors.heroText,
+    letterSpacing: 0.5,
+  },
+  signalBtnCounter: {
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    color: Colors.heroTextMuted,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+
   syncErrorBanner: {
     backgroundColor: 'rgba(224,85,85,0.15)',
     borderWidth: 1, borderColor: '#E05555',
@@ -2999,25 +2785,34 @@ const styles = StyleSheet.create({
   syncErrorDismiss: { fontSize: 10, color: 'rgba(224,85,85,0.6)' },
 
   pendingBanner: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(201,168,76,0.10)',
-    borderWidth: 1, borderColor: 'rgba(201,168,76,0.40)',
-    borderRadius: Radius.md, padding: Spacing.md,
-    marginBottom: Spacing.md, gap: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.plumDim,
+    borderWidth: 1,
+    borderColor: Colors.borderGold,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
   },
-  pendingBannerLeft: { flex: 1, gap: 3 },
-  pendingBannerTitle: { fontSize: 15, color: Colors.gold, fontWeight: '700' },
-  pendingBannerBody: { fontSize: 13, color: Colors.textPrimary, lineHeight: 19 },
-  pendingBannerMotto: { fontSize: 12, color: Colors.textSecondary, fontStyle: 'italic' },
+  pendingBannerLeft: { flex: 1, gap: 3, minWidth: 0 },
+  pendingBannerTitle: { fontSize: 14, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
+  pendingBannerBody: { fontSize: 12, color: Colors.textPrimary, lineHeight: 18 },
+  pendingBannerMotto: { fontSize: 11, color: Colors.textSecondary, fontStyle: 'italic' },
   pendingBannerBtn: {
-    backgroundColor: Colors.gold, borderRadius: Radius.md,
-    paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center',
+    backgroundColor: Colors.plum,
+    borderRadius: Radius.md,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
+    flexShrink: 0,
+    minWidth: 72,
   },
-  pendingBannerBtnText: { fontSize: 12, color: '#1A1A2E', fontWeight: '700', textAlign: 'center' },
+  pendingBannerBtnText: { fontSize: 11, color: '#FBF6F8', fontWeight: '700', textAlign: 'center' },
 
   // Cierre de ciclo
   cycleEmoji:    { fontSize: 72, textAlign: 'center', marginTop: Spacing.xxl, marginBottom: Spacing.md },
-  cycleTitle:    { fontSize: 28, color: Colors.gold, fontWeight: '800', textAlign: 'center' },
+  cycleTitle:    { fontSize: 34, color: Colors.gold, fontFamily: Fonts.headingItalic, textAlign: 'center' },
   cycleSubtitle: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginTop: Spacing.sm, marginBottom: Spacing.xl },
   cycleSummaryCard:  { marginBottom: Spacing.xl, gap: Spacing.md },
   cycleSummaryTitle: { fontSize: 13, color: Colors.textSecondary, fontWeight: '700', letterSpacing: 0.5 },
@@ -3062,7 +2857,7 @@ const styles = StyleSheet.create({
   },
   patternTipLabel: { fontSize: 10, color: Colors.gold, fontWeight: '700', letterSpacing: 0.4 },
   patternTip: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  sectionLabel: { fontSize: 11, color: Colors.textDim, letterSpacing: 0.9, fontFamily: Fonts.bodySemiBold, textTransform: 'uppercase' },
+  sectionLabel: { fontSize: 11, color: Colors.textSecondary, letterSpacing: 1.2, fontFamily: Fonts.bodySemiBold, textTransform: 'uppercase' },
   sectionSubtitle: {
     fontSize: 12,
     color: Colors.textSecondary,
@@ -3076,11 +2871,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   objectiveHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  phasePill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(201,168,76,0.10)', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)' },
+  phasePill: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   phaseEmoji: { fontSize: 11 },
-  phaseLabel: { fontSize: 10, color: Colors.gold, fontWeight: '700', letterSpacing: 0.3 },
-  sectionTitle: { fontSize: 17, color: Colors.textPrimary, fontWeight: '600' },
-  sectionBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
+  phaseLabel: { fontSize: 10, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
+  sectionTitle: { fontSize: 24, color: Colors.textPrimary, fontWeight: '600' },
+  sectionBody: { fontSize: 15, color: Colors.textSecondary, lineHeight: 22 },
   affirmation: { fontSize: 16, color: Colors.textPrimary, fontStyle: 'italic', lineHeight: 24 },
   affirmationHero: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.headingItalic, lineHeight: 32, marginTop: Spacing.xs },
   affirmRevealHint: { fontFamily: Fonts.body, fontSize: 11, color: Colors.purpleAccent, opacity: 0.7, marginTop: 4 },
@@ -3301,8 +3096,8 @@ const styles = StyleSheet.create({
   cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardDone: { borderColor: Colors.success, borderWidth: 1 },
   doneBadge: { fontSize: 12, color: Colors.success, fontWeight: '600' },
-  doneBtn: { backgroundColor: '#a78bfa', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
-  doneBtnText: { fontSize: 11, color: '#ffffff', fontWeight: '600' },
+  doneBtn: { backgroundColor: Colors.plum, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  doneBtnText: { fontSize: 11, color: '#FBF6F8', fontWeight: '600' },
   objectiveFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.sm },
   objectiveDuration: { fontSize: 12, color: Colors.textDisabled },
   objectiveBtn: { backgroundColor: Colors.gold, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: 20 },
@@ -3424,7 +3219,7 @@ const celebStyles = StyleSheet.create({
   },
   particle: { position: 'absolute', fontSize: 22 },
   card: {
-    backgroundColor: '#1A1A2E',
+    backgroundColor: Colors.card,
     borderRadius: 24,
     borderWidth: 1,
     borderColor: Colors.gold,

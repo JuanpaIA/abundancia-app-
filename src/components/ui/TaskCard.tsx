@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle, StyleProp } from 'react-native'
-import { Colors, Fonts, Radius, Spacing } from '../../constants/theme'
+import { Colors, Fonts, Spacing } from '../../constants/theme'
 
 type Accent = 'gold' | 'purple'
 
@@ -14,95 +14,115 @@ interface Props {
   children?: React.ReactNode
 }
 
-const accentColor: Record<Accent, string> = {
-  gold: Colors.gold,
-  purple: Colors.purpleAccent,
-}
-
 export function TaskCard({ label, title, body, accent = 'purple', done, onDone, style, children }: Props) {
   return (
-    <View style={[styles.card, style]}>
-      <View style={[styles.stripe, { backgroundColor: accentColor[accent] }]} />
-      <View style={styles.content}>
+    <TouchableOpacity
+      style={[styles.row, style]}
+      onPress={!done ? onDone : undefined}
+      activeOpacity={done ? 1 : 0.7}
+    >
+      {/* Círculo de completado */}
+      <View style={[styles.circle, done && styles.circleActive]}>
+        {done && <View style={styles.checkMark} />}
+      </View>
+
+      {/* Cuerpo de texto */}
+      <View style={styles.body}>
         {label ? (
-          <Text style={[styles.label, { color: accentColor[accent] }]}>{label.toUpperCase()}</Text>
+          <Text style={styles.label}>{label.toUpperCase()}</Text>
         ) : null}
-        <View style={styles.row}>
-          <Text style={[styles.title, done && styles.titleDone]} numberOfLines={2}>
-            {title}
-          </Text>
-          {onDone ? (
-            <TouchableOpacity onPress={onDone} style={[styles.doneBtn, done && styles.doneBtnDone]}>
-              <Text style={styles.doneBtnText}>{done ? 'HECHO' : 'MARCAR'}</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-        {body ? <Text style={styles.body}>{body}</Text> : null}
+        <Text style={[styles.title, done && styles.titleDone]} numberOfLines={2}>
+          {title}
+        </Text>
+        {body ? (
+          <Text style={styles.hint}>{body}</Text>
+        ) : null}
         {children}
       </View>
-    </View>
+
+      {/* Acción derecha */}
+      {!done && onDone ? (
+        <Text style={styles.action}>Abrir</Text>
+      ) : null}
+      {done ? (
+        <Text style={styles.doneGlyph}>✦</Text>
+      ) : null}
+    </TouchableOpacity>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
+  row: {
     flexDirection: 'row',
-    backgroundColor: Colors.cardBg,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-    marginBottom: Spacing.sm,
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 13,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(240,236,228,0.08)',
   },
-  stripe: {
-    width: 3,
+  circle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: 'rgba(212,168,67,0.35)',
+    flexShrink: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  content: {
+  circleActive: {
+    backgroundColor: Colors.gold,
+    borderColor: Colors.gold,
+  },
+  checkMark: {
+    width: 8,
+    height: 5,
+    borderLeftWidth: 1.5,
+    borderBottomWidth: 1.5,
+    borderColor: Colors.background,
+    transform: [{ rotate: '-45deg' }, { translateY: -1 }],
+  },
+  body: {
     flex: 1,
-    padding: Spacing.md,
-    gap: Spacing.xs,
+    minWidth: 0,
   },
   label: {
     fontFamily: Fonts.bodySemiBold,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    opacity: 0.7,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: Spacing.sm,
+    fontSize: 9,
+    letterSpacing: 2,
+    color: Colors.gold,
+    opacity: 0.65,
+    marginBottom: 1,
   },
   title: {
-    flex: 1,
-    fontFamily: Fonts.bodySemiBold,
+    fontFamily: Fonts.bodyMedium,
     fontSize: 14,
     color: Colors.textPrimary,
-    lineHeight: 20,
+    lineHeight: 19,
   },
   titleDone: {
-    opacity: 0.45,
     textDecorationLine: 'line-through',
-  },
-  body: {
-    fontFamily: Fonts.body,
-    fontSize: 13,
     color: Colors.textSecondary,
-    lineHeight: 18,
   },
-  doneBtn: {
-    backgroundColor: Colors.purpleDim,
-    borderRadius: Radius.full,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    alignSelf: 'flex-start',
+  hint: {
+    fontFamily: Fonts.body,
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+    opacity: 0.7,
   },
-  doneBtnDone: {
-    backgroundColor: Colors.goldDim,
-  },
-  doneBtnText: {
+  action: {
     fontFamily: Fonts.bodySemiBold,
     fontSize: 10,
-    color: Colors.purpleAccent,
-    letterSpacing: 0.6,
+    letterSpacing: 1.5,
+    color: Colors.gold,
+    opacity: 0.65,
+    flexShrink: 0,
+  },
+  doneGlyph: {
+    fontSize: 12,
+    color: Colors.gold,
+    opacity: 0.45,
+    flexShrink: 0,
   },
 })

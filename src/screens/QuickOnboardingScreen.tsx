@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native'
-import { useState } from 'react'
+import { View, Text, StyleSheet, TextInput, ScrollView, Alert, TouchableOpacity, Platform } from 'react-native'
+import { useState, useRef, useEffect } from 'react'
+import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
@@ -30,6 +31,9 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
   const [name, setName] = useState('')
   const [birthDate, setBirthDate] = useState('')
   const [manifestationArea, setManifestationArea] = useState<ManifestationArea | null>(null)
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current) }, [])
 
   function handleNameNext() {
     if (!name.trim()) return Alert.alert('Ingresa tu nombre completo')
@@ -66,13 +70,17 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
     setStep(3)
   }
 
-  function handleAreaNext() {
-    if (!manifestationArea) return Alert.alert('Selecciona qué deseas manifestar')
-    const normalized = normalizeBirthDate(birthDate)
-    const zodiac = getZodiacSign(normalized)
-    const numerology = calculateNumerology(name)
-    const frequency = getBaseFrequency(numerology)
-    onComplete({ name: name.trim(), birthDate: normalized, zodiac, numerology, frequency, manifestationArea })
+  function handleAreaSelect(key: ManifestationArea) {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    setManifestationArea(key)
+    if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {})
+    advanceTimer.current = setTimeout(() => {
+      const normalized = normalizeBirthDate(birthDate)
+      const zodiac = getZodiacSign(normalized)
+      const numerology = calculateNumerology(name)
+      const frequency = getBaseFrequency(numerology)
+      onComplete({ name: name.trim(), birthDate: normalized, zodiac, numerology, frequency, manifestationArea: key })
+    }, 250)
   }
 
   const BACK_STEPS: Record<number, number> = { 2: 1, 3: 2 }
@@ -171,7 +179,7 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
                   <TouchableOpacity
                     key={area.key}
                     style={[styles.areaCard, isSelected && { borderColor: areaColor, borderWidth: 2 }]}
-                    onPress={() => setManifestationArea(area.key)}
+                    onPress={() => handleAreaSelect(area.key)}
                     activeOpacity={0.8}
                   >
                     {isSelected && (
@@ -192,7 +200,6 @@ export function QuickOnboardingScreen({ onComplete }: Props) {
                 )
               })}
             </View>
-            <GradientButton title="Ver mi protocolo" onPress={handleAreaNext} />
           </View>
         )}
 

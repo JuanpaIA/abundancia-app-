@@ -3,7 +3,6 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity,
 } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { useFrequencyPlayer } from '../hooks/useFrequencyPlayer'
 import { useErrorReporter } from '../hooks/useErrorReporter'
@@ -29,7 +28,7 @@ const FREQUENCIES: FrequencyDef[] = [
     hz: 174,
     name: 'Anclaje y seguridad',
     tagline: 'La frecuencia más baja — la más terrena',
-    purpose: 'Reduce el estrés profundo y el dolor emocional. Ancla tu energía al presente cuando sientes miedo, incertidumbre o agotamiento. Es la base sobre la que se construye todo lo demás.',
+    purpose: 'La frecuencia de base del sistema Solfeggio. Nombrada en la tradición como el tono del anclaje y la quietud. Utilizada en sesiones de meditación y relajación profunda como punto de partida antes de explorar tonos más altos.',
     when: '🌙 Noche · al sentir ansiedad o agotamiento',
     howTo: 'Recuéstate y pon la frecuencia en volumen bajo. Siente el peso de tu cuerpo sobre la superficie. Respira 4 tiempos por nariz, 6 por boca. Deja que tu sistema nervioso se calme solo.',
     integration: 'Úsala cuando un día difícil amenaza con romper tu racha. Es el reset que te permite volver al protocolo sin culpa.',
@@ -40,11 +39,11 @@ const FREQUENCIES: FrequencyDef[] = [
   {
     hz: 285,
     name: 'Regeneración celular',
-    tagline: 'Sanación desde adentro hacia afuera',
-    purpose: 'Activa el potencial de regeneración del organismo. Especialmente efectiva para sanar patrones emocionales repetitivos y heridas antiguas que bloquean la manifestación.',
+    tagline: 'Renovación y retorno al equilibrio',
+    purpose: 'Segunda frecuencia del sistema Solfeggio. Conocida en la tradición como el tono de la renovación. Utilizada en sesiones de bienestar orientadas al descanso profundo y el restablecimiento del equilibrio.',
     when: '☀️ Mañana · antes del desayuno',
-    howTo: 'Escúchala con los ojos cerrados. Coloca una mano en el pecho y otra en el abdomen. Visualiza una luz verde suave que recorre y sana cada órgano, cada célula, cada memoria dolorosa.',
-    integration: 'Combínala con tu ritual del día en fases de sanación (Luna menguante). Potencia la liberación de patrones que frenan tu manifestación.',
+    howTo: 'Escúchala con los ojos cerrados. Coloca una mano en el pecho y otra en el abdomen. Visualiza una luz verde suave que recorre tu cuerpo y disuelve la tensión acumulada en cada parte.',
+    integration: 'Combínala con tu ritual del día en fases de Luna menguante, cuando el foco está en la liberación y el cierre de ciclos.',
     duration: '10–15 min',
     color: '#4CAF82',
     areas: ['salud', 'amor'],
@@ -52,11 +51,11 @@ const FREQUENCIES: FrequencyDef[] = [
   {
     hz: 396,
     name: 'Liberación del miedo',
-    tagline: 'Disuelve culpa, miedo y bloqueos internos',
-    purpose: 'La primera frecuencia Solfeggio. Libera el miedo y la culpa acumulados — las dos emociones que más bloquean la manifestación. Limpia el campo energético para recibir.',
+    tagline: 'Para soltar lo que pesa antes de declarar intenciones',
+    purpose: 'Primera frecuencia del sistema Solfeggio clásico. Nombrada en la tradición como el tono de la liberación. Se usa habitualmente al inicio de una sesión, como preparación antes de declarar intenciones.',
     when: '☀️ Mañana · antes de iniciar el día',
-    howTo: 'Siéntate en silencio, cierra los ojos y respira profundo. Visualiza que una ola de luz dorada disuelve todo miedo, culpa o tensión acumulada. No fuerces nada — deja que la frecuencia haga el trabajo.',
-    integration: 'Combínala con tu ritual del día para potenciar la liberación energética antes de declarar tus intenciones.',
+    howTo: 'Siéntate en silencio, cierra los ojos y respira profundo. Visualiza que una ola de luz dorada disuelve todo miedo, culpa o tensión acumulada. No fuerces nada — permanece en quietud con la intención activa.',
+    integration: 'Combínala con tu ritual del día para preparar el campo interior antes de declarar tus intenciones.',
     duration: '10–15 min',
     color: '#E05555',
     areas: ['dinero', 'proposito', 'felicidad'],
@@ -64,11 +63,11 @@ const FREQUENCIES: FrequencyDef[] = [
   {
     hz: 417,
     name: 'Facilitar el cambio',
-    tagline: 'Desbloquea situaciones estancadas',
-    purpose: 'Activa el cambio y disuelve situaciones enquistadas. Si sientes que algo en tu vida no avanza — trabajo, relaciones, salud — esta frecuencia rompe la inercia y abre posibilidades.',
+    tagline: 'Para momentos de tránsito y nuevo comienzo',
+    purpose: 'Segunda frecuencia Solfeggio en la escala clásica. Nombrada en la tradición como el tono del cambio y el movimiento. Se usa en momentos de transición o al iniciar una nueva etapa del plan.',
     when: '🌤️ Tarde · en un momento de pausa',
-    howTo: 'Ponla de fondo mientras revisas tu objetivo del día. Escribe en un papel lo que deseas cambiar o destrabar. Permite que la frecuencia abra caminos donde antes veías obstáculos.',
-    integration: 'Escúchala justo antes de ejecutar tu objetivo diario para desbloquear la energía y entrar en acción con mayor fluidez.',
+    howTo: 'Ponla de fondo mientras revisas tu objetivo del día. Escribe en un papel lo que deseas cambiar o destrabar. Nombra en voz alta lo que estás listo/a para mover.',
+    integration: 'Escúchala justo antes de ejecutar tu objetivo diario, especialmente en días donde la acción se siente difícil de iniciar.',
     duration: '10–20 min',
     color: '#F59E0B',
     areas: ['dinero', 'proposito'],
@@ -77,10 +76,10 @@ const FREQUENCIES: FrequencyDef[] = [
     hz: 432,
     name: 'Expansión natural',
     tagline: 'La frecuencia de la naturaleza y el equilibrio',
-    purpose: 'Frecuencia de sintonización con la naturaleza. Reduce la ansiedad, mejora la concentración y crea un estado de fluidez natural. La mente se expande sin esfuerzo.',
+    purpose: 'Frecuencia alternativa de afinación musical, preferida por algunos músicos y practicantes de meditación como alternativa al estándar de 440 Hz. Utilizada como fondo sonoro durante el trabajo, el estudio o la lectura.',
     when: '🕐 Cualquier momento del día',
-    howTo: 'Ponla como fondo de trabajo o estudio. No necesitas concentrarte en ella — actúa en silencio sobre tu sistema nervioso, mejorando concentración y calma natural.',
-    integration: 'Ideal durante tu protocolo de tarde o mientras completas tu objetivo del día. Su efecto es acumulativo.',
+    howTo: 'Ponla como fondo de trabajo o estudio. No necesitas concentrarte en ella — deja que el entorno sonoro acompañe lo que ya estás haciendo.',
+    integration: 'Ideal durante tu protocolo de tarde o mientras completas tu objetivo del día.',
     duration: '20–45 min',
     color: '#4CAF82',
     areas: ['salud', 'felicidad', 'proposito'],
@@ -89,10 +88,10 @@ const FREQUENCIES: FrequencyDef[] = [
     hz: 528,
     name: 'Transformación y amor',
     tagline: 'La frecuencia del milagro',
-    purpose: 'La frecuencia más estudiada del sistema Solfeggio. Conocida como la "frecuencia del milagro" — repara el ADN según algunos estudios, y activa el amor incondicional como campo de manifestación.',
+    purpose: 'La más conocida de las frecuencias Solfeggio. Llamada en la tradición "frecuencia del milagro". Ampliamente utilizada en prácticas de meditación, rituales de intención y sesiones de sonido.',
     when: '☀️ Mañana · durante tu ritual',
     howTo: 'Ponla de fondo mientras lees tu afirmación del día en voz alta. Repítela tres veces con convicción. Visualiza que cada célula de tu cuerpo vibra en la frecuencia del amor y la transformación.',
-    integration: 'La combinación de tu afirmación del día + 528 Hz crea uno de los campos de manifestación más potentes del protocolo. No te saltes este momento.',
+    integration: 'La combinación de tu afirmación del día + 528 Hz es uno de los rituales más completos del protocolo. No te saltes este momento.',
     duration: '10–15 min',
     color: '#C9A84C',
     areas: ['amor', 'salud', 'dinero', 'proposito', 'felicidad'],
@@ -100,11 +99,11 @@ const FREQUENCIES: FrequencyDef[] = [
   {
     hz: 639,
     name: 'Conexión y relaciones',
-    tagline: 'Armoniza vínculos y atrae amor',
-    purpose: 'Fortalece y armoniza las relaciones existentes. Atrae nuevas conexiones auténticas. Trabaja sobre la capacidad de amar, ser amado y comunicarse desde la verdad.',
+    tagline: 'Para sesiones orientadas al vínculo y la conexión',
+    purpose: 'Cuarta frecuencia del sistema Solfeggio. Nombrada en la tradición como el tono de la conexión y el vínculo. Utilizada en meditaciones relacionadas con el amor propio, las relaciones y la comunicación.',
     when: '🌙 Noche · como cierre del día',
     howTo: 'Escúchala tumbado/a o sentado/a. Visualiza las personas y relaciones que deseas fortalecer. Siente amor genuino fluyendo desde tu corazón hacia ellas sin condición.',
-    integration: 'Combínala con tu protocolo de noche. Cerrar el día en esta frecuencia programa tu mente inconsciente para atraer conexiones auténticas mientras duermes.',
+    integration: 'Combínala con tu protocolo de noche para cerrar el día con intención de vínculo y apertura.',
     duration: '15–20 min',
     color: '#EC4899',
     areas: ['amor', 'felicidad'],
@@ -112,11 +111,11 @@ const FREQUENCIES: FrequencyDef[] = [
   {
     hz: 741,
     name: 'Despertar la intuición',
-    tagline: 'Activa la mente y la creatividad',
-    purpose: 'Expande la conciencia, despierta la intuición y potencia la creatividad. Ideal cuando necesitas claridad mental, tomar una decisión importante o encontrar la solución a un problema.',
+    tagline: 'Para momentos de claridad y decisión',
+    purpose: 'Quinta frecuencia Solfeggio. Conocida en la tradición como el tono de la expresión y la intuición. Utilizada en sesiones de meditación creativa y antes de momentos que requieren claridad y toma de decisión.',
     when: '☀️ Mañana · durante la meditación',
     howTo: 'Escúchala con los ojos cerrados. Plantéate una pregunta relacionada con tu objetivo y deja fluir ideas sin juzgarlas. Anota todo lo que llegue al final.',
-    integration: 'Úsala antes de leer tu objetivo del día para activar tu capacidad de encontrar soluciones creativas. La claridad que genera potencia cada acción que tomes después.',
+    integration: 'Úsala antes de leer tu objetivo del día, en especial cuando la dirección a tomar no está clara.',
     duration: '10–15 min',
     color: '#7B3FD4',
     areas: ['proposito', 'dinero'],
@@ -125,7 +124,7 @@ const FREQUENCIES: FrequencyDef[] = [
     hz: 852,
     name: 'Orden espiritual',
     tagline: 'Vuelve a tu centro cuando te pierdes',
-    purpose: 'Reconecta con tu intuición más profunda y tu propósito auténtico. Ideal cuando sientes que vas en la dirección equivocada o necesitas escuchar tu voz interior por encima del ruido externo.',
+    purpose: 'Sexta frecuencia del sistema Solfeggio. Nombrada en la tradición como el tono del orden espiritual. Utilizada en prácticas contemplativas y al cerrar una sesión para volver al centro interior.',
     when: '🌤️ Tarde · pausa de 10 minutos',
     howTo: 'Detente. Cierra los ojos. Pregúntate en silencio: ¿Qué señal del universo he ignorado hoy? Escucha sin forzar respuestas. La intuición habla en susurros.',
     integration: 'Combínala con tu afirmación del día: léela primero, luego escucha la frecuencia 10 minutos con esa intención activa en la mente.',
@@ -137,10 +136,10 @@ const FREQUENCIES: FrequencyDef[] = [
     hz: 963,
     name: 'Conexión con el todo',
     tagline: 'La frecuencia más alta del sistema',
-    purpose: 'La frecuencia más elevada del sistema Solfeggio. Activa la glándula pineal y abre la conexión con la conciencia superior. Ideal para estados contemplativos profundos y para programar el subconsciente.',
+    purpose: 'Frecuencia utilizada tradicionalmente en prácticas de meditación. La más alta del sistema Solfeggio, conocida en la tradición como el tono de la unidad.',
     when: '🌙 Noche · última actividad antes de dormir',
     howTo: 'Recuéstate, cierra los ojos y visualiza tu conciencia expandiéndose más allá del cuerpo. Siente que eres parte de algo mucho más grande que tú mismo. Deja ir el día con gratitud total.',
-    integration: 'Es el cierre perfecto de tu protocolo nocturno. Entrar al sueño en esta frecuencia programa tu subconsciente para recibir orientación y consolidar lo manifestado durante el día.',
+    integration: 'Es el cierre natural del protocolo nocturno. Úsala como última actividad antes de dormir.',
     duration: '15–20 min',
     color: '#C9A84C',
     areas: ['proposito', 'felicidad', 'salud'],
@@ -185,14 +184,7 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
   const activeHz = playing ? playingHz : null
 
   return (
-    <LinearGradient
-      colors={['#16102a', '#0e0b1e', '#0a0814']}
-      locations={[0, 0.4, 1]}
-      style={styles.container}
-    >
-      {/* @ts-ignore */}
-      <View style={styles.noiseBg} aria-hidden />
-      <View style={styles.orbPurple} aria-hidden />
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* Header */}
@@ -276,11 +268,7 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
 
               {/* Contenido expandido */}
               {isOpen && (
-                <LinearGradient
-                  colors={[freq.color + '12', 'transparent']}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                  style={styles.freqBody}
-                >
+                <View style={[styles.freqBody, { backgroundColor: freq.color + '10' }]}>
                   <Text style={styles.freqPurpose}>{freq.purpose}</Text>
 
                   <View style={styles.freqMeta}>
@@ -318,7 +306,7 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
                   >
                     <Text style={styles.overlayBtnText}>✦ Abrir visualizador de frecuencia</Text>
                   </TouchableOpacity>
-                </LinearGradient>
+                </View>
               )}
             </View>
           )
@@ -337,36 +325,18 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
           onClose={() => setOverlayFreq(null)}
         />
       )}
-    </LinearGradient>
+    </View>
   )
 }
 
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 
-const NOISE_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(#n)' opacity='1'/></svg>")}`
-
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: Colors.card },
   scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
 
-  // Atmospheric layers
-  noiseBg: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.04,
-    // @ts-ignore
-    backgroundImage: `url("${NOISE_URI}")`,
-    backgroundRepeat: 'repeat',
-    pointerEvents: 'none',
-  },
-  orbPurple: {
-    position: 'absolute', width: 300, height: 300, top: -60, right: -80, borderRadius: 999,
-    // @ts-ignore
-    background: 'radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 65%)',
-    pointerEvents: 'none',
-  },
-
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
-  back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
+  back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },
   title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
 
@@ -381,10 +351,10 @@ const styles = StyleSheet.create({
   todayBadge: {
     alignSelf: 'flex-start', paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs, borderRadius: Radius.full,
-    backgroundColor: Colors.purpleDim,
-    borderWidth: 1, borderColor: 'rgba(167,139,250,0.30)',
+    backgroundColor: Colors.plumDim,
+    borderWidth: 1, borderColor: Colors.borderPurple,
   },
-  todayBadgeText: { fontSize: 12, color: Colors.purpleAccent, fontFamily: Fonts.bodySemiBold },
+  todayBadgeText: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
 
   freqCard: {
     backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
@@ -418,7 +388,7 @@ const styles = StyleSheet.create({
   freqName: { fontSize: 14, color: Colors.textPrimary, fontWeight: '700' },
   todayDot: {
     width: 7, height: 7, borderRadius: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: Colors.plum,
   },
   freqTagline: { fontSize: 11, color: Colors.textSecondary },
 
@@ -445,7 +415,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.goldDim, borderRadius: Radius.md,
     padding: Spacing.sm, borderWidth: 1, borderColor: Colors.borderGold,
   },
-  freqSectionLabel: { fontSize: 11, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  freqSectionLabel: { fontSize: 11, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   freqSectionText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
 
   freqAreas: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
@@ -465,7 +435,6 @@ const styles = StyleSheet.create({
   overlayBtnText: {
     fontFamily: Fonts.bodySemiBold,
     fontSize: 13,
-    color: Colors.purpleAccent,
-    opacity: 0.85,
+    color: Colors.plum,
   },
 })

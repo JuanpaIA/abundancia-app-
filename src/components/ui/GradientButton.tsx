@@ -22,7 +22,7 @@ export function GradientButton({ title, onPress, loading, variant = 'primary', s
   if (variant === 'purple') {
     return (
       <LinearGradient
-        colors={[Colors.purpleAccent, '#6d5bdb']}
+        colors={[Colors.purpleAccent, Colors.purple]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={[styles.gradientWrap, style]}
@@ -39,7 +39,7 @@ export function GradientButton({ title, onPress, loading, variant = 'primary', s
 
   return (
     <LinearGradient
-      colors={[Colors.gold, '#b8882a']}
+      colors={[Colors.goldLight, Colors.gold]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
       style={[styles.gradientWrap, style]}

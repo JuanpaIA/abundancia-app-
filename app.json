@@ -45,7 +45,13 @@
           "merchantIdentifier": "merchant.com.abundancia.app"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Lumina necesita acceso a tu galería para agregar imágenes a tu Tablero de Visión personal."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

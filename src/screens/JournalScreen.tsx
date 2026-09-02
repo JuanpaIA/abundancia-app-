@@ -137,7 +137,7 @@ export function JournalScreen({ onBack }: Props) {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator color={Colors.gold} size="large" style={{ marginTop: 120 }} />
+        <ActivityIndicator color={Colors.plum} size="large" style={{ marginTop: 120 }} />
       </View>
     )
   }
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
-  back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
+  back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },
   title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
   description: {
@@ -296,21 +296,21 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(201,168,76,0.15)',
+    borderTopColor: Colors.border,
   },
 
   contextRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg, flexWrap: 'wrap' },
   contextBadge: {
     paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs,
     borderRadius: Radius.full, borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.35)',
-    backgroundColor: 'rgba(201,168,76,0.08)',
+    borderColor: Colors.borderPurple,
+    backgroundColor: Colors.plumDim,
   },
-  contextBadgeText: { fontSize: 12, color: Colors.gold, fontWeight: '600' },
+  contextBadgeText: { fontSize: 12, color: Colors.plum, fontWeight: '600' },
 
   todayCard: {
     backgroundColor: Colors.cardBg, borderRadius: Radius.xl,
-    borderWidth: 1, borderColor: Colors.borderGold,
+    borderWidth: 1, borderColor: Colors.borderPurple,
     padding: Spacing.lg, marginBottom: Spacing.xl, gap: Spacing.lg,
   },
   todayHeader: {
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   saveStatus: { fontSize: 11, color: Colors.textDisabled },
 
   promptBlock: { gap: Spacing.xs },
-  promptLabel: { fontSize: 13, color: Colors.gold, fontWeight: '700' },
+  promptLabel: { fontSize: 13, color: Colors.plum, fontWeight: '700' },
   promptInput: {
     backgroundColor: Colors.input, borderRadius: Radius.md,
     borderWidth: 1, borderColor: Colors.border,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   pastCardContent: { gap: Spacing.md, paddingTop: Spacing.xs },
   pastField: { gap: 4 },
-  pastFieldLabel: { fontSize: 12, color: Colors.gold, fontWeight: '700' },
+  pastFieldLabel: { fontSize: 12, color: Colors.plum, fontWeight: '700' },
   pastFieldText: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
   pastEmpty: { fontSize: 13, color: Colors.textDisabled, fontStyle: 'italic' },
 

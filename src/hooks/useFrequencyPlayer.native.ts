@@ -7,7 +7,7 @@
 
 import { useState, useRef } from 'react'
 import { Alert } from 'react-native'
-import { Audio } from 'expo-av'
+import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av'
 import * as FileSystem from 'expo-file-system/legacy'
 import type { FrequencyPlayerHook } from './useFrequencyPlayer'
 
@@ -53,7 +53,15 @@ export function useFrequencyPlayer(): FrequencyPlayerHook {
   async function play(hz: number): Promise<void> {
     if (playing) { await stop(); return }
     try {
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: false })
+      await Audio.setAudioModeAsync({
+        staysActiveInBackground: true,
+        playsInSilentModeIOS: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        shouldDuckAndroid: false,
+        allowsRecordingIOS: false,
+        playThroughEarpieceAndroid: false,
+      })
       const fileUri = `${FileSystem.cacheDirectory}freq_${hz}.wav`
       await FileSystem.writeAsStringAsync(fileUri, toBase64(buildSineWav(hz)), { encoding: 'base64' as any })
       const { sound } = await Audio.Sound.createAsync(

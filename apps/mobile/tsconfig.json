@@ -2,13 +2,16 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "baseUrl": ".",
     "paths": {
       "@lumina/core": [
         "../../packages/core/src/index.ts"
       ],
       "@lumina/core/*": [
         "../../packages/core/src/*"
-      ]
+      ],
+      "expo-blur": ["./node_modules/expo-blur"],
+      "expo-blur/*": ["./node_modules/expo-blur/*"]
     }
   },
   "include": [

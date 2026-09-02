@@ -10,23 +10,31 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.lumina.app",
+      "bundleIdentifier": "com.bgacademic.lumina",
       "infoPlist": {
         "UIBackgroundModes": ["audio"],
-        "NSUserNotificationsUsageDescription": "Lumina te envía recordatorios de tu protocolo diario y alertas de portales energéticos."
+        "NSUserNotificationsUsageDescription": "Lumina te envía recordatorios de tu protocolo diario y alertas de portales energéticos.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.lumina.app",
+      "package": "com.bgacademic.lumina",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "../../assets/images/android-icon-foreground.png"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": []
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Lumina necesita acceso a tu galería para agregar imágenes a tu tablero de visión."
+        }
+      ],
       [
         "expo-notifications",
         {
@@ -51,7 +59,11 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {}
-    }
+      "router": {},
+      "eas": {
+        "projectId": "d935bc6b-c5b5-4df0-b070-c42d8563294d"
+      }
+    },
+    "privacyPolicyUrl": "https://bgacademic.com/privacy"
   }
 }

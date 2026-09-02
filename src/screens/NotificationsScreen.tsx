@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { Card } from '../components/ui/Card'
 import { useAuth } from '../hooks/useAuth'
@@ -243,16 +242,6 @@ export function NotificationsScreen({ onBack }: Props) {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#1a1030', '#0e0b1e', '#0a0814']}
-        locations={[0, 0.5, 1]}
-        style={StyleSheet.absoluteFillObject}
-        pointerEvents="none"
-      />
-      {/* @ts-ignore */}
-      <View style={styles.orbGold} aria-hidden />
-      {/* @ts-ignore */}
-      <View style={styles.orbPurple} aria-hidden />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={styles.header}>
@@ -263,7 +252,7 @@ export function NotificationsScreen({ onBack }: Props) {
           <Text style={styles.subtitle}>Alertas programadas para mantener tu práctica diaria</Text>
         </View>
 
-        {loading && <ActivityIndicator color={Colors.gold} style={{ marginTop: 40 }} />}
+        {loading && <ActivityIndicator color={Colors.plum} style={{ marginTop: 40 }} />}
 
         {/* Banner Día 1 */}
         {!loading && isFirstDay && (
@@ -364,23 +353,11 @@ export function NotificationsScreen({ onBack }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  orbGold: {
-    position: 'absolute', width: 360, height: 360, bottom: -60, left: -110, borderRadius: 999,
-    // @ts-ignore
-    background: 'radial-gradient(circle, rgba(212,175,85,0.10) 0%, transparent 60%)',
-    pointerEvents: 'none',
-  },
-  orbPurple: {
-    position: 'absolute', width: 300, height: 300, top: 30, right: -90, borderRadius: 999,
-    // @ts-ignore
-    background: 'radial-gradient(circle, rgba(123,63,212,0.16) 0%, transparent 60%)',
-    pointerEvents: 'none',
-  },
+  container: { flex: 1, backgroundColor: Colors.card },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
 
   header: { marginBottom: Spacing.xl, gap: Spacing.xs },
-  back:   { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm, fontFamily: Fonts.body },
+  back:   { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm, fontFamily: Fonts.body },
   title:  { fontSize: 24, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, fontFamily: Fonts.body },
 
@@ -389,7 +366,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1, marginBottom: Spacing.xs, marginTop: Spacing.md,
   },
   dayHeader: {
-    fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold,
+    fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold,
     letterSpacing: 0.5, marginBottom: Spacing.xs, marginTop: Spacing.sm,
     textTransform: 'uppercase',
   },
@@ -411,7 +388,7 @@ const styles = StyleSheet.create({
   },
   sentBadge: {
     fontSize: 10, color: Colors.textSecondary, fontFamily: Fonts.bodySemiBold,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: Colors.plumDim,
     paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10,
   },
 
@@ -421,7 +398,7 @@ const styles = StyleSheet.create({
 
   timeRow:      { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
   timeIcon:     { fontSize: 11 },
-  timeText:     { fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  timeText:     { fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   timeTextPast: { color: Colors.textSecondary },
 
   emptyCard:  { gap: Spacing.sm, marginTop: Spacing.xl },
@@ -436,11 +413,11 @@ const styles = StyleSheet.create({
   firstDayBody: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20, fontFamily: Fonts.body },
   firstDaySchedule: {
     gap: 6, width: '100%',
-    backgroundColor: Colors.goldDim,
+    backgroundColor: Colors.plumDim,
     borderRadius: 10, padding: Spacing.md,
-    borderWidth: 1, borderColor: Colors.borderGold,
+    borderWidth: 1, borderColor: Colors.borderPurple,
     marginVertical: Spacing.xs,
   },
-  firstDayHour:   { fontSize: 13, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  firstDayHour:   { fontSize: 13, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   firstDayFooter: { fontSize: 12, color: Colors.textDisabled, textAlign: 'center', lineHeight: 18, fontFamily: Fonts.body },
 })

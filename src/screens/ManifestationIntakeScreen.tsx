@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native'
-import { useState } from 'react'
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform } from 'react-native'
+import { useState, useRef, useEffect } from 'react'
+import * as Haptics from 'expo-haptics'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { GradientButton } from '../components/ui/GradientButton'
@@ -173,6 +174,9 @@ interface Props {
 export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
   const [answers, setAnswers] = useState<GoalDetails>({})
   const [currentQ, setCurrentQ] = useState(0)
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current) }, [])
 
   const qs = questions[area]
   const question = qs[currentQ]
@@ -183,7 +187,7 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
     if (isLast) {
       onComplete(answers)
     } else {
-      setCurrentQ(currentQ + 1)
+      setCurrentQ(q => q + 1)
     }
   }
 
@@ -191,12 +195,23 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
     if (currentQ === 0) {
       onBack()
     } else {
-      setCurrentQ(currentQ - 1)
+      setCurrentQ(q => q - 1)
     }
   }
 
   function handleOption(value: string) {
-    setAnswers(prev => ({ ...prev, [question.key]: value }))
+    if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    // Compute updated answers inline to avoid stale-closure on onComplete
+    const updated = { ...answers, [question.key]: value }
+    setAnswers(updated)
+    if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {})
+    advanceTimer.current = setTimeout(() => {
+      if (isLast) {
+        onComplete(updated)
+      } else {
+        setCurrentQ(q => q + 1)
+      }
+    }, 250)
   }
 
   function canContinue() {
@@ -271,14 +286,17 @@ export function ManifestationIntakeScreen({ area, onComplete, onBack }: Props) {
           />
         )}
 
-        <View style={styles.actions}>
-          {canContinue() && (
-            <GradientButton
-              title={isLast ? 'Ver mi plan personalizado' : 'Continuar'}
-              onPress={handleNext}
-            />
-          )}
-        </View>
+        {/* Button only for text inputs — option questions auto-advance on tap */}
+        {question.type === 'text' && (
+          <View style={styles.actions}>
+            {canContinue() && (
+              <GradientButton
+                title={isLast ? 'Ver mi plan personalizado' : 'Continuar'}
+                onPress={handleNext}
+              />
+            )}
+          </View>
+        )}
 
       </ScrollView>
     </View>

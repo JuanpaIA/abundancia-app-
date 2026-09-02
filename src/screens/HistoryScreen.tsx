@@ -2,7 +2,6 @@ import React from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Animated } from 'react-native'
 import Svg, { Circle, Polyline, Line, Text as SvgText } from 'react-native-svg'
 import { useState, useEffect } from 'react'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { Card } from '../components/ui/Card'
 import { supabase } from '../services/supabase'
@@ -70,7 +69,7 @@ function WeeklySummaryModal({ data, firstName, onClose }: { data: WeeklySummaryD
     : data.pct >= 40 ? 'Semana con progreso. Esta semana mantén el ritmo un paso más.'
     : data.pct >= 20 ? 'Semana lenta, pero aquí estás. Lo importante es no rendirse.'
     : 'Semana difícil. Esta semana empieza con una sola práctica — eso basta.'
-  const pctColor = data.pct >= 60 ? Colors.gold : data.pct >= 30 ? '#4CAF82' : Colors.textSecondary
+  const pctColor = data.pct >= 60 ? Colors.plum : data.pct >= 30 ? '#4CAF82' : Colors.textSecondary
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent>
       <Animated.View style={[wsStyles.overlay, { opacity: fadeAnim }]}>
@@ -89,7 +88,7 @@ function WeeklySummaryModal({ data, firstName, onClose }: { data: WeeklySummaryD
           </View>
           {data.bestDayCount > 0 && (
             <View style={wsStyles.bestDay}>
-              <Text style={wsStyles.bestDayText}>⭐ Tu mejor día fue el <Text style={{ color: Colors.gold }}>{data.bestDayLabel}</Text> con {data.bestDayCount} prácticas</Text>
+              <Text style={wsStyles.bestDayText}>⭐ Tu mejor día fue el <Text style={{ color: Colors.plum }}>{data.bestDayLabel}</Text> con {data.bestDayCount} prácticas</Text>
             </View>
           )}
           <Text style={wsStyles.msg}>{msg}</Text>
@@ -104,8 +103,8 @@ function WeeklySummaryModal({ data, firstName, onClose }: { data: WeeklySummaryD
 
 const wsStyles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.72)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: Colors.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)', padding: Spacing.xl, paddingBottom: 44, gap: Spacing.md },
-  eyebrow: { fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold, letterSpacing: 1.5, textTransform: 'uppercase' },
+  sheet: { backgroundColor: Colors.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderWidth: 1, borderColor: Colors.borderPurple, padding: Spacing.xl, paddingBottom: 44, gap: Spacing.md },
+  eyebrow: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold, letterSpacing: 1.5, textTransform: 'uppercase' },
   weekLabel: { fontSize: 13, color: Colors.textDisabled, fontFamily: Fonts.body },
   greeting: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   pctContainer: { alignItems: 'center', paddingVertical: Spacing.sm },
@@ -116,11 +115,11 @@ const wsStyles = StyleSheet.create({
   statBoxMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: Colors.border },
   statValue: { fontSize: 20, color: Colors.textPrimary, fontFamily: Fonts.bodyBold },
   statLabel: { fontSize: 10, color: Colors.textSecondary, textAlign: 'center', lineHeight: 14, fontFamily: Fonts.body },
-  bestDay: { backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: Radius.md, padding: Spacing.md, borderWidth: 1, borderColor: 'rgba(201,168,76,0.20)' },
+  bestDay: { backgroundColor: Colors.plumDim, borderRadius: Radius.md, padding: Spacing.md, borderWidth: 1, borderColor: Colors.borderPurple },
   bestDayText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, fontFamily: Fonts.body },
   msg: { fontSize: 14, color: Colors.textSecondary, lineHeight: 22, fontFamily: Fonts.headingItalic },
-  btn: { backgroundColor: Colors.gold, borderRadius: Radius.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.xs },
-  btnText: { fontSize: 15, color: Colors.background, fontFamily: Fonts.bodySemiBold },
+  btn: { backgroundColor: Colors.plum, borderRadius: Radius.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.xs },
+  btnText: { fontSize: 15, color: Colors.card, fontFamily: Fonts.bodySemiBold },
 })
 
 // ── Gráfica multi-línea ────────────────────────────────────────────────────────
@@ -160,7 +159,7 @@ function MultiLineChart({ data }: { data: ChartPoint[] }) {
       <Svg width={chartW} height={CHART_H}>
         <SvgText
           x={10} y={PAD_T + PLOT_H / 2}
-          fontSize={8} fill="rgba(255,255,255,0.30)"
+          fontSize={8} fill="#8A6E7A"
           textAnchor="middle"
           transform={`rotate(-90, 10, ${PAD_T + PLOT_H / 2})`}
         >tareas</SvgText>
@@ -168,13 +167,13 @@ function MultiLineChart({ data }: { data: ChartPoint[] }) {
           <React.Fragment key={v}>
             <Line
               x1={PAD_L} y1={yOf(v)} x2={PAD_L + plotW} y2={yOf(v)}
-              stroke={v === 0 ? 'rgba(201,168,76,0.25)' : 'rgba(201,168,76,0.10)'}
+              stroke={v === 0 ? 'rgba(107,63,90,0.20)' : 'rgba(107,63,90,0.10)'}
               strokeWidth={v === 0 ? 1 : 0.8}
               strokeDasharray={v === 0 ? undefined : '3,5'}
             />
             <SvgText
               x={PAD_L - 4} y={yOf(v) + 4}
-              fontSize={9} fill="rgba(255,255,255,0.40)" textAnchor="end"
+              fontSize={9} fill="#8A6E7A" textAnchor="end"
             >{v}</SvgText>
           </React.Fragment>
         ))}
@@ -208,7 +207,7 @@ function MultiLineChart({ data }: { data: ChartPoint[] }) {
           return (
             <SvgText key={d.day} x={x} y={y}
               fontSize={d.isToday ? 10 : 9}
-              fill={d.isToday ? '#C9A84C' : 'rgba(255,255,255,0.40)'}
+              fill={d.isToday ? '#6B3F5A' : '#8A6E7A'}
               fontWeight={d.isToday ? 'bold' : 'normal'}
               textAnchor="end"
               transform={`rotate(-40, ${x}, ${y})`}
@@ -229,13 +228,13 @@ function DayCircle({ completed, total }: { completed: number; total: number }) {
   const pct = total > 0 ? completed / total : 0
   const offset = DC_C * (1 - pct)
   const allDone = completed === total && total > 0
-  const arc = allDone ? '#4CAF82' : '#C9A84C'
+  const arc = allDone ? '#4CAF82' : '#6B3F5A'
   const cx = DC_SIZE / 2, cy = DC_SIZE / 2
   return (
     <View style={dcStyles.root}>
       <Svg width={DC_SIZE} height={DC_SIZE}>
         <Circle cx={cx} cy={cy} r={DC_R} fill="none"
-          stroke="rgba(255,255,255,0.08)" strokeWidth={DC_SW} />
+          stroke="rgba(107,63,90,0.12)" strokeWidth={DC_SW} />
         {completed > 0 && (
           <Circle cx={cx} cy={cy} r={DC_R} fill="none"
             stroke={arc} strokeWidth={DC_SW}
@@ -246,10 +245,10 @@ function DayCircle({ completed, total }: { completed: number; total: number }) {
           />
         )}
         <SvgText x={cx} y={cy - 7} textAnchor="middle"
-          fontSize={26} fontWeight="700" fill={completed > 0 ? arc : 'rgba(255,255,255,0.25)'}
+          fontSize={26} fontWeight="700" fill={completed > 0 ? arc : 'rgba(42,27,34,0.28)'}
         >{completed}</SvgText>
         <SvgText x={cx} y={cy + 13} textAnchor="middle"
-          fontSize={10} fill="rgba(255,255,255,0.35)"
+          fontSize={10} fill="#8A6E7A"
         >de {total} tareas</SvgText>
       </Svg>
       <View style={dcStyles.info}>
@@ -274,7 +273,7 @@ const dcStyles = StyleSheet.create({
   info: { flex: 1, gap: 5 },
   pct: { fontSize: 30, fontFamily: Fonts.heading },
   pctLabel: { fontSize: 12, color: Colors.textSecondary, marginTop: -4, fontFamily: Fonts.body },
-  sep: { height: 0.5, backgroundColor: 'rgba(201,168,76,0.15)', marginVertical: 4 },
+  sep: { height: 0.5, backgroundColor: Colors.border, marginVertical: 4 },
   stat: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   dot: { width: 8, height: 8, borderRadius: 4 },
   statText: { fontSize: 13, color: Colors.textSecondary, fontFamily: Fonts.body },
@@ -422,14 +421,6 @@ export function HistoryScreen({ onBack }: Props) {
 
     return (
       <View style={styles.container}>
-        <LinearGradient
-          colors={['#1a1030', '#0e0b1e', '#0a0814']}
-          locations={[0, 0.5, 1]}
-          style={StyleSheet.absoluteFillObject}
-          pointerEvents="none"
-        />
-        {/* @ts-ignore */}
-        <View style={styles.orbPurple} aria-hidden />
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
           {/* 1 — Header */}
@@ -656,16 +647,6 @@ export function HistoryScreen({ onBack }: Props) {
   // ── Vista lista ────────────────────────────────────────────────────────────
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#1a1030', '#0e0b1e', '#0a0814']}
-        locations={[0, 0.5, 1]}
-        style={StyleSheet.absoluteFillObject}
-        pointerEvents="none"
-      />
-      {/* @ts-ignore */}
-      <View style={styles.orbGold} aria-hidden />
-      {/* @ts-ignore */}
-      <View style={styles.orbPurple} aria-hidden />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack}>
@@ -870,25 +851,13 @@ export function HistoryScreen({ onBack }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  orbGold: {
-    position: 'absolute', width: 380, height: 380, bottom: -80, left: -120, borderRadius: 999,
-    // @ts-ignore
-    background: 'radial-gradient(circle, rgba(212,175,85,0.10) 0%, transparent 60%)',
-    pointerEvents: 'none',
-  },
-  orbPurple: {
-    position: 'absolute', width: 320, height: 320, top: 40, right: -100, borderRadius: 999,
-    // @ts-ignore
-    background: 'radial-gradient(circle, rgba(123,63,212,0.16) 0%, transparent 60%)',
-    pointerEvents: 'none',
-  },
+  container: { flex: 1, backgroundColor: Colors.card },
   scroll: { padding: Spacing.lg, paddingTop: 60 },
   header: { marginBottom: Spacing.xl, gap: Spacing.xs },
-  back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm, fontFamily: Fonts.body },
+  back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm, fontFamily: Fonts.body },
   title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 14, color: Colors.textSecondary, fontFamily: Fonts.body },
-  planDayTitle: { fontSize: 13, color: Colors.gold, fontFamily: Fonts.bodySemiBold, letterSpacing: 0.5 },
+  planDayTitle: { fontSize: 13, color: Colors.plum, fontFamily: Fonts.bodySemiBold, letterSpacing: 0.5 },
   dayTitle: { fontSize: 22, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, textTransform: 'capitalize' },
   loadingText: { color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.xl, fontFamily: Fonts.body },
 
@@ -899,10 +868,10 @@ const styles = StyleSheet.create({
   energyDisplay: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   energyBadge: {
     width: 44, height: 44, borderRadius: 22,
-    backgroundColor: Colors.gold,
+    backgroundColor: Colors.plum,
     justifyContent: 'center', alignItems: 'center',
   },
-  energyBadgeNum: { fontSize: 20, color: Colors.background, fontFamily: Fonts.bodyBold },
+  energyBadgeNum: { fontSize: 20, color: Colors.card, fontFamily: Fonts.bodyBold },
   energyValueText: { fontSize: 16, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold },
   noData: { fontSize: 14, color: Colors.textDisabled, fontFamily: Fonts.headingItalic },
 
@@ -917,9 +886,9 @@ const styles = StyleSheet.create({
   portalTitles: { flex: 1, gap: 2 },
   portalPowerBadge: { fontSize: 11, fontFamily: Fonts.bodySemiBold, letterSpacing: 0.5 },
   portalName: { fontSize: 16, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold, lineHeight: 22 },
-  portalEnergy: { fontSize: 12, color: Colors.gold, fontStyle: 'italic' },
+  portalEnergy: { fontSize: 12, color: Colors.plum, fontStyle: 'italic' },
   portalDescription: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
-  portalDivider: { height: 0.5, backgroundColor: 'rgba(201,168,76,0.20)', marginVertical: 2 },
+  portalDivider: { height: 0.5, backgroundColor: Colors.border, marginVertical: 2 },
   portalSectionLabel: { fontSize: 11, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
   portalText: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20 },
   portalAffBox: { borderLeftWidth: 2, paddingLeft: Spacing.sm, marginTop: 2 },
@@ -927,14 +896,14 @@ const styles = StyleSheet.create({
   // Portal inactive
   portalCardInactive: {
     marginBottom: Spacing.md, borderRadius: 16, borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)', borderStyle: 'dashed',
-    padding: Spacing.md, backgroundColor: 'rgba(255,255,255,0.03)',
+    borderColor: Colors.border, borderStyle: 'dashed',
+    padding: Spacing.md, backgroundColor: Colors.plumDim,
     flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start',
   },
   portalInactiveLock: { fontSize: 22, opacity: 0.35, paddingTop: 2 },
   portalInactiveBody: { flex: 1, gap: Spacing.xs },
-  portalInactiveTitle: { fontSize: 13, color: 'rgba(255,255,255,0.30)', fontWeight: '600', letterSpacing: 0.5 },
-  portalInactiveDesc: { fontSize: 12, color: 'rgba(255,255,255,0.22)', lineHeight: 18 },
+  portalInactiveTitle: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
+  portalInactiveDesc: { fontSize: 12, color: Colors.textDim, lineHeight: 18 },
 
   // Lunar active
   lunarCard: {
@@ -948,7 +917,7 @@ const styles = StyleSheet.create({
   lunarName: { fontSize: 16, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold, lineHeight: 22 },
   lunarEnergy: { fontSize: 12, fontStyle: 'italic' },
   lunarDescription: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
-  lunarDivider: { height: 0.5, backgroundColor: 'rgba(201,168,76,0.20)', marginVertical: 2 },
+  lunarDivider: { height: 0.5, backgroundColor: Colors.border, marginVertical: 2 },
   lunarSectionLabel: { fontSize: 11, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
   lunarText: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20 },
   lunarAffBox: { borderLeftWidth: 2, paddingLeft: Spacing.sm, marginTop: 2 },
@@ -956,14 +925,14 @@ const styles = StyleSheet.create({
   // Lunar inactive
   lunarCardInactive: {
     marginBottom: Spacing.md, borderRadius: 16, borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)', borderStyle: 'dashed',
-    padding: Spacing.md, backgroundColor: 'rgba(255,255,255,0.03)',
+    borderColor: Colors.border, borderStyle: 'dashed',
+    padding: Spacing.md, backgroundColor: Colors.plumDim,
     flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start',
   },
   lunarInactiveEmoji: { fontSize: 22, opacity: 0.4, paddingTop: 2 },
   lunarInactiveBody: { flex: 1, gap: Spacing.xs },
-  lunarInactiveTitle: { fontSize: 13, color: 'rgba(255,255,255,0.30)', fontWeight: '600', letterSpacing: 0.5 },
-  lunarInactiveDesc: { fontSize: 12, color: 'rgba(255,255,255,0.22)', lineHeight: 18 },
+  lunarInactiveTitle: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
+  lunarInactiveDesc: { fontSize: 12, color: Colors.textDim, lineHeight: 18 },
 
   // Sections
   sectionCard: { marginBottom: Spacing.md, gap: Spacing.sm },
@@ -973,36 +942,36 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 16, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold },
   sectionBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21, fontFamily: Fonts.body },
   affirmation: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.headingItalic, lineHeight: 24 },
-  numerologyTag: { fontSize: 12, color: Colors.gold, fontFamily: Fonts.body },
-  measurableText: { fontSize: 12, color: Colors.gold, fontFamily: Fonts.headingItalic },
+  numerologyTag: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.body },
+  measurableText: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.headingItalic },
   doneBadge: { fontSize: 12, color: Colors.success, fontFamily: Fonts.bodySemiBold },
-  pendingBadge: { fontSize: 12, color: 'rgba(255,255,255,0.25)', fontFamily: Fonts.bodyMedium },
+  pendingBadge: { fontSize: 12, color: Colors.textDim, fontFamily: Fonts.bodyMedium },
 
   // Protocol
   protocolRow: { gap: 4 },
-  protocolTime: { fontSize: 13, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  protocolTime: { fontSize: 13, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   protocolDone: { color: Colors.success },
   protocolAction: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
-  divider: { height: 0.5, backgroundColor: 'rgba(201,168,76,0.15)', marginVertical: Spacing.sm },
+  divider: { height: 0.5, backgroundColor: Colors.border, marginVertical: Spacing.sm },
 
   // Color
   colorRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'flex-start' },
   colorCircle: { width: 48, height: 48, borderRadius: 24, marginTop: 4 },
 
   // Note
-  noteBox: { borderTopWidth: 0.5, borderTopColor: 'rgba(201,168,76,0.15)', paddingTop: Spacing.sm, gap: 4 },
+  noteBox: { borderTopWidth: 0.5, borderTopColor: Colors.border, paddingTop: Spacing.sm, gap: 4 },
   noteBoxLabel: { fontSize: 11, color: Colors.textSecondary },
   noteBoxText: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20, fontStyle: 'italic' },
 
   // Frequency
   freqBox: { backgroundColor: Colors.input, borderRadius: 12, padding: Spacing.md, gap: 4, marginTop: Spacing.sm },
-  freqHz: { fontSize: 28, color: Colors.gold, fontFamily: Fonts.heading },
+  freqHz: { fontSize: 28, color: Colors.plum, fontFamily: Fonts.heading },
   freqName: { fontSize: 12, color: Colors.textSecondary, fontFamily: Fonts.body },
 
   // Chart
   chartCard: { marginBottom: Spacing.md, gap: Spacing.sm },
   chartHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  chartMeta: { fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  chartMeta: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   chartLegend: { flexDirection: 'row', gap: Spacing.lg, paddingHorizontal: 24 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
@@ -1010,27 +979,27 @@ const styles = StyleSheet.create({
   chartStats: {
     flexDirection: 'row', justifyContent: 'space-around',
     paddingTop: Spacing.xs, borderTopWidth: 0.5,
-    borderTopColor: 'rgba(201,168,76,0.15)',
+    borderTopColor: Colors.border,
   },
   chartStatItem: { alignItems: 'center', gap: 2 },
   chartStatValue: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodyBold },
   chartStatLabel: { fontSize: 10, color: Colors.textSecondary, fontFamily: Fonts.body },
-  chartStatSep: { width: 0.5, backgroundColor: 'rgba(201,168,76,0.15)', alignSelf: 'stretch' },
+  chartStatSep: { width: 0.5, backgroundColor: Colors.border, alignSelf: 'stretch' },
 
   // List view
   logCard: { marginBottom: Spacing.sm, gap: Spacing.md },
-  logCardComplete: { borderColor: Colors.gold, borderWidth: 1 },
+  logCardComplete: { borderColor: Colors.plum, borderWidth: 1 },
   logHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   logDateRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  planDayBadge: { fontSize: 11, color: Colors.gold, fontFamily: Fonts.bodySemiBold, letterSpacing: 0.5 },
+  planDayBadge: { fontSize: 11, color: Colors.plum, fontFamily: Fonts.bodySemiBold, letterSpacing: 0.5 },
   logDate: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold, textTransform: 'capitalize' },
   logLunar: { fontSize: 12, color: Colors.textSecondary, marginTop: 2, fontFamily: Fonts.body },
   logRight: { alignItems: 'flex-end', gap: 2 },
   logEnergy: { fontSize: 12, color: Colors.textSecondary },
   logEnergySin: { fontSize: 12, color: Colors.textDisabled },
-  logProgress: { fontSize: 12, color: Colors.gold },
+  logProgress: { fontSize: 12, color: Colors.plum },
   logProgressPending: { fontSize: 12, color: Colors.textDisabled },
-  todayBadge: { color: Colors.gold, fontWeight: '700' },
+  todayBadge: { color: Colors.plum, fontWeight: '700' },
   logDots: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   dot: {
     width: 32, height: 32, borderRadius: 16,
@@ -1038,16 +1007,16 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.border,
     justifyContent: 'center', alignItems: 'center',
   },
-  dotDone: { backgroundColor: 'rgba(201,168,76,0.15)', borderColor: Colors.gold },
+  dotDone: { backgroundColor: Colors.plumDim, borderColor: Colors.plum },
   dotEmoji: { fontSize: 13 },
   weeklySummaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    backgroundColor: 'rgba(201,168,76,0.08)',
+    backgroundColor: Colors.plumDim,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.30)',
+    borderColor: Colors.borderPurple,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
   },
@@ -1055,12 +1024,12 @@ const styles = StyleSheet.create({
   weeklySummaryBtnBody: { flex: 1, gap: 2 },
   weeklySummaryBtnTitle: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold },
   weeklySummaryBtnSub: { fontSize: 12, color: Colors.textSecondary, fontFamily: Fonts.body },
-  weeklySummaryBtnArrow: { fontSize: 22, color: Colors.gold },
+  weeklySummaryBtnArrow: { fontSize: 22, color: Colors.plum },
 
   // Tab bar
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: Colors.plumDim,
     borderRadius: Radius.lg,
     padding: 3,
     marginBottom: Spacing.lg,
@@ -1071,10 +1040,10 @@ const styles = StyleSheet.create({
     alignItems: 'center', borderRadius: Radius.md,
   },
   tabBtnActive: {
-    backgroundColor: Colors.gold,
+    backgroundColor: Colors.plum,
   },
   tabBtnText: { fontSize: 13, color: Colors.textSecondary, fontFamily: Fonts.bodySemiBold },
-  tabBtnTextActive: { color: Colors.background },
+  tabBtnTextActive: { color: Colors.card },
 
   // Mi Plan cards
   planCard: {
@@ -1092,15 +1061,15 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginBottom: 2,
   },
-  planCardDay: { fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  planCardDay: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   planCardDate: { flex: 1, fontSize: 12, color: Colors.textSecondary, textTransform: 'capitalize', fontFamily: Fonts.body },
-  planCardDone: { fontSize: 14, color: Colors.gold, fontFamily: Fonts.bodySemiBold },
+  planCardDone: { fontSize: 14, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
   planCardPending: { fontSize: 14, color: Colors.textDisabled, fontFamily: Fonts.body },
   planCardTitle: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodyBold, lineHeight: 22 },
   planCardAction: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, fontFamily: Fonts.body },
   planCardNoteBox: {
     borderLeftWidth: 2,
-    borderLeftColor: 'rgba(201,168,76,0.50)',
+    borderLeftColor: Colors.borderPurple,
     paddingLeft: Spacing.sm,
     marginTop: Spacing.xs,
   },

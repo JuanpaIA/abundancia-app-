@@ -259,7 +259,7 @@ export function BadgesScreen({ onBack }: Props) {
   if (loading || !badgeData) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator color={Colors.gold} size="large" style={{ marginTop: 120 }} />
+        <ActivityIndicator color={Colors.plum} size="large" style={{ marginTop: 120 }} />
       </View>
     )
   }
@@ -340,38 +340,38 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
-  back: { color: Colors.gold, fontSize: 15, marginBottom: Spacing.sm },
+  back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },
   title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
   subtitle: { fontSize: 13, color: Colors.textSecondary },
 
   progressCard: {
     backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
-    borderWidth: 1, borderColor: Colors.borderGold,
+    borderWidth: 1, borderColor: Colors.borderPurple,
     padding: Spacing.md, marginBottom: Spacing.xl, gap: Spacing.sm,
   },
   progressTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   progressLabel: { fontSize: 14, color: Colors.textSecondary },
-  progressPct: { fontSize: 18, color: Colors.gold, fontWeight: '700' },
+  progressPct: { fontSize: 18, color: Colors.plum, fontWeight: '700' },
   progressTrack: {
-    height: 6, backgroundColor: 'rgba(255,255,255,0.08)',
+    height: 6, backgroundColor: Colors.plumDim,
     borderRadius: 3, overflow: 'hidden',
   },
-  progressFill: { height: 6, backgroundColor: Colors.gold, borderRadius: 3 },
+  progressFill: { height: 6, backgroundColor: Colors.plum, borderRadius: 3 },
 
   section: { marginBottom: Spacing.xl },
   sectionHeader: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginBottom: Spacing.md,
   },
-  sectionTitle: { fontSize: 13, color: Colors.gold, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
+  sectionTitle: { fontSize: 13, color: Colors.plum, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   sectionCount: { fontSize: 12, color: Colors.textDisabled },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   badgeCard: {
     width: '30.5%',
-    backgroundColor: Colors.goldDim,
+    backgroundColor: Colors.plumDim,
     borderRadius: Radius.lg, borderWidth: 1,
-    borderColor: Colors.borderGold,
+    borderColor: Colors.borderPurple,
     padding: Spacing.sm, alignItems: 'center',
     gap: 4, position: 'relative',
   },
@@ -393,6 +393,6 @@ const styles = StyleSheet.create({
   earnedDot: {
     position: 'absolute', top: 6, right: 6,
     width: 7, height: 7, borderRadius: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: Colors.plum,
   },
 })
