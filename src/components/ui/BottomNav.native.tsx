@@ -1,11 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { BlurView } from 'expo-blur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Path, Circle, Rect } from 'react-native-svg'
 import { Colors, Fonts } from '../../constants/theme'
-import { useTheme } from '../../contexts/ThemeContext'
 import type { BottomNavProps, NavTab } from './BottomNav.types'
-
-// ── SVG icons exactos del mockup (líneas 883-903) ─────────────────────────────
 
 const STROKE = { strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
 
@@ -63,19 +61,19 @@ const TABS: { key: NavTab; label: string; Icon: React.FC<{ color: string }> }[] 
   { key: 'perfil', label: 'Perfil', Icon: IconPerfil },
 ]
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
 export function BottomNav({ activeTab, onTabPress }: BottomNavProps) {
   const insets = useSafeAreaInsets()
-  const { palette } = useTheme()
-
   return (
-    <View style={[styles.wrap, { paddingBottom: insets.bottom }]}>
+    <BlurView
+      intensity={40}
+      tint="dark"
+      style={[styles.wrap, { paddingBottom: insets.bottom }]}
+    >
       <View style={styles.border} />
       <View style={styles.row}>
         {TABS.map(({ key, label, Icon }) => {
           const active = activeTab === key
-          const color = active ? palette.accent : Colors.textSecondary
+          const color = active ? Colors.goldLight : Colors.textDim
           return (
             <TouchableOpacity
               key={key}
@@ -89,7 +87,7 @@ export function BottomNav({ activeTab, onTabPress }: BottomNavProps) {
           )
         })}
       </View>
-    </View>
+    </BlurView>
   )
 }
 
@@ -100,11 +98,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: 'hidden',
-    backgroundColor: 'rgba(251,246,248,0.96)',
+    backgroundColor: 'rgba(10,10,20,0.85)',
   },
   border: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.border,
+    height: 1,
+    backgroundColor: Colors.line,
   },
   row: {
     height: 64,
@@ -120,8 +118,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   label: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
     fontFamily: Fonts.bodySemiBold,
     letterSpacing: 0.2,
   },

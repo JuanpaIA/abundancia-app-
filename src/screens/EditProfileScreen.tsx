@@ -337,8 +337,8 @@ export function EditProfileScreen({ profile, onSave, onBack }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.card },
-  scroll: { padding: Spacing.lg, paddingTop: 60 },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
   header: { marginBottom: Spacing.xl, gap: Spacing.sm },
   back: { fontFamily: Fonts.body, color: Colors.plum, fontSize: 15 },
   title: { fontFamily: Fonts.headingSemiBold, fontSize: 28, color: Colors.textPrimary, lineHeight: 34 },

@@ -9,6 +9,7 @@ import {
   Cormorant_500Medium,
   Cormorant_500Medium_Italic,
   Cormorant_600SemiBold,
+  Cormorant_600SemiBold_Italic,
   Cormorant_700Bold,
 } from '@expo-google-fonts/cormorant';
 import {
@@ -20,7 +21,6 @@ import {
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '../src/constants/theme';
-import { AppThemeProvider } from '../src/contexts/ThemeContext';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
 // Show notifications when the app is open in the foreground
@@ -45,6 +45,7 @@ export default function RootLayout() {
     Cormorant_500Medium,
     Cormorant_500Medium_Italic,
     Cormorant_600SemiBold,
+    Cormorant_600SemiBold_Italic,
     Cormorant_700Bold,
     DMSans_400Regular,
     DMSans_500Medium,
@@ -62,20 +63,18 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <AppThemeProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="index"   options={{ headerShown: false }} />
-            <Stack.Screen name="diario"  options={{ headerShown: false }} />
-            <Stack.Screen name="vision"  options={{ headerShown: false }} />
-            <Stack.Screen name="sonido"  options={{ headerShown: false }} />
-            <Stack.Screen name="perfil"  options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
-            <Stack.Screen name="modal"   options={{ presentation: 'modal', title: 'Modal' }} />
-          </Stack>
-          <StatusBar style="light" />
-        </ThemeProvider>
-      </AppThemeProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="index"   options={{ headerShown: false }} />
+          <Stack.Screen name="diario"  options={{ headerShown: false }} />
+          <Stack.Screen name="vision"  options={{ headerShown: false }} />
+          <Stack.Screen name="sonido"  options={{ headerShown: false }} />
+          <Stack.Screen name="perfil"  options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
+          <Stack.Screen name="modal"   options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="light" />
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

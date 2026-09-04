@@ -895,7 +895,7 @@ function UserCard({ user, onPlanUpdated, onDeleted }: { user: AdminUser; onPlanU
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
 
   header: { marginBottom: Spacing.xl, gap: Spacing.xs },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },

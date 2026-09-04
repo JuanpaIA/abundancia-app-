@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { supabase } from '../src/services/supabase'
 import { useAuth } from '../src/hooks/useAuth'
 import { LandingScreen } from '../src/screens/LandingScreen'
+import { SignedOutScreen } from '../src/screens/SignedOutScreen'
 import { AuthScreen } from '../src/screens/AuthScreen'
 import { ManifestationIntakeScreen } from '../src/screens/ManifestationIntakeScreen'
 import { OnboardingScreen } from '../src/screens/OnboardingScreen'
@@ -65,6 +66,8 @@ export default function Index() {
   const [selectedPlan,        setSelectedPlan]        = useState<PlanType>('monthly')
   const [savingProfile,       setSavingProfile]       = useState(false)
   const [showDailyEnsamblaje, setShowDailyEnsamblaje] = useState(false)
+  const [signedOut,           setSignedOut]           = useState(false)
+  const [signedOutName,       setSignedOutName]       = useState<string | undefined>()
 
   // __DEV__ only
   const [devForceTier,    setDevForceTier]    = useState<AlignmentTier | null>(null)
@@ -105,6 +108,13 @@ export default function Index() {
     })
   }, [session?.user.id, profile?.full_name])
 
+  const handleSignOut = async () => {
+    const name = profile?.full_name ?? undefined
+    await supabase.auth.signOut()
+    setSignedOutName(name)
+    setSignedOut(true)
+  }
+
   if (resetPasswordMode) {
     return <ResetPasswordScreen onComplete={clearResetMode} />
   }
@@ -114,6 +124,18 @@ export default function Index() {
       <View style={{ flex: 1, backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator color={Colors.gold} size="large" />
       </View>
+    )
+  }
+
+  // ── Signed-out confirmation ──────────────────────────────────────────────────
+
+  if (!session && signedOut) {
+    return (
+      <SignedOutScreen
+        userName={signedOutName}
+        onSignIn={() => { setSignedOut(false); setFlowStep('login') }}
+        onExplore={() => { setSignedOut(false); setFlowStep('landing') }}
+      />
     )
   }
 
@@ -187,7 +209,7 @@ export default function Index() {
       <OnboardingScreen
         userId={session.user.id}
         onComplete={refreshProfile}
-        onSignOut={async () => { await supabase.auth.signOut() }}
+        onSignOut={handleSignOut}
       />
     )
   }
@@ -202,7 +224,7 @@ export default function Index() {
         selectedPlan={selectedPlan}
         onSelectPlan={setSelectedPlan}
         onPaymentSuccess={refreshProfile}
-        onSignOut={async () => { await supabase.auth.signOut() }}
+        onSignOut={handleSignOut}
       />
     )
   }

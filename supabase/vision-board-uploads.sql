@@ -29,7 +29,14 @@ CREATE POLICY "Usuaria elimina solo sus uploads"
   USING (auth.uid() = user_id);
 
 -- ── Storage ───────────────────────────────────────────────────────────────────
--- Crea el bucket "vision-boards" como PRIVADO desde el dashboard, luego ejecuta:
+-- Requisito previo: crear el bucket "vision-boards" como PRIVADO
+-- en Storage → New bucket del dashboard de Supabase.
+-- Luego ejecuta este bloque (idempotente con DROP IF EXISTS):
+
+DROP POLICY IF EXISTS "Leer propias imágenes"   ON storage.objects;
+DROP POLICY IF EXISTS "Subir propias imágenes"   ON storage.objects;
+DROP POLICY IF EXISTS "Reemplazar propias imágenes" ON storage.objects;
+DROP POLICY IF EXISTS "Borrar propias imágenes"  ON storage.objects;
 
 CREATE POLICY "Leer propias imágenes"
   ON storage.objects FOR SELECT
@@ -38,8 +45,20 @@ CREATE POLICY "Leer propias imágenes"
     AND auth.uid()::text = (storage.foldername(name))[1]
   );
 
+-- INSERT cubre uploads nuevos; UPDATE cubre upsert ({upsert: true})
 CREATE POLICY "Subir propias imágenes"
   ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Reemplazar propias imágenes"
+  ON storage.objects FOR UPDATE
+  USING (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  )
   WITH CHECK (
     bucket_id = 'vision-boards'
     AND auth.uid()::text = (storage.foldername(name))[1]

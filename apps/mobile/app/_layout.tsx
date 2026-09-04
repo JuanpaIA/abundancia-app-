@@ -8,6 +8,7 @@ import {
   Cormorant_500Medium,
   Cormorant_500Medium_Italic,
   Cormorant_600SemiBold,
+  Cormorant_600SemiBold_Italic,
   Cormorant_700Bold,
 } from '@expo-google-fonts/cormorant'
 import {
@@ -18,7 +19,6 @@ import {
 } from '@expo-google-fonts/dm-sans'
 
 import { Colors } from '../../../src/constants/theme'
-import { AppThemeProvider } from '../../../src/contexts/ThemeContext'
 import { ErrorBoundary } from '../../../src/components/ErrorBoundary'
 import { OfflineBanner } from '../../../src/components/OfflineBanner'
 import { FrequencyPlayerProvider } from '../../../src/contexts/FrequencyPlayerContext'
@@ -38,6 +38,7 @@ export default function RootLayout() {
     Cormorant_500Medium,
     Cormorant_500Medium_Italic,
     Cormorant_600SemiBold,
+    Cormorant_600SemiBold_Italic,
     Cormorant_700Bold,
     DMSans_400Regular,
     DMSans_500Medium,
@@ -55,8 +56,7 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <AppThemeProvider>
-        <FrequencyPlayerProvider>
+      <FrequencyPlayerProvider>
         <Stack
           screenOptions={{
             headerShown: false,
@@ -67,8 +67,7 @@ export default function RootLayout() {
         />
         <StatusBar style="light" />
         <OfflineBanner />
-        </FrequencyPlayerProvider>
-      </AppThemeProvider>
+      </FrequencyPlayerProvider>
     </ErrorBoundary>
   )
 }

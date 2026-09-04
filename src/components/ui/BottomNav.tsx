@@ -65,7 +65,7 @@ export function BottomNav({ activeTab, onTabPress }: BottomNavProps) {
       <View style={styles.row}>
         {TABS.map(({ key, label, Icon }) => {
           const active = activeTab === key
-          const color = active ? Colors.goldLight : '#767693'
+          const color = active ? Colors.goldLight : Colors.textDim
           return (
             <TouchableOpacity
               key={key}
@@ -106,8 +106,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   label: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
     fontFamily: Fonts.bodySemiBold,
     letterSpacing: 0.2,
   },

@@ -11,15 +11,18 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withDelay,
+  withRepeat,
+  withSequence,
   withSpring,
   runOnJS,
   Easing,
   ReduceMotion,
+  type SharedValue,
 } from 'react-native-reanimated'
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg'
+import { BlurOverlay } from './BlurOverlay'
+import { GradientText } from './GradientText'
 
-// Curves de Emil Kowalski — UI thread, tuned per type of motion
-const EASE_OUT   = Easing.bezier(0.23, 1, 0.32, 1)    // UI entrance
-const EASE_SHEET = Easing.bezier(0.32, 0.72, 0, 1)    // overlay que envuelve
 import { AlignmentMoon } from './AlignmentMoon'
 import { SignalShareCard } from './SignalShareCard'
 import { useSignalSound } from '../../hooks/useSignalSound'
@@ -36,9 +39,33 @@ interface SignalRevealProps {
   creatorMode?: boolean
 }
 
-const { height: SCREEN_H } = Dimensions.get('window')
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window')
 
-const MASTER = new Set([11, 22, 33])
+const EASE_OUT   = Easing.bezier(0.23, 1, 0.32, 1)
+const EASE_SHEET = Easing.bezier(0.32, 0.72, 0, 1)
+const MASTER     = new Set([11, 22, 33])
+
+// ── Glow SVG behind number ────────────────────────────────────────────────────
+
+function NumberGlow({ size, opacity }: { size: number; opacity: SharedValue<number> }) {
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }))
+  return (
+    <Animated.View style={[StyleSheet.absoluteFillObject, styles.glowWrap, style]} pointerEvents="none">
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <Defs>
+          <RadialGradient id="numGlow" cx="50%" cy="50%" rx="50%" ry="50%">
+            <Stop offset="0%"   stopColor="#eccb7a" stopOpacity="0.55" />
+            <Stop offset="50%"  stopColor="#eccb7a" stopOpacity="0.20" />
+            <Stop offset="100%" stopColor="#eccb7a" stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+        <Circle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#numGlow)" />
+      </Svg>
+    </Animated.View>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function SignalReveal({
   signal,
@@ -51,21 +78,20 @@ export function SignalReveal({
   const sound = useSignalSound()
   const { share, cardRef } = useSignalShare(signal, alignmentScore, alignmentTier)
 
-  // Keep a stable ref to play so the worklet callback doesn't capture a stale closure
   const playRef = useRef(sound.play)
   useEffect(() => { playRef.current = sound.play }, [sound.play])
 
-  // Animated shared values
-  const bgOpacity       = useSharedValue(0)
-  const moonY           = useSharedValue(20)
-  const moonOpacity     = useSharedValue(0)
-  const numberScale     = useSharedValue(0.65)
-  const numberOpacity   = useSharedValue(0)
-  const readingOpacity  = useSharedValue(0)
-  const hintOpacity     = useSharedValue(0)
+  // Shared values
+  const bgOpacity      = useSharedValue(0)
+  const moonY          = useSharedValue(24)
+  const moonOpacity    = useSharedValue(0)
+  const numberScale    = useSharedValue(0.7)
+  const numberOpacity  = useSharedValue(0)
+  const glowOpacity    = useSharedValue(0)
+  const readingOpacity = useSharedValue(0)
+  const hintOpacity    = useSharedValue(0)
   const expandedOpacity = useSharedValue(0)
 
-  // Expand state — ref for use inside animated callbacks, state for rendering
   const expandedRef = useRef(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -73,13 +99,14 @@ export function SignalReveal({
     const fade = { duration: 200 }
     moonOpacity.value     = withTiming(0, fade)
     numberOpacity.value   = withTiming(0, fade)
+    glowOpacity.value     = withTiming(0, fade)
     readingOpacity.value  = withTiming(0, { duration: 150 })
     hintOpacity.value     = withTiming(0, { duration: 150 })
     expandedOpacity.value = withTiming(0, { duration: 150 })
     bgOpacity.value = withTiming(0, { duration: 280 }, () => {
       runOnJS(onDismiss)()
     })
-  }, [bgOpacity, moonOpacity, numberOpacity, readingOpacity, hintOpacity, expandedOpacity, onDismiss])
+  }, [bgOpacity, moonOpacity, numberOpacity, glowOpacity, readingOpacity, hintOpacity, expandedOpacity, onDismiss])
 
   const handleExpand = useCallback(() => {
     if (expandedRef.current) return
@@ -92,143 +119,133 @@ export function SignalReveal({
   useEffect(() => {
     if (!visible) return
 
-    // Reset all values
     bgOpacity.value       = 0
-    moonY.value           = 20
+    moonY.value           = 24
     moonOpacity.value     = 0
-    numberScale.value     = 0.65
+    numberScale.value     = 0.7
     numberOpacity.value   = 0
+    glowOpacity.value     = 0
     readingOpacity.value  = 0
     hintOpacity.value     = 0
     expandedOpacity.value = 0
     expandedRef.current   = false
     setIsExpanded(false)
 
-    // 0.0–0.28 s — overlay envuelve (EASE_SHEET: iOS sheet curve)
-    bgOpacity.value = withTiming(1, {
-      duration: 280,
-      easing: EASE_SHEET,
-      reduceMotion: ReduceMotion.System,
-    })
+    // 0.0–0.28 s — overlay fills in
+    bgOpacity.value = withTiming(1, { duration: 280, easing: EASE_SHEET, reduceMotion: ReduceMotion.System })
 
-    // 0.28–0.7 s — luna sube suavemente (EASE_OUT fuerte)
-    moonY.value       = withDelay(280, withTiming(0, {
-      duration: 420,
-      easing: EASE_OUT,
-      reduceMotion: ReduceMotion.System,
-    }))
+    // 0.28–0.7 s — moon rises
+    moonY.value       = withDelay(280, withTiming(0, { duration: 420, easing: EASE_OUT, reduceMotion: ReduceMotion.System }))
     moonOpacity.value = withDelay(280, withTiming(1, { duration: 360, reduceMotion: ReduceMotion.System }))
 
-    // 0.72–1.2 s — número florece con spring (dampingRatio 0.8 = ligero overshoot físico)
-    numberScale.value   = withDelay(720, withSpring(1, {
-      duration: 500, dampingRatio: 0.8,
-      reduceMotion: ReduceMotion.System,
-    }))
-    numberOpacity.value = withDelay(720, withTiming(1, { duration: 180, reduceMotion: ReduceMotion.System }, () => {
+    // 0.72–1.2 s — number ignites with spring + glow
+    numberScale.value   = withDelay(720, withSpring(1, { duration: 600, dampingRatio: 0.75, reduceMotion: ReduceMotion.System }))
+    numberOpacity.value = withDelay(720, withTiming(1, { duration: 220, reduceMotion: ReduceMotion.System }, () => {
       runOnJS(playRef.current)()
     }))
+    glowOpacity.value   = withDelay(720, withTiming(0.35, { duration: 500, reduceMotion: ReduceMotion.System }))
 
-    // 1.3–1.8 s — lectura aparece
-    readingOpacity.value = withDelay(1300, withTiming(1, {
-      duration: 480,
-      easing: EASE_OUT,
-      reduceMotion: ReduceMotion.System,
-    }))
+    // Glow pulse: breathe between 0.35 and 0.55 every 3s
+    const startPulse = () => {
+      glowOpacity.value = withDelay(1200, withRepeat(
+        withSequence(
+          withTiming(0.55, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0.35, { duration: 1500, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        false
+      ))
+    }
+    setTimeout(startPulse, 1220)
 
-    // 2.0–2.4 s — hint "toca para más"
+    // 1.3–1.8 s — reading fades in
+    readingOpacity.value = withDelay(1300, withTiming(1, { duration: 480, easing: EASE_OUT, reduceMotion: ReduceMotion.System }))
+
+    // 2.0–2.4 s — hint
     hintOpacity.value = withDelay(2000, withTiming(1, { duration: 380, reduceMotion: ReduceMotion.System }))
 
     return () => { sound.cleanup() }
   }, [visible, signal]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const bgStyle = useAnimatedStyle(() => ({
-    opacity: bgOpacity.value,
-  }))
-  const moonStyle = useAnimatedStyle(() => ({
-    opacity: moonOpacity.value,
-    transform: [{ translateY: moonY.value }],
-  }))
-  const numberStyle = useAnimatedStyle(() => ({
-    opacity: numberOpacity.value,
-    transform: [{ scale: numberScale.value }],
-  }))
+  const bgStyle       = useAnimatedStyle(() => ({ opacity: bgOpacity.value }))
+  const moonStyle     = useAnimatedStyle(() => ({ opacity: moonOpacity.value, transform: [{ translateY: moonY.value }] }))
+  const numberStyle   = useAnimatedStyle(() => ({ opacity: numberOpacity.value, transform: [{ scale: numberScale.value }] }))
   const readingStyle  = useAnimatedStyle(() => ({ opacity: readingOpacity.value }))
   const hintStyle     = useAnimatedStyle(() => ({ opacity: hintOpacity.value }))
   const expandedStyle = useAnimatedStyle(() => ({ opacity: expandedOpacity.value }))
 
-  // Hooks must be called before any early return
   if (!visible) return null
 
   const isMaster    = MASTER.has(signal.number)
-  const numFontSize = String(signal.number).length > 1 ? 112 : 128
-  const glowColor   = isMaster ? 'rgba(236,203,122,0.60)' : 'rgba(236,203,122,0.28)'
+  const numFontSize = String(signal.number).length > 1 ? 108 : 128
+  const glowDiameter = numFontSize * 1.8
 
   return (
-    <View style={StyleSheet.absoluteFill}>
-      {/* Dark overlay — tapping it dismisses */}
-      <Animated.View style={[StyleSheet.absoluteFill, styles.overlay, bgStyle]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={dismissAll} />
+    <View style={[StyleSheet.absoluteFill, { flex: 1 }]}>
+      {/* Blur + dark overlay */}
+      <Animated.View style={[StyleSheet.absoluteFill, bgStyle]} pointerEvents="auto">
+        <BlurOverlay />
+        <Pressable style={[StyleSheet.absoluteFill, styles.overlayColor]} onPress={dismissAll} />
       </Animated.View>
 
-      {/* Moon — floats in, no touch */}
-      <Animated.View pointerEvents="none" style={[styles.moonWrap, moonStyle]}>
-        <AlignmentMoon score={alignmentScore} tier={alignmentTier} size={56} />
-      </Animated.View>
+      {/* Central block — moon + number + reading, vertically centered */}
+      <View style={styles.centerBlock} pointerEvents="box-none">
+        {/* Moon */}
+        <Animated.View pointerEvents="none" style={moonStyle}>
+          <AlignmentMoon score={alignmentScore} tier={alignmentTier} size={140} showScore={false} />
+        </Animated.View>
 
-      {/* Number — absolute hero, no touch (taps fall through to overlay) */}
-      <Animated.View pointerEvents="none" style={[styles.numberWrap, numberStyle]}>
-        <Text
-          style={[
-            styles.number,
-            {
-              fontSize: numFontSize,
-              textShadowColor: glowColor,
-              textShadowRadius: isMaster ? 30 : 14,
-              textShadowOffset: { width: 0, height: 0 },
-            },
-          ]}
-        >
-          {signal.number}
-        </Text>
-      </Animated.View>
+        {/* Number with glow behind */}
+        <Animated.View pointerEvents="none" style={[styles.numberWrap, { width: glowDiameter, height: glowDiameter }, numberStyle]}>
+          <NumberGlow size={glowDiameter} opacity={glowOpacity} />
+          <View style={styles.numberInner}>
+            <GradientText
+              fontSize={numFontSize}
+              style={isMaster ? styles.masterShadow : styles.normalShadow}
+            >
+              {signal.number}
+            </GradientText>
+          </View>
+        </Animated.View>
 
-      {/* Reading + expand area */}
-      <Pressable style={styles.contentArea} onPress={handleExpand}>
-        <Animated.Text style={[styles.reading, readingStyle]}>
-          {signal.reading}
-        </Animated.Text>
-
-        {!isExpanded && (
-          <Animated.Text style={[styles.hint, hintStyle]}>
-            toca para más
+        {/* Reading text */}
+        <Pressable onPress={handleExpand} style={styles.readingWrap}>
+          <Animated.Text style={[styles.reading, readingStyle]}>
+            {signal.reading}
           </Animated.Text>
-        )}
 
-        {isExpanded && (
-          <Animated.Text style={[styles.expanded, expandedStyle]}>
-            {signal.expanded}
-          </Animated.Text>
-        )}
-      </Pressable>
+          {!isExpanded && (
+            <Animated.Text style={[styles.hint, hintStyle]}>
+              toca para más
+            </Animated.Text>
+          )}
 
-      {/* Creator wordmark — visible when creatorMode=true for screen recordings */}
+          {isExpanded && (
+            <Animated.Text style={[styles.expanded, expandedStyle]}>
+              {signal.expanded}
+            </Animated.Text>
+          )}
+        </Pressable>
+      </View>
+
+      {/* Creator wordmark */}
       {creatorMode && (
         <View pointerEvents="none" style={styles.creatorWordmark}>
           <Text style={styles.creatorWordmarkTxt}>LUMINA</Text>
         </View>
       )}
 
-      {/* Bottom action row — share + close */}
+      {/* Bottom controls */}
       <Animated.View style={[styles.bottomRow, bgStyle]}>
         <Pressable style={styles.shareBtn} onPress={share}>
-          <Text style={styles.shareTxt}>compartir</Text>
+          <Text style={styles.shareTxt}>COMPARTIR</Text>
         </Pressable>
         <Pressable style={styles.closeBtn} onPress={dismissAll}>
-          <Text style={styles.closeTxt}>—</Text>
+          <Text style={styles.closeTxt}>✕</Text>
         </Pressable>
       </Animated.View>
 
-      {/* Off-screen card for native capture — only mounted when cardRef exists (native only) */}
+      {/* Off-screen share card */}
       {cardRef && (
         <View pointerEvents="none" style={styles.offScreen}>
           <SignalShareCard
@@ -244,42 +261,71 @@ export function SignalReveal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    backgroundColor: 'rgba(10,8,20,0.93)',
+  overlayColor: {
+    backgroundColor: 'rgba(8,6,15,0.97)',
   },
-  moonWrap: {
+  glowWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── Central block ──────────────────────────────────────────────────────────
+  centerBlock: {
     position: 'absolute',
-    alignSelf: 'center',
-    top: SCREEN_H * 0.15,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 0,
   },
+
   numberWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  numberInner: {
     position: 'absolute',
-    alignSelf: 'center',
-    top: SCREEN_H * 0.27,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   number: {
     fontFamily: Fonts.heading,
     color: Colors.goldLight,
     includeFontPadding: false,
+    textAlign: 'center',
   },
-  contentArea: {
-    position: 'absolute',
-    bottom: 130,
-    left: 32,
-    right: 32,
+  normalShadow: {
+    textShadowColor: 'rgba(236,203,122,0.70)',
+    textShadowRadius: 18,
+    textShadowOffset: { width: 0, height: 0 },
+  },
+  masterShadow: {
+    textShadowColor: 'rgba(236,203,122,0.90)',
+    textShadowRadius: 32,
+    textShadowOffset: { width: 0, height: 0 },
+  },
+
+  // ── Reading ───────────────────────────────────────────────────────────────
+  readingWrap: {
+    marginTop: 32,
+    paddingHorizontal: '8%',
     alignItems: 'center',
-    gap: 14,
+    gap: 20,
+    maxWidth: SCREEN_W * 0.85,
   },
   reading: {
-    fontFamily: Fonts.headingMedium,
-    fontSize: 20,
-    color: Colors.textPrimary,
+    fontFamily: Fonts.headingSemiBoldItalic,
+    fontSize: 22,
+    color: '#f6f4f1',
     textAlign: 'center',
-    lineHeight: 29,
+    lineHeight: 32,
   },
   hint: {
     fontFamily: Fonts.body,
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.textDim,
     textAlign: 'center',
     letterSpacing: 1.4,
@@ -288,13 +334,15 @@ const styles = StyleSheet.create({
   expanded: {
     fontFamily: Fonts.body,
     fontSize: 15,
-    color: Colors.textSecondary,
+    color: 'rgba(179,178,201,0.9)',
     textAlign: 'center',
     lineHeight: 24,
   },
+
+  // ── Creator ───────────────────────────────────────────────────────────────
   creatorWordmark: {
     position: 'absolute',
-    bottom: 110,
+    bottom: 130,
     alignSelf: 'center',
   },
   creatorWordmarkTxt: {
@@ -303,6 +351,8 @@ const styles = StyleSheet.create({
     color: 'rgba(236,203,122,0.85)',
     letterSpacing: 12,
   },
+
+  // ── Bottom controls ───────────────────────────────────────────────────────
   bottomRow: {
     position: 'absolute',
     bottom: 52,
@@ -311,29 +361,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    gap: 16,
   },
   shareBtn: {
     paddingVertical: 14,
-    paddingHorizontal: 28,
+    paddingHorizontal: 32,
   },
   shareTxt: {
-    fontFamily: Fonts.body,
-    fontSize: 13,
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 14,
     color: Colors.goldLight,
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   closeBtn: {
     paddingVertical: 14,
-    paddingHorizontal: 28,
+    paddingHorizontal: 20,
   },
   closeTxt: {
     fontFamily: Fonts.body,
-    fontSize: 14,
+    fontSize: 18,
     color: Colors.textDim,
-    letterSpacing: 5,
   },
+
   offScreen: {
     position: 'absolute',
     top: -10000,

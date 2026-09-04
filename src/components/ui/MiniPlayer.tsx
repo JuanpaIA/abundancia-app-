@@ -40,13 +40,13 @@ export function MiniPlayer() {
 const styles = StyleSheet.create({
   bar: {
     height: 48,
-    backgroundColor: Colors.plum,
+    backgroundColor: 'rgba(10,10,20,0.92)',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.plumLight,
+    borderTopWidth: 1,
+    borderTopColor: Colors.line,
   },
   info: { flex: 1, gap: 1 },
   hz: {

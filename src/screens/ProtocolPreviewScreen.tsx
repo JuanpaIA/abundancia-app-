@@ -134,8 +134,8 @@ export function ProtocolPreviewScreen({ data, onUnlock }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center', gap: Spacing.lg },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100, alignItems: 'center', gap: Spacing.lg },
 
   emojiWrap: {
     width: 80, height: 80, borderRadius: 40,

@@ -355,8 +355,8 @@ export function NotificationsScreen({ onBack }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.card },
-  scroll: { padding: Spacing.lg, paddingTop: 60 },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
 
   header: { marginBottom: Spacing.xl, gap: Spacing.xs },
   back:   { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm, fontFamily: Fonts.body },

@@ -383,17 +383,17 @@ export function VisionBoardScreen({ onBack }: Props) {
 // ── Estilos ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.card },
-  scroll: { padding: Spacing.lg, paddingTop: 60 },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
   header: { marginBottom: Spacing.xl, gap: Spacing.xs },
   back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },
   title: { fontSize: 26, color: Colors.textPrimary, fontWeight: '700' },
-  subtitle: { fontSize: 13, color: Colors.textSecondary },
+  subtitle: { fontSize: 17, color: Colors.textSecondary },
 
   emptyState: { alignItems: 'center', paddingTop: Spacing.xxl, gap: Spacing.md, paddingHorizontal: Spacing.lg },
   emptyEmoji: { fontSize: 56 },
   emptyTitle: { fontSize: 22, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
-  emptyBody: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
+  emptyBody: { fontSize: 17, color: Colors.textSecondary, textAlign: 'center', lineHeight: 26 },
   ctaBtn: {
     backgroundColor: Colors.plum, borderRadius: Radius.lg,
     paddingVertical: Spacing.md, paddingHorizontal: Spacing.xl,
@@ -403,15 +403,15 @@ const styles = StyleSheet.create({
   ctaBtnSecondary: {
     paddingVertical: Spacing.sm, paddingHorizontal: Spacing.xl,
   },
-  ctaBtnSecondaryText: { fontSize: 14, color: Colors.plum, fontWeight: '600' },
+  ctaBtnSecondaryText: { fontSize: 15, color: Colors.plum, fontWeight: '600' },
 
   collage: {
     flexDirection: 'row', flexWrap: 'wrap',
     gap: Spacing.sm, marginBottom: Spacing.lg,
   },
   limitNote: {
-    fontSize: 12, color: Colors.textSecondary,
-    textAlign: 'center', marginBottom: Spacing.md, lineHeight: 18,
+    fontSize: 15, color: Colors.textSecondary,
+    textAlign: 'center', marginBottom: Spacing.md, lineHeight: 22,
   },
   activateBtn: {
     backgroundColor: Colors.plum, borderRadius: Radius.lg,

@@ -177,7 +177,7 @@ export function AuthScreen({ selectedPlan, onAuthSuccess, loginOnly, registerOnl
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background, position: 'relative' },
+  container: { flex: 1, position: 'relative' },
   content: { flex: 1, padding: Spacing.lg, paddingTop: 80, justifyContent: 'center' },
   title: { fontSize: 28, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold, marginBottom: Spacing.xs },
   subtitle: { fontSize: 15, color: Colors.gold, fontFamily: Fonts.bodyMedium, marginBottom: Spacing.xl },

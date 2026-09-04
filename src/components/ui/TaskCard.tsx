@@ -96,9 +96,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: Fonts.bodyMedium,
-    fontSize: 14,
+    fontSize: 17,
     color: Colors.textPrimary,
-    lineHeight: 19,
+    lineHeight: 24,
   },
   titleDone: {
     textDecorationLine: 'line-through',

@@ -284,17 +284,17 @@ export function JournalScreen({ onBack }: Props) {
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },
   title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
-  subtitle: { fontSize: 13, color: Colors.textSecondary },
+  subtitle: { fontSize: 17, color: Colors.textSecondary },
   description: {
-    fontSize: 13,
+    fontSize: 17,
     color: Colors.textSecondary,
-    lineHeight: 20,
+    lineHeight: 26,
     marginTop: Spacing.sm,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
@@ -323,11 +323,11 @@ const styles = StyleSheet.create({
   saveStatus: { fontSize: 11, color: Colors.textDisabled },
 
   promptBlock: { gap: Spacing.xs },
-  promptLabel: { fontSize: 13, color: Colors.plum, fontWeight: '700' },
+  promptLabel: { fontSize: 15, color: Colors.plum, fontWeight: '700' },
   promptInput: {
     backgroundColor: Colors.input, borderRadius: Radius.md,
     borderWidth: 1, borderColor: Colors.border,
-    color: Colors.textPrimary, fontSize: 14, lineHeight: 22,
+    color: Colors.textPrimary, fontSize: 17, lineHeight: 26,
     padding: Spacing.md, minHeight: 80,
     textAlignVertical: 'top',
   },
@@ -352,18 +352,18 @@ const styles = StyleSheet.create({
   pastCardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pastCardLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flex: 1 },
   pastCardEmoji: { fontSize: 24 },
-  pastCardDate: { fontSize: 14, color: Colors.textPrimary, fontWeight: '600' },
+  pastCardDate: { fontSize: 17, color: Colors.textPrimary, fontWeight: '600' },
   pastCardMeta: { fontSize: 11, color: Colors.textSecondary },
   pastCardChevron: { fontSize: 11, color: Colors.textDisabled },
   pastCardPreview: {
-    fontSize: 13, color: Colors.textSecondary,
-    lineHeight: 20, fontStyle: 'italic',
+    fontSize: 15, color: Colors.textSecondary,
+    lineHeight: 23, fontStyle: 'italic',
   },
   pastCardContent: { gap: Spacing.md, paddingTop: Spacing.xs },
   pastField: { gap: 4 },
-  pastFieldLabel: { fontSize: 12, color: Colors.plum, fontWeight: '700' },
-  pastFieldText: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
-  pastEmpty: { fontSize: 13, color: Colors.textDisabled, fontStyle: 'italic' },
+  pastFieldLabel: { fontSize: 15, color: Colors.plum, fontWeight: '700' },
+  pastFieldText: { fontSize: 17, color: Colors.textSecondary, lineHeight: 26 },
+  pastEmpty: { fontSize: 15, color: Colors.textDisabled, fontStyle: 'italic' },
 
   firstEntry: {
     textAlign: 'center', fontSize: 13,

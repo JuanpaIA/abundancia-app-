@@ -326,10 +326,10 @@ export function OnboardingScreen({ userId, onComplete, onSignOut }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1 },
   signOutBtn: { position: 'absolute', top: 52, right: Spacing.lg, zIndex: 10 },
   signOutText: { fontSize: 13, color: Colors.textDisabled },
-  scroll: { padding: Spacing.lg, paddingTop: 60 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
   backBtn: { paddingBottom: Spacing.sm },
   backText: { fontSize: 14, color: Colors.textSecondary },
   progress: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.xxl, justifyContent: 'center' },

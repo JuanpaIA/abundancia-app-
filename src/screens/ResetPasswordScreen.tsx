@@ -92,7 +92,7 @@ export function ResetPasswordScreen({ onComplete }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1 },
   content: { flex: 1, padding: Spacing.lg, paddingTop: 100, justifyContent: 'center' },
 
   icon:     { fontSize: 48, marginBottom: Spacing.md },

@@ -9,7 +9,7 @@ interface Props {
   style?: StyleProp<ViewStyle>
   goldBorder?: boolean
   variant?: Variant
-  entering?: typeof FadeInDown | any   // layout animation — e.g. FadeInDown.delay(120).duration(320)
+  entering?: typeof FadeInDown | any
 }
 
 export function Card({ children, style, goldBorder, variant = 'default', entering }: Props) {
@@ -31,18 +31,21 @@ export function Card({ children, style, goldBorder, variant = 'default', enterin
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.surface1,
     borderRadius: Radius.lg,
     padding: Spacing.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.border,
+    borderWidth: 1,
+    borderColor: Colors.line,
   },
   featured: {
     borderColor: Colors.borderGold,
-    borderWidth: 1,
   },
   purple: {
-    borderColor: Colors.borderPurple,
-    borderWidth: 1,
+    borderColor: 'rgba(155,93,229,0.28)',
+    shadowColor: '#9b5de5',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.10,
+    shadowRadius: 20,
+    elevation: 4,
   },
 })

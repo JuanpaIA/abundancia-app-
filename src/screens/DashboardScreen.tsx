@@ -18,7 +18,6 @@ import { Card } from '../components/ui/Card'
 import { AlignmentMoon } from '../components/ui/AlignmentMoon'
 import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
-import { useTheme } from '../contexts/ThemeContext'
 import { getLunarPhase, getLunarPhaseLabel, getLunarPhaseEmoji, LUNAR_PHASE_CONTENT, getNextKeyPhase, getPortalForDate, getNextPortal, getPortalPowerColor, getPortalPowerLabel, calculateAlignment, calculateSignal } from '@lumina/core'
 import { scheduleAbundanciaNotifications, scheduleWeeklyPatternNotification } from '../utils/notifications'
 import * as Notifications from 'expo-notifications'
@@ -29,6 +28,8 @@ import { ZodiacSign, LunarPhase, DailyLog } from '@lumina/core'
 import { supabase } from '../services/supabase'
 import { NotificationsScreen } from './NotificationsScreen'
 import { AdminScreen } from './AdminScreen'
+import { useFrequencyPlayerContext } from '../contexts/FrequencyPlayerContext'
+import { FrequencyPlayerOverlay } from '../components/overlays/FrequencyPlayerOverlay'
 import { AffirmationReveal } from '../components/overlays/AffirmationReveal'
 import { SignalReveal } from '../components/ui/SignalReveal'
 import { useSignalCounter } from '../hooks/useSignalCounter'
@@ -120,7 +121,7 @@ const NUMEROLOGY_INFO: Record<number, NumerologyInfo> = {
 
 // ── Multi-line chart ──────────────────────────────────────────────────────────
 const CHART_H = 180
-const PAD_L = 24   // eje Y
+const PAD_L = 32   // eje Y — needs room for "tareas" label + tick digits
 const PAD_R = 8
 const PAD_T = 14
 const PAD_B = 44   // espacio para labels rotados
@@ -459,8 +460,8 @@ const wsStyles = StyleSheet.create({
   statValue: { fontSize: 20, color: Colors.textPrimary, fontWeight: '700' },
   statLabel: { fontSize: 10, color: Colors.textSecondary, textAlign: 'center', lineHeight: 14 },
   bestDay: { backgroundColor: 'rgba(201,168,76,0.08)', borderRadius: Radius.md, padding: Spacing.md, borderWidth: 1, borderColor: 'rgba(201,168,76,0.20)' },
-  bestDayText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
-  msg: { fontSize: 14, color: Colors.textSecondary, lineHeight: 22, fontStyle: 'italic' },
+  bestDayText: { fontSize: 15, color: Colors.textSecondary, lineHeight: 22 },
+  msg: { fontSize: 17, color: Colors.textSecondary, lineHeight: 26, fontStyle: 'italic' },
   btn: { backgroundColor: Colors.gold, borderRadius: Radius.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.xs },
   btnText: { fontSize: 15, color: Colors.background, fontWeight: '700' },
 })
@@ -543,7 +544,7 @@ function WelcomeDayOneModal({
                     <Text style={w1Styles.practiceItemEmoji}>💬</Text>
                     <View style={w1Styles.practiceItemText}>
                       <Text style={w1Styles.practiceItemLabel}>Afirmación del día</Text>
-                      <Text style={w1Styles.practiceItemValue} numberOfLines={2}>"{affirmation}"</Text>
+                      <Text style={w1Styles.practiceItemValue} numberOfLines={3}>"{affirmation}"</Text>
                     </View>
                   </View>
                   <Text style={[w1Styles.practiceCheck, affDone && w1Styles.practiceCheckDone]}>
@@ -560,7 +561,7 @@ function WelcomeDayOneModal({
                     <Text style={w1Styles.practiceItemEmoji}>🔮</Text>
                     <View style={w1Styles.practiceItemText}>
                       <Text style={w1Styles.practiceItemLabel}>Ritual del día</Text>
-                      <Text style={w1Styles.practiceItemValue} numberOfLines={2}>{ritualTitle}</Text>
+                      <Text style={w1Styles.practiceItemValue} numberOfLines={3}>{ritualTitle}</Text>
                     </View>
                   </View>
                   <Text style={[w1Styles.practiceCheck, ritDone && w1Styles.practiceCheckDone]}>
@@ -647,12 +648,12 @@ const w1Styles = StyleSheet.create({
   dotActive: { backgroundColor: Colors.gold, width: 18 },
   slideEmoji: { fontSize: 44, textAlign: 'center' },
   slideTitle: { fontSize: 22, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
-  slideBody: { fontSize: 14, color: Colors.textSecondary, lineHeight: 22, textAlign: 'center' },
+  slideBody: { fontSize: 17, color: Colors.textSecondary, lineHeight: 26, textAlign: 'center' },
   rows: { gap: Spacing.sm, marginVertical: Spacing.xs },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.md, padding: Spacing.sm },
   rowIcon: { fontSize: 24, width: 32, textAlign: 'center' },
-  rowLabel: { fontSize: 14, color: Colors.textPrimary, fontWeight: '600' },
-  rowDesc: { fontSize: 12, color: Colors.textSecondary },
+  rowLabel: { fontSize: 17, color: Colors.textPrimary, fontWeight: '600' },
+  rowDesc: { fontSize: 15, color: Colors.textSecondary },
   ctaBtn: { backgroundColor: Colors.gold, borderRadius: Radius.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.xs },
   ctaBtnDisabled: { backgroundColor: 'rgba(201,168,76,0.25)' },
   ctaBtnText: { fontSize: 15, color: Colors.background, fontWeight: '700' },
@@ -661,7 +662,7 @@ const w1Styles = StyleSheet.create({
   // Practice step
   practiceEyebrow: { fontSize: 12, color: Colors.gold, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', textAlign: 'center' },
   practiceTitle: { fontSize: 22, color: Colors.textPrimary, fontWeight: '700', textAlign: 'center' },
-  practiceDesc: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+  practiceDesc: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 23 },
   practiceItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     borderWidth: 1, borderColor: Colors.border, borderRadius: Radius.lg,
@@ -671,15 +672,15 @@ const w1Styles = StyleSheet.create({
   practiceItemLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flex: 1 },
   practiceItemEmoji: { fontSize: 28 },
   practiceItemText: { flex: 1, gap: 2 },
-  practiceItemLabel: { fontSize: 13, color: Colors.gold, fontWeight: '700' },
-  practiceItemValue: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, fontStyle: 'italic' },
+  practiceItemLabel: { fontSize: 15, color: Colors.gold, fontWeight: '700' },
+  practiceItemValue: { fontSize: 15, color: Colors.textSecondary, lineHeight: 22, fontStyle: 'italic' },
   practiceCheck: { fontSize: 18, color: Colors.textDisabled, fontWeight: '700' },
   practiceCheckDone: { color: Colors.gold },
   // Celebration
   celebBox: { alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.sm },
   celebEmoji: { fontSize: 60 },
   celebTitle: { fontSize: 26, color: Colors.gold, fontWeight: '800' },
-  celebBody: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
+  celebBody: { fontSize: 17, color: Colors.textSecondary, textAlign: 'center', lineHeight: 26 },
 })
 
 function CelebrationOverlay({ streak, firstName, onClose }: { streak: number; firstName: string; onClose: () => void }) {
@@ -761,9 +762,10 @@ function getSegmentForHour(h: number): DashSegment {
 }
 
 export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterRefreshKey = 0, segmentOverride }: { bottomInset?: number; creatorMode?: boolean; counterRefreshKey?: number; segmentOverride?: DashSegment }) {
-  const { palette } = useTheme()
   const { profile, refreshProfile } = useAuth()
   const { reportError: reportDashboardError } = useErrorReporter('dashboard')
+  const { playing: freqPlaying, activeHz: freqActiveHz, toggle: freqToggle } = useFrequencyPlayerContext()
+  const [freqOverlayOpen, setFreqOverlayOpen] = useState(false)
   const [energyLevel, setEnergyLevel] = useState<number | null>(null)
   const [objectiveDone, setObjectiveDone] = useState(false)
   const [objectiveNote, setObjectiveNote] = useState('')
@@ -1322,7 +1324,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
 
         {/* ── Hero band — mauve rose ── */}
         <Reanimated.View
-          style={[styles.heroSection, { backgroundColor: palette.hero }]}
+          style={styles.heroSection}
           entering={FadeInDown.duration(400).easing(EASE_OUT).reduceMotion(ReduceMotion.System)}
         >
 
@@ -1429,6 +1431,28 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
           </View>
         )}
 
+        {/* ── Frecuencia del día — widget compacto ── */}
+        <TouchableOpacity
+          style={styles.freqWidget}
+          onPress={() => setFreqOverlayOpen(true)}
+          activeOpacity={0.85}
+        >
+          <View style={styles.freqWidgetLeft}>
+            <Text style={styles.freqWidgetHz}>{protocol.frequency.hz}</Text>
+            <Text style={styles.freqWidgetUnit}>Hz</Text>
+          </View>
+          <Text style={styles.freqWidgetName} numberOfLines={2}>{protocol.frequency.name}</Text>
+          <TouchableOpacity
+            style={[styles.freqWidgetPlay, freqActiveHz === protocol.frequency.hz && styles.freqWidgetPlayActive]}
+            onPress={() => freqToggle(protocol.frequency.hz, protocol.frequency.name)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={[styles.freqWidgetPlayIcon, freqActiveHz === protocol.frequency.hz && { color: Colors.background }]}>
+              {freqActiveHz === protocol.frequency.hz ? '■' : '▶'}
+            </Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+
         {/* ── Segment header — time-detected, no manual tab ── */}
         {(() => {
           const SEG_LABEL: Record<DashSegment, string> = { manana: 'MAÑANA', tarde: 'TARDE', noche: 'NOCHE' }
@@ -1495,7 +1519,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
             <Text style={styles.sectionTitle}>{objective.title}</Text>
 
             {/* Visible: one-line action preview */}
-            <Text style={styles.sectionBody} numberOfLines={objectiveExpanded ? undefined : 2}>
+            <Text style={styles.sectionBody} numberOfLines={objectiveExpanded ? undefined : 3}>
               {objective.action}
             </Text>
 
@@ -1551,7 +1575,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
                       placeholder="Escribe lo que lograste, cómo te sentiste, qué aprendiste..."
                       placeholderTextColor={Colors.textDisabled}
                       multiline
-                      numberOfLines={4}
+                      numberOfLines={5}
                       textAlignVertical="top"
                       autoFocus
                     />
@@ -1623,7 +1647,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
                 placeholder="Anota aquí lo que practicaste, cómo te sentiste..."
                 placeholderTextColor={Colors.textDisabled}
                 multiline
-                numberOfLines={4}
+                numberOfLines={5}
                 textAlignVertical="top"
                 autoFocus
               />
@@ -1834,7 +1858,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
                 placeholder="Anota aquí lo que practicaste, cómo te sentiste..."
                 placeholderTextColor={Colors.textDisabled}
                 multiline
-                numberOfLines={4}
+                numberOfLines={5}
                 textAlignVertical="top"
                 autoFocus
               />
@@ -1916,7 +1940,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
                 placeholder="Anota aquí lo que practicaste, cómo te sentiste..."
                 placeholderTextColor={Colors.textDisabled}
                 multiline
-                numberOfLines={4}
+                numberOfLines={5}
                 textAlignVertical="top"
                 autoFocus
               />
@@ -2112,7 +2136,7 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
               placeholder="Escribe aquí…"
               placeholderTextColor={Colors.textDisabled}
               multiline
-              numberOfLines={5}
+              numberOfLines={6}
               autoCapitalize="sentences"
               autoFocus
             />
@@ -2178,6 +2202,18 @@ export function DashboardScreen({ bottomInset = 0, creatorMode = false, counterR
           />
         )}
       </Modal>
+
+      {/* Frequency of the day — full-screen overlay */}
+      {freqOverlayOpen && (
+        <FrequencyPlayerOverlay
+          hz={protocol.frequency.hz}
+          name={protocol.frequency.name}
+          purpose={protocol.frequency.name}
+          playing={freqActiveHz === protocol.frequency.hz}
+          onToggle={() => freqToggle(protocol.frequency.hz, protocol.frequency.name)}
+          onClose={() => setFreqOverlayOpen(false)}
+        />
+      )}
 
     </View>
   )
@@ -2253,31 +2289,29 @@ function TermsOfServiceContent() {
 const legalContentStyles = StyleSheet.create({
   body:    { gap: 12, paddingBottom: 8 },
   updated: { fontSize: 11, color: Colors.textDisabled, marginBottom: 4 },
-  section: { fontSize: 13, color: Colors.gold, fontWeight: '700', marginTop: 4 },
-  text:    { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
+  section: { fontSize: 15, color: Colors.gold, fontWeight: '700', marginTop: 4 },
+  text:    { fontSize: 15, color: Colors.textSecondary, lineHeight: 24 },
 })
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.card },
+  container: { flex: 1 },
   scroll: { flexGrow: 1 },
   // Legacy stubs
   noiseBg: {},
   orbPurple: {},
   orbGold: {},
 
-  // ── Hero band — sobre fondo rose/mauve ──
+  // ── Hero band — transparent, ScreenBackground gradient shows through ──
   heroSection: {
-    backgroundColor: Colors.roseHero,
+    backgroundColor: 'transparent',
     paddingHorizontal: Spacing.lg,
     paddingTop: 72,
     paddingBottom: 44,
   },
 
-  // ── Panel blanco que emerge del hero ──
+  // ── Content surface — flat on gradient, no panel separation ──
   cardsSurface: {
-    backgroundColor: Colors.card,
-    borderTopLeftRadius: Radius.xl,
-    borderTopRightRadius: Radius.xl,
+    backgroundColor: 'transparent',
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
     minHeight: 400,
@@ -2348,8 +2382,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase' as const,
     fontFamily: Fonts.body,
   },
-  planCounter: { fontSize: 12, color: Colors.textSecondary, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
-  goalLabel:   { fontSize: 13, color: Colors.textSecondary, marginTop: 4, fontStyle: 'italic' },
+  planCounter: { fontSize: 15, color: Colors.textSecondary, fontWeight: '600', marginTop: 2, letterSpacing: 0.3 },
+  goalLabel:   { fontSize: 15, color: Colors.textSecondary, marginTop: 4, fontStyle: 'italic' },
 
   // Segment header — replaces segmented control
   segmentHeader: {
@@ -2423,7 +2457,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   checkInRowLabel: {
-    fontSize: 13,
+    fontSize: 15,
     color: Colors.textSecondary,
     flex: 1,
   },
@@ -2508,8 +2542,8 @@ const styles = StyleSheet.create({
   featureIconGold: { backgroundColor: Colors.goldDim },
   featureIconPurple: { backgroundColor: Colors.purpleDim },
   featureIcon: { fontSize: 0 },
-  featureTitle: { fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodyBold },
-  featureSub: { fontSize: 12, color: Colors.textDisabled, lineHeight: 17 },
+  featureTitle: { fontSize: 18, color: Colors.textPrimary, fontFamily: Fonts.bodyBold },
+  featureSub: { fontSize: 15, color: Colors.textDisabled, lineHeight: 22 },
 
   // Legados (no se usan pero evitan errores si algo los referencia)
   headerActions: { flexDirection: 'column', gap: Spacing.sm },
@@ -2676,7 +2710,7 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 20, color: Colors.textPrimary, fontWeight: '700' },
   modalSub: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20, marginBottom: 4 },
   modalInput: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.input,
     borderRadius: Radius.md,
     padding: Spacing.md,
     color: Colors.textPrimary,
@@ -2935,6 +2969,63 @@ const styles = StyleSheet.create({
   freqPlayRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.xs, gap: Spacing.md },
   freqExpandBtn: { paddingVertical: Spacing.xs, paddingHorizontal: Spacing.sm },
   freqExpandText: { fontFamily: Fonts.bodySemiBold, fontSize: 12, color: Colors.purpleAccent, opacity: 0.8 },
+  // ── Freq widget ──────────────────────────────────────────────────────────────
+  freqWidget: {
+    backgroundColor: Colors.surface1,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderPurple,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.sm,
+    paddingHorizontal: Spacing.smMd,
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  freqWidgetLeft: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 2,
+  },
+  freqWidgetHz: {
+    fontFamily: Fonts.heading,
+    fontSize: 32,
+    color: Colors.purple,
+    includeFontPadding: false,
+    lineHeight: 38,
+  },
+  freqWidgetUnit: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 12,
+    color: Colors.purple,
+    opacity: 0.75,
+    marginBottom: 4,
+  },
+  freqWidgetName: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.textSecondary,
+    fontFamily: Fonts.body,
+    lineHeight: 20,
+  },
+  freqWidgetPlay: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.purpleDim,
+    borderWidth: 1,
+    borderColor: Colors.purple,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  freqWidgetPlayActive: {
+    backgroundColor: Colors.purple,
+  },
+  freqWidgetPlayIcon: {
+    fontSize: 14,
+    color: Colors.purple,
+  },
+
   frequencyBox: {
     backgroundColor: Colors.input,
     borderRadius: 12,

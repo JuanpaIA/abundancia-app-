@@ -87,8 +87,8 @@ export function PlanSelectionScreen({ onSelectPlan }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, alignItems: 'center', gap: Spacing.lg },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100, alignItems: 'center', gap: Spacing.lg },
 
   title: {
     fontSize: 28, color: Colors.textPrimary, fontWeight: '700',

@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { ScreenBackground } from '../components/ui/ScreenBackground'
 import { useFrequencyPlayerContext } from '../contexts/FrequencyPlayerContext'
@@ -147,11 +148,6 @@ const FREQUENCIES: FrequencyDef[] = [
   },
 ]
 
-const AREA_LABELS: Record<string, string> = {
-  dinero: '💰 Dinero', amor: '💗 Amor', salud: '✨ Salud',
-  proposito: '🔮 Propósito', felicidad: '🌟 Felicidad',
-}
-
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 interface Props {
@@ -160,10 +156,13 @@ interface Props {
 }
 
 export function FrequenciesScreen({ onBack, todayHz }: Props) {
+  const insets = useSafeAreaInsets()
   const { playing, activeHz, toggle } = useFrequencyPlayerContext()
   const { reportError } = useErrorReporter('frequencies')
-  const [expanded, setExpanded] = useState<number | null>(todayHz ?? null)
-  const [overlayFreq, setOverlayFreq] = useState<{ hz: number; name: string; purpose: string } | null>(null)
+  const [overlayFreq, setOverlayFreq] = useState<FrequencyDef | null>(null)
+
+  const todayFreq = FREQUENCIES.find(f => f.hz === todayHz) ?? FREQUENCIES.find(f => f.hz === 528)!
+  const library   = FREQUENCIES.filter(f => f.hz !== todayFreq.hz)
 
   async function handlePlay(hz: number, label: string) {
     try {
@@ -176,134 +175,116 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
   return (
     <View style={styles.container}>
       <ScreenBackground />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-
+      <ScrollView
+        contentContainerStyle={[styles.scroll, { paddingBottom: 100 + insets.bottom }]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack}>
             <Text style={styles.back}>← Volver</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Biblioteca de Frecuencias</Text>
-          <Text style={styles.subtitle}>10 frecuencias Solfeggio para tu manifestación</Text>
+          <Text style={styles.title}>Sonido</Text>
+          <Text style={styles.subtitle}>Frecuencias Solfeggio para tu manifestación</Text>
         </View>
 
-        {/* Info general */}
-        <View style={styles.infoCard}>
-          <Text style={styles.infoText}>
-            Las frecuencias Solfeggio son tonos específicos que interactúan con el sistema nervioso y el campo energético. Escúchalas con auriculares para maximizar el efecto. No requieren atención consciente — trabajan mientras tú simplemente estás presente.
-          </Text>
+        {/* ── Frecuencia del día — destacada ── */}
+        <View style={styles.sectionLabel}>
+          <Text style={styles.sectionLabelText}>TU FRECUENCIA DE HOY</Text>
         </View>
 
-        {/* Frecuencia del día */}
-        {todayHz && (
-          <View style={styles.todayBadgeRow}>
-            <View style={styles.todayBadge}>
-              <Text style={styles.todayBadgeText}>✦ Tu frecuencia de hoy: {todayHz} Hz</Text>
+        <TouchableOpacity
+          style={styles.featuredCard}
+          activeOpacity={0.88}
+          onPress={() => setOverlayFreq(todayFreq)}
+        >
+          {/* Glow border */}
+          <View style={[styles.featuredStripe, { backgroundColor: todayFreq.color }]} />
+
+          <View style={styles.featuredBody}>
+            {/* Hz */}
+            <View style={styles.featuredHzRow}>
+              <Text style={[styles.featuredHz, { color: todayFreq.color }]}>{todayFreq.hz}</Text>
+              <Text style={[styles.featuredHzUnit, { color: todayFreq.color }]}>Hz</Text>
             </View>
-          </View>
-        )}
+            <Text style={styles.featuredName}>{todayFreq.name}</Text>
+            <Text style={styles.featuredTagline}>{todayFreq.tagline}</Text>
 
-        {/* Lista de frecuencias */}
-        {FREQUENCIES.map(freq => {
-          const isToday = freq.hz === todayHz
-          const isPlaying = activeHz === freq.hz
-          const isOpen = expanded === freq.hz
+            {/* Waveform static bars */}
+            <View style={styles.featuredWave}>
+              {[8, 16, 28, 40, 52, 44, 56, 48, 36, 26, 38, 52, 44, 30, 20, 32, 46, 36, 22, 12].map((h, i) => (
+                <View
+                  key={i}
+                  style={[styles.featuredWaveBar, {
+                    height: h,
+                    backgroundColor: todayFreq.color,
+                    opacity: activeHz === todayFreq.hz ? 0.85 : 0.28,
+                  }]}
+                />
+              ))}
+            </View>
 
-          return (
-            <View key={freq.hz} style={[styles.freqCard, isToday && styles.freqCardToday, isPlaying && { borderColor: freq.color + '99' }]}>
-              {/* Franja de color izquierda */}
-              <View style={[styles.freqStripe, { backgroundColor: freq.color }]} />
-
-              {/* Cabecera */}
+            {/* Play button */}
+            <View style={styles.featuredControls}>
               <TouchableOpacity
-                style={styles.freqHeader}
-                onPress={() => setExpanded(isOpen ? null : freq.hz)}
+                style={[
+                  styles.featuredPlayBtn,
+                  { borderColor: todayFreq.color },
+                  activeHz === todayFreq.hz && { backgroundColor: todayFreq.color },
+                ]}
+                onPress={() => handlePlay(todayFreq.hz, todayFreq.name)}
                 activeOpacity={0.8}
               >
-                <View style={[styles.freqHzBadge, { backgroundColor: freq.color + '22', borderColor: freq.color + '55' }]}>
-                  <Text style={[styles.freqHzText, { color: freq.color }]}>{freq.hz}</Text>
-                  <Text style={[styles.freqHzUnit, { color: freq.color }]}>Hz</Text>
+                <Text style={[styles.featuredPlayIcon, activeHz === todayFreq.hz && styles.featuredPlayIconActive]}>
+                  {activeHz === todayFreq.hz ? '■' : '▶'}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.featuredWhen}>{todayFreq.when}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* ── Biblioteca ── */}
+        <View style={[styles.sectionLabel, { marginTop: Spacing.xl }]}>
+          <Text style={styles.sectionLabelText}>BIBLIOTECA</Text>
+        </View>
+
+        <View style={styles.libraryList}>
+          {library.map(freq => {
+            const isPlaying = activeHz === freq.hz
+            return (
+              <TouchableOpacity
+                key={freq.hz}
+                style={styles.libraryRow}
+                onPress={() => setOverlayFreq(freq)}
+                activeOpacity={0.75}
+              >
+                {/* Hz badge */}
+                <View style={[styles.libraryBadge, { backgroundColor: freq.color + '20', borderColor: freq.color + '55' }]}>
+                  <Text style={[styles.libraryHz, { color: freq.color }]}>{freq.hz}</Text>
+                  <Text style={[styles.libraryHzUnit, { color: freq.color }]}>Hz</Text>
                 </View>
-                <View style={styles.freqTitleBlock}>
-                  <View style={styles.freqNameRow}>
-                    <Text style={styles.freqName}>{freq.name}</Text>
-                    {isToday && <View style={styles.todayDot} />}
-                  </View>
-                  <Text style={styles.freqTagline}>{freq.tagline}</Text>
+
+                {/* Name + tagline */}
+                <View style={styles.libraryMeta}>
+                  <Text style={styles.libraryName}>{freq.name}</Text>
+                  <Text style={styles.libraryTagline} numberOfLines={2}>{freq.tagline}</Text>
                 </View>
+
+                {/* Play */}
                 <TouchableOpacity
-                  style={[styles.playBtn, { borderColor: freq.color + '88' }, isPlaying && { backgroundColor: freq.color }]}
+                  style={[styles.libraryPlayBtn, { borderColor: freq.color + '66' }, isPlaying && { backgroundColor: freq.color }]}
                   onPress={() => handlePlay(freq.hz, freq.name)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  <Text style={[styles.playIcon, isPlaying && { color: Colors.background }]}>
+                  <Text style={[styles.libraryPlayIcon, isPlaying && styles.libraryPlayIconActive]}>
                     {isPlaying ? '■' : '▶'}
                   </Text>
                 </TouchableOpacity>
               </TouchableOpacity>
-
-              {/* Onda visual cuando está expandida */}
-              {isOpen && (
-                <View style={styles.freqWave}>
-                  {[4, 8, 14, 20, 16, 22, 12, 18, 8, 20, 14, 10, 18, 6, 14].map((h, i) => (
-                    <View
-                      key={i}
-                      style={[styles.freqWaveBar, {
-                        height: h,
-                        backgroundColor: freq.color,
-                        opacity: isPlaying ? 0.85 : 0.22,
-                      }]}
-                    />
-                  ))}
-                </View>
-              )}
-
-              {/* Contenido expandido */}
-              {isOpen && (
-                <View style={[styles.freqBody, { backgroundColor: freq.color + '10' }]}>
-                  <Text style={styles.freqPurpose}>{freq.purpose}</Text>
-
-                  <View style={styles.freqMeta}>
-                    <View style={styles.freqMetaItem}>
-                      <Text style={styles.freqMetaLabel}>Cuándo</Text>
-                      <Text style={styles.freqMetaValue}>{freq.when}</Text>
-                    </View>
-                    <View style={styles.freqMetaItem}>
-                      <Text style={styles.freqMetaLabel}>Duración</Text>
-                      <Text style={styles.freqMetaValue}>⏱ {freq.duration}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.freqSection}>
-                    <Text style={styles.freqSectionLabel}>🎧 Cómo practicarla</Text>
-                    <Text style={styles.freqSectionText}>{freq.howTo}</Text>
-                  </View>
-
-                  <View style={[styles.freqSection, styles.freqIntegration]}>
-                    <Text style={styles.freqSectionLabel}>✦ Integración con tu plan</Text>
-                    <Text style={styles.freqSectionText}>{freq.integration}</Text>
-                  </View>
-
-                  <View style={styles.freqAreas}>
-                    {freq.areas.map(a => (
-                      <View key={a} style={styles.freqAreaTag}>
-                        <Text style={styles.freqAreaText}>{AREA_LABELS[a]}</Text>
-                      </View>
-                    ))}
-                  </View>
-
-                  <TouchableOpacity
-                    style={styles.overlayBtn}
-                    onPress={() => setOverlayFreq({ hz: freq.hz, name: freq.name, purpose: freq.purpose })}
-                  >
-                    <Text style={styles.overlayBtnText}>✦ Abrir visualizador de frecuencia</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )
-        })}
-
-        <View style={{ height: Spacing.xxl }} />
+            )
+          })}
+        </View>
       </ScrollView>
 
       {overlayFreq && (
@@ -311,6 +292,11 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
           hz={overlayFreq.hz}
           name={overlayFreq.name}
           purpose={overlayFreq.purpose}
+          when={overlayFreq.when}
+          howTo={overlayFreq.howTo}
+          integration={overlayFreq.integration}
+          duration={overlayFreq.duration}
+          color={overlayFreq.color}
           playing={activeHz === overlayFreq.hz}
           onToggle={() => handlePlay(overlayFreq.hz, overlayFreq.name)}
           onClose={() => setOverlayFreq(null)}
@@ -323,109 +309,150 @@ export function FrequenciesScreen({ onBack, todayHz }: Props) {
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.card },
-  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
+  container: { flex: 1 },
+  scroll: { padding: Spacing.lg, paddingTop: 64 },
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
-  back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },
-  title: { fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
-  subtitle: { fontSize: 13, color: Colors.textSecondary },
+  back:     { color: Colors.purple, fontSize: 15, marginBottom: Spacing.sm },
+  title:    { fontSize: 28, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold },
+  subtitle: { fontSize: 17, color: Colors.textSecondary },
 
-  infoCard: {
-    backgroundColor: Colors.goldDim, borderRadius: Radius.lg,
-    borderWidth: 1, borderColor: Colors.borderGold,
-    padding: Spacing.md, marginBottom: Spacing.lg,
+  sectionLabel: { marginBottom: Spacing.sm },
+  sectionLabelText: {
+    fontSize: 11, color: Colors.textDim, fontFamily: Fonts.bodySemiBold,
+    letterSpacing: 1.6, textTransform: 'uppercase',
   },
-  infoText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
 
-  todayBadgeRow: { marginBottom: Spacing.md },
-  todayBadge: {
-    alignSelf: 'flex-start', paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs, borderRadius: Radius.full,
-    backgroundColor: Colors.plumDim,
-    borderWidth: 1, borderColor: Colors.borderPurple,
+  // ── Featured card ────────────────────────────────────────────────────────────
+  featuredCard: {
+    backgroundColor: Colors.surface1,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderPurple,
+    overflow: 'hidden',
+    shadowColor: Colors.purple,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 6,
   },
-  todayBadgeText: { fontSize: 12, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
-
-  freqCard: {
-    backgroundColor: Colors.cardBg, borderRadius: Radius.lg,
-    borderWidth: 1, borderColor: Colors.border,
-    marginBottom: Spacing.sm, overflow: 'hidden', position: 'relative',
+  featuredStripe: {
+    height: 3,
+    width: '100%',
   },
-  freqStripe: {
-    position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
+  featuredBody: {
+    padding: Spacing.lg,
+    gap: Spacing.sm,
   },
-  freqCardToday: { borderColor: Colors.borderGold },
-
-  freqHeader: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingLeft: Spacing.md + 4, paddingRight: Spacing.md,
-    paddingVertical: Spacing.md, gap: Spacing.sm,
+  featuredHzRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
   },
-  freqWave: {
-    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center',
-    paddingVertical: 10, paddingHorizontal: Spacing.md + 4, gap: 3,
+  featuredHz: {
+    fontFamily: Fonts.heading,
+    fontSize: 56,
+    lineHeight: 60,
+    includeFontPadding: false,
   },
-  freqWaveBar: { width: 3, borderRadius: 2 },
-  freqHzBadge: {
-    width: 56, height: 56, borderRadius: Radius.md,
-    borderWidth: 1, alignItems: 'center', justifyContent: 'center',
-  },
-  freqHzText: { fontSize: 18, fontWeight: '800', lineHeight: 22 },
-  freqHzUnit: { fontSize: 10, fontWeight: '600', opacity: 0.8 },
-
-  freqTitleBlock: { flex: 1, gap: 2 },
-  freqNameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
-  freqName: { fontSize: 14, color: Colors.textPrimary, fontWeight: '700' },
-  todayDot: {
-    width: 7, height: 7, borderRadius: 4,
-    backgroundColor: Colors.plum,
-  },
-  freqTagline: { fontSize: 11, color: Colors.textSecondary },
-
-  playBtn: {
-    width: 38, height: 38, borderRadius: 19,
-    borderWidth: 1, alignItems: 'center', justifyContent: 'center',
-  },
-  playIcon: { fontSize: 14, color: Colors.textPrimary },
-
-  freqBody: {
-    paddingHorizontal: Spacing.md, paddingBottom: Spacing.md,
-    gap: Spacing.md, borderTopWidth: 0.5, borderTopColor: Colors.border,
-    paddingTop: Spacing.md,
-  },
-  freqPurpose: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
-
-  freqMeta: { flexDirection: 'row', gap: Spacing.md },
-  freqMetaItem: { flex: 1, gap: 3 },
-  freqMetaLabel: { fontSize: 10, color: Colors.textDisabled, textTransform: 'uppercase', letterSpacing: 0.8 },
-  freqMetaValue: { fontSize: 12, color: Colors.textSecondary },
-
-  freqSection: { gap: 6 },
-  freqIntegration: {
-    backgroundColor: Colors.goldDim, borderRadius: Radius.md,
-    padding: Spacing.sm, borderWidth: 1, borderColor: Colors.borderGold,
-  },
-  freqSectionLabel: { fontSize: 11, color: Colors.plum, fontFamily: Fonts.bodySemiBold },
-  freqSectionText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
-
-  freqAreas: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
-  freqAreaTag: {
-    paddingHorizontal: Spacing.sm, paddingVertical: 3,
-    borderRadius: Radius.full, borderWidth: 1,
-    borderColor: Colors.border, backgroundColor: Colors.cardBg,
-  },
-  freqAreaText: { fontSize: 11, color: Colors.textSecondary },
-  overlayBtn: {
-    marginTop: Spacing.sm,
-    paddingVertical: Spacing.sm,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  overlayBtnText: {
+  featuredHzUnit: {
     fontFamily: Fonts.bodySemiBold,
-    fontSize: 13,
-    color: Colors.plum,
+    fontSize: 18,
+    marginBottom: 6,
+  },
+  featuredName: {
+    fontFamily: Fonts.headingItalic,
+    fontSize: 18,
+    color: Colors.textPrimary,
+  },
+  featuredTagline: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+  },
+  featuredWave: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    height: 60,
+    marginVertical: Spacing.sm,
+  },
+  featuredWaveBar: {
+    width: 3,
+    borderRadius: 2,
+  },
+  featuredControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginTop: Spacing.xs,
+  },
+  featuredPlayBtn: {
+    width: 64, height: 64, borderRadius: 32,
+    backgroundColor: Colors.surface2,
+    borderWidth: 1,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  featuredPlayIcon: {
+    fontSize: 20,
+    color: Colors.textPrimary,
+  },
+  featuredPlayIconActive: {
+    color: Colors.background,
+  },
+  featuredWhen: {
+    flex: 1,
+    fontSize: 15,
+    color: Colors.textSecondary,
+    lineHeight: 22,
+  },
+
+  // ── Library list ─────────────────────────────────────────────────────────────
+  libraryList: {
+    gap: 2,
+  },
+  libraryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.surface1,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    paddingHorizontal: Spacing.smMd,
+    borderWidth: 1,
+    borderColor: Colors.line,
+  },
+  libraryBadge: {
+    width: 52, height: 52, borderRadius: Radius.sm,
+    borderWidth: 1,
+    alignItems: 'center', justifyContent: 'center',
+    gap: 0,
+  },
+  libraryHz: {
+    fontSize: 17, fontWeight: '800', lineHeight: 20,
+  },
+  libraryHzUnit: {
+    fontSize: 9, fontWeight: '600', opacity: 0.8,
+  },
+  libraryMeta: {
+    flex: 1,
+    gap: 2,
+  },
+  libraryName: {
+    fontSize: 17, color: Colors.textPrimary, fontFamily: Fonts.bodyMedium,
+  },
+  libraryTagline: {
+    fontSize: 13, color: Colors.textDim,
+  },
+  libraryPlayBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  libraryPlayIcon: {
+    fontSize: 12, color: Colors.textSecondary,
+  },
+  libraryPlayIconActive: {
+    color: Colors.background,
   },
 })

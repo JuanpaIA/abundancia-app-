@@ -189,8 +189,8 @@ export function PaymentScreen({ userId, email, selectedPlan, onSelectPlan, onPay
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40, gap: Spacing.md },
+  container: { flex: 1 },
+  content: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100, gap: Spacing.md },
   emoji: { fontSize: 40, textAlign: 'center', color: Colors.gold },
   title: {
     fontSize: 26, color: Colors.textPrimary, fontFamily: Fonts.headingSemiBold,

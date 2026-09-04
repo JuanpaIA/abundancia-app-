@@ -154,6 +154,57 @@ CREATE POLICY "Admin actualiza error_reports"
 
 
 -- ══════════════════════════════════════════════════════════════════════════════
+-- STORAGE: storage.objects — bucket "vision-boards"
+-- Requisito: el bucket debe existir como PRIVADO en el dashboard de Supabase.
+-- Las políticas de storage se aplican sobre storage.objects (tabla de Supabase Storage).
+-- Cada política filtra por bucket_id y verifica que la carpeta raíz del path
+-- coincida con el uid del usuario autenticado ({user_id}/{filename}).
+--
+-- SELECT: la usuaria ve solo sus propias imágenes.
+-- INSERT: la usuaria sube solo a su propia carpeta.
+-- UPDATE: necesario para upsert ({upsert:true}) — reemplaza el archivo si ya existe.
+-- DELETE: la usuaria borra solo sus propias imágenes.
+-- ══════════════════════════════════════════════════════════════════════════════
+
+DROP POLICY IF EXISTS "Leer propias imágenes"        ON storage.objects;
+DROP POLICY IF EXISTS "Subir propias imágenes"        ON storage.objects;
+DROP POLICY IF EXISTS "Reemplazar propias imágenes"   ON storage.objects;
+DROP POLICY IF EXISTS "Borrar propias imágenes"       ON storage.objects;
+
+CREATE POLICY "Leer propias imágenes"
+  ON storage.objects FOR SELECT
+  USING (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Subir propias imágenes"
+  ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Reemplazar propias imágenes"
+  ON storage.objects FOR UPDATE
+  USING (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  )
+  WITH CHECK (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Borrar propias imágenes"
+  ON storage.objects FOR DELETE
+  USING (
+    bucket_id = 'vision-boards'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+
+-- ══════════════════════════════════════════════════════════════════════════════
 -- ROLLBACK — ejecutar completo si algo se rompe al aplicar lo anterior
 -- ══════════════════════════════════════════════════════════════════════════════
 
@@ -188,4 +239,10 @@ DROP POLICY IF EXISTS "Usuario autenticado inserta error_reports" ON public.erro
 DROP POLICY IF EXISTS "Admin lee error_reports"                   ON public.error_reports;
 DROP POLICY IF EXISTS "Admin actualiza error_reports"             ON public.error_reports;
 ALTER TABLE public.error_reports DISABLE ROW LEVEL SECURITY;
+
+-- storage.objects (vision-boards)
+DROP POLICY IF EXISTS "Leer propias imágenes"        ON storage.objects;
+DROP POLICY IF EXISTS "Subir propias imágenes"        ON storage.objects;
+DROP POLICY IF EXISTS "Reemplazar propias imágenes"   ON storage.objects;
+DROP POLICY IF EXISTS "Borrar propias imágenes"       ON storage.objects;
 */

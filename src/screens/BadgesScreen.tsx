@@ -339,7 +339,7 @@ export function BadgesScreen({ onBack }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 40 },
+  scroll: { padding: Spacing.lg, paddingTop: 60, paddingBottom: 100 },
 
   header: { marginBottom: Spacing.lg, gap: Spacing.xs },
   back: { color: Colors.plum, fontSize: 15, marginBottom: Spacing.sm },

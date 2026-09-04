@@ -10,8 +10,6 @@ import type { ProgressDay } from '../hooks/useStats'
 import { Card } from '../components/ui/Card'
 import { Colors, Spacing, Radius, Fonts } from '../constants/theme'
 import { ScreenBackground } from '../components/ui/ScreenBackground'
-import { useTheme, PALETTES } from '../contexts/ThemeContext'
-import type { AppPalette } from '../contexts/ThemeContext'
 import { supabase } from '../services/supabase'
 import { DailyLog } from '@lumina/core'
 import { getPhaseInfo } from '@lumina/core'
@@ -227,7 +225,6 @@ const NUMEROLOGY_INFO: Record<number, NumerologyInfo> = {
 // ── Main screen ───────────────────────────────────────────────────────────────
 
 export function ProfileScreen({ bottomInset = 0 }: { bottomInset?: number }) {
-  const { palette, setTheme } = useTheme()
   const { profile, signOut, refreshProfile } = useAuth()
 
   const [allLogs,               setAllLogs]               = useState<DailyLog[]>([])
@@ -367,7 +364,7 @@ export function ProfileScreen({ bottomInset = 0 }: { bottomInset?: number }) {
         showsVerticalScrollIndicator={false}
       >
         {/* ── Hero band ── */}
-        <View style={[styles.heroSection, { backgroundColor: palette.hero }]}>
+        <View style={styles.heroSection}>
           <Text style={styles.wordmark}>lumina</Text>
           <Text style={styles.greeting}>{firstName}.</Text>
           <Text style={styles.sub}>Día {Math.min(planDay, planDuration)} · Plan {planDuration} días</Text>
@@ -530,28 +527,23 @@ export function ProfileScreen({ bottomInset = 0 }: { bottomInset?: number }) {
           )
         })()}
 
-        {/* ── Tema ── */}
+        {/* ── Tu identidad energética ── */}
         <View style={styles.navSection}>
-          <Text style={styles.navSectionLabel}>TEMA DE COLOR</Text>
-          <View style={themeStyles.row}>
-            {PALETTES.map(p => {
-              const active = palette.name === p.name
-              return (
-                <TouchableOpacity
-                  key={p.name}
-                  style={[themeStyles.swatch, active && { borderColor: p.accent, borderWidth: 2 }]}
-                  onPress={() => setTheme(p.name)}
-                  activeOpacity={0.8}
-                >
-                  <View style={[themeStyles.circle, { backgroundColor: p.hero }]}>
-                    {active && <Text style={themeStyles.check}>✦</Text>}
-                  </View>
-                  <Text style={[themeStyles.swatchLabel, active && { color: p.accent, fontFamily: Fonts.bodySemiBold }]}>
-                    {p.emoji} {p.name === 'rosa' ? 'Rosa' : 'Morado'}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
+          <Text style={styles.navSectionLabel}>TU IDENTIDAD ENERGÉTICA</Text>
+          <View style={identityStyles.chips}>
+            <View style={identityStyles.chip}>
+              <Text style={identityStyles.chipText}>
+                Número {profile.numerology_number}{numInfo?.archetype ? ` · ${numInfo.archetype}` : ''}
+              </Text>
+            </View>
+            <View style={identityStyles.chip}>
+              <Text style={identityStyles.chipText}>{profile.zodiac_sign}</Text>
+            </View>
+            <View style={identityStyles.chip}>
+              <Text style={identityStyles.chipText}>
+                {IDENTITY_AREA_LABELS[profile.manifestation_area] ?? profile.manifestation_area}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -663,16 +655,14 @@ function NavRow({ emoji, label, onPress }: { emoji: string; label: string; onPre
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container:   { flex: 1, backgroundColor: Colors.card },
+  container:   { flex: 1 },
   heroSection: {
-    backgroundColor: Colors.roseHero,
+    backgroundColor: 'transparent',
     paddingTop: 72, paddingBottom: 44,
     paddingHorizontal: Spacing.lg,
   },
   cardsSurface: {
-    backgroundColor: Colors.card,
-    borderTopLeftRadius: Radius.xl,
-    borderTopRightRadius: Radius.xl,
+    backgroundColor: 'transparent',
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
     gap: Spacing.md,
@@ -682,12 +672,12 @@ const styles = StyleSheet.create({
   wordmark: { fontSize: 11, letterSpacing: 3, color: Colors.heroTextMuted,
               fontFamily: Fonts.bodySemiBold, marginBottom: Spacing.md },
   greeting: { fontSize: 36, fontFamily: Fonts.headingItalic, color: Colors.heroText, marginBottom: 2 },
-  sub:      { fontSize: 13, color: Colors.heroTextMuted, fontFamily: Fonts.body },
+  sub:      { fontSize: 17, color: Colors.heroTextMuted, fontFamily: Fonts.body },
 
   card: { marginBottom: 0 },
-  sectionLabel: { fontSize: 13, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary,
+  sectionLabel: { fontSize: 15, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary,
                   letterSpacing: 0.3, marginBottom: 3 },
-  sectionSub:   { fontSize: 12, color: Colors.textSecondary, marginBottom: Spacing.md },
+  sectionSub:   { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
 
   // Streak
   streakCard: {
@@ -720,14 +710,14 @@ const styles = StyleSheet.create({
   planPhaseEmoji: { fontSize: 28 },
   planEyebrow:   { fontSize: 8, color: Colors.plum, opacity: 0.65, letterSpacing: 2,
                    fontFamily: Fonts.bodySemiBold },
-  planPhaseName: { fontSize: 16, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary },
+  planPhaseName: { fontSize: 18, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary },
   planPct:       { fontSize: 24, fontFamily: Fonts.headingItalic, color: Colors.plum },
   planBarTrack:  { height: 4, borderRadius: 2, backgroundColor: 'rgba(42,27,34,0.10)' },
   planBarFill:   { height: 4, borderRadius: 2, backgroundColor: Colors.plum },
   planStatsRow:  { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   planStat:      { flex: 1, alignItems: 'center' },
-  planStatVal:   { fontSize: 15, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary },
-  planStatLbl:   { fontSize: 10, color: Colors.textSecondary },
+  planStatVal:   { fontSize: 17, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary },
+  planStatLbl:   { fontSize: 11, color: Colors.textSecondary },
   planStatSep:   { width: 1, height: 28, backgroundColor: Colors.border },
 
   // Weak habits
@@ -735,7 +725,7 @@ const styles = StyleSheet.create({
                        borderTopColor: Colors.border },
   patternItemHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   patternEmoji:      { fontSize: 18 },
-  patternName:       { flex: 1, fontSize: 13, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold },
+  patternName:       { flex: 1, fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.bodySemiBold },
   patternBadge:      { borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2,
                        backgroundColor: 'rgba(224,85,85,0.12)',
                        borderWidth: 1, borderColor: 'rgba(224,85,85,0.3)' },
@@ -745,7 +735,7 @@ const styles = StyleSheet.create({
   patternTipBox:     { backgroundColor: Colors.cardBg, borderRadius: 8,
                        padding: Spacing.sm, gap: 4 },
   patternTipLabel:   { fontSize: 10, color: Colors.plum, fontFamily: Fonts.bodySemiBold, opacity: 0.8 },
-  patternTip:        { fontSize: 12, color: Colors.textSecondary, lineHeight: 17 },
+  patternTip:        { fontSize: 15, color: Colors.textSecondary, lineHeight: 22 },
 
   // Numerología
   numCard: {
@@ -760,14 +750,14 @@ const styles = StyleSheet.create({
                     alignItems: 'center', justifyContent: 'center' },
   numBadgeNum:    { fontSize: 18, fontFamily: Fonts.headingItalic, color: Colors.plum },
   numTitles:      { flex: 1, gap: 4 },
-  numArchetype:   { fontSize: 15, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary },
+  numArchetype:   { fontSize: 18, fontFamily: Fonts.bodySemiBold, color: Colors.textPrimary },
   numKeywords:    { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   numKeywordPill: { borderRadius: 10, paddingHorizontal: 7, paddingVertical: 2,
                     backgroundColor: Colors.plumDim,
                     borderWidth: 1, borderColor: Colors.borderPurple },
   numKeywordText: { fontSize: 10, color: Colors.plum, opacity: 0.85 },
-  numEnergy:      { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  numShadow:      { fontSize: 12, color: Colors.textDim, fontStyle: 'italic' },
+  numEnergy:      { fontSize: 17, color: Colors.textSecondary, lineHeight: 26 },
+  numShadow:      { fontSize: 15, color: Colors.textDim, fontStyle: 'italic' },
 
   // Navigation section
   navSection: {
@@ -787,7 +777,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: Colors.border,
   },
   navRowEmoji:   { fontSize: 18, width: 26, textAlign: 'center' },
-  navRowLabel:   { flex: 1, fontSize: 15, color: Colors.textPrimary, fontFamily: Fonts.body },
+  navRowLabel:   { flex: 1, fontSize: 17, color: Colors.textPrimary, fontFamily: Fonts.body },
   navRowChevron: { fontSize: 22, color: Colors.textSecondary, marginTop: -2 },
 
   // Sign out
@@ -832,13 +822,13 @@ const styles = StyleSheet.create({
   signalsSection: {
     borderRadius: Radius.lg,
     borderWidth: 1, borderColor: Colors.borderGold,
-    backgroundColor: Colors.goldDim,
+    backgroundColor: Colors.surface1,
     overflow: 'hidden',
     marginBottom: Spacing.md,
   },
   signalsSummary: {
-    fontSize: 12, color: Colors.gold, fontFamily: Fonts.bodySemiBold,
-    paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm,
+    fontSize: 15, color: Colors.gold, fontFamily: Fonts.bodySemiBold,
+    paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, paddingBottom: Spacing.sm,
   },
   signalRow: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
@@ -860,42 +850,41 @@ const styles = StyleSheet.create({
   },
   signalMeta: { flex: 1, gap: 2 },
   signalDate: {
-    fontSize: 10, color: Colors.textSecondary, letterSpacing: 0.5,
+    fontSize: 10, color: Colors.textDim, letterSpacing: 0.5,
     fontFamily: Fonts.body,
   },
   signalReading: {
-    fontSize: 12, color: Colors.textPrimary, lineHeight: 17,
+    fontSize: 15, color: Colors.textPrimary, lineHeight: 22,
     fontFamily: Fonts.body,
   },
 })
 
-const themeStyles = StyleSheet.create({
-  row: {
+const IDENTITY_AREA_LABELS: Record<string, string> = {
+  dinero:    'Abundancia Financiera',
+  amor:      'Amor y Relaciones',
+  salud:     'Salud y Vitalidad',
+  proposito: 'Propósito de Vida',
+  felicidad: 'Felicidad y Paz',
+}
+
+const identityStyles = StyleSheet.create({
+  chips: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
     paddingVertical: Spacing.xs,
   },
-  swatch: {
-    flex: 1,
-    alignItems: 'center',
-    gap: Spacing.xs,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.lg,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    backgroundColor: Colors.cardBg,
+  chip: {
+    backgroundColor: Colors.surface2,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: Colors.line,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
   },
-  circle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  check: { fontSize: 18, color: '#fff' },
-  swatchLabel: {
-    fontSize: 13,
+  chipText: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 12,
     color: Colors.textSecondary,
-    fontFamily: Fonts.body,
   },
 })
